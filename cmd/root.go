@@ -29,19 +29,18 @@ var (
 
 	// cfgFile is the file path given by the user via the config flag.
 	// cfgFile string
-
 	// verboseFlag is the bool for the persistent flag verbose.
 	verboseFlag bool
 )
 
 const (
-	// defaultRegistryAddress is teh default address the registry will listen on.
+	// defaultRegistryAddress is the default address the registry will listen on.
 	defaultRegistryAddress = "0.0.0.0"
 	// defaultRegistryPort is the default port the registry will listen on.
 	defaultRegistryPort = 9090
 
 	// configFlagName is the name of the config flag.
-	configFlagName = "config"
+	// configFlagName = "config"
 	// verboseFlagName is the name of the verbose flag.
 	verboseFlagName = "verbose"
 )
