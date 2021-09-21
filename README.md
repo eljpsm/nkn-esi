@@ -10,3 +10,9 @@ resilient electricity grid.
 By developing NKN-ESI, we hope to show that an ESI which leverages NKN could be a very simple, secure, and resilient
 mechanism for building, factory, facility, or distributed energy resource operators to offer and provide energy services
 to a range of entities responsible for aspects of grid stability.
+
+## Previous Work
+
+A previous application of this ESI can be found at
+[SolarNetwork](https://github.com/SolarNetwork/der-challenge-prototype), developed for the
+[SEPA DER Challenge](https://sepapower.org/plug-and-play-der-challenge/).
