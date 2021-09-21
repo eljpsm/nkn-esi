@@ -17,18 +17,27 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 )
 
-// registryCmd represents the registry command
-var registryCmd = &cobra.Command{
-	Use:   "registry",
-	Short: "Manage registry entries",
-	Long: `Manage registry entries.`,
-	Args: cobra.ExactArgs(1),
+// registryListCmd represents the list command
+var registryListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List the available exchanges in the registry",
+	Long: `List the available exchanges in the registry.`,
+	Args: cobra.MaximumNArgs(0),
+	Run: registryList,
 }
 
-// init initializes registry.go.
+// init initializes registry_list.go.
 func init() {
-	rootCmd.AddCommand(registryCmd)
+	registryCmd.AddCommand(registryListCmd)
+}
+
+// registryList is the function run by registryListCmd.
+func registryList(cmd *cobra.Command, args []string) {
+	if verboseFlag {
+		fmt.Println("Listing Registry entries ...")
+	}
 }

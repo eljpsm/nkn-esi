@@ -17,27 +17,29 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
-	"os"
-
-	"github.com/spf13/viper"
 )
 
 var (
 	// userHome is the current user's home directory.
-	userHome, _ = os.UserHomeDir()
+	// userHome, _ = os.UserHomeDir()
 
 	// defaultCfgFile is the default config file path.
-	defaultCfgFile = fmt.Sprintf("%s/.config/nkn-esi/nkn-esi.yaml", userHome)
+	// defaultCfgFile = fmt.Sprintf("%s/.config/nkn-esi/nkn-esi.yaml", userHome)
 
 	// cfgFile is the file path given by the user via the config flag.
-	cfgFile string
-	// verbose is the bool for the persistent flag verbose.
+	// cfgFile string
+
+	// verboseFlag is the bool for the persistent flag verbose.
 	verboseFlag bool
 )
 
 const (
+	// defaultRegistryAddress is teh default address the registry will listen on.
+	defaultRegistryAddress = "0.0.0.0"
+	// defaultRegistryPort is the default port the registry will listen on.
+	defaultRegistryPort = 9090
+
 	// configFlagName is the name of the config flag.
 	configFlagName = "config"
 	// verboseFlagName is the name of the verbose flag.
@@ -66,31 +68,33 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initMain)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, configFlagName, "", fmt.Sprintf("config file (default is %s", defaultCfgFile))
+	// rootCmd.PersistentFlags().StringVar(&cfgFile, configFlagName, "", fmt.Sprintf("config file (default is %s", defaultCfgFile))
 	rootCmd.PersistentFlags().BoolVarP(&verboseFlag, verboseFlagName, "v", false, "make the operation more talkative")
 }
 
 // initMain is the main initialization function.
 func initMain() {
-	initConfig()
+	// initConfig()
 }
 
 // initConfig reads in config file and ENV variables if set.
-func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		if verboseFlag {
-			fmt.Printf("Reading config from: %s\n", cfgFile)
-		}
-		viper.SetConfigFile(cfgFile)
-	}
-	viper.SetConfigFile(defaultCfgFile)
-	viper.AutomaticEnv() // read in environment variables that match
-
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		if verboseFlag {
-			fmt.Printf("Reading config from: %s\n", defaultCfgFile)
-		}
-	}
-}
+// func initConfig() {
+// 	if cfgFile != "" {
+// 		// Use config file from the flag.
+// 		if verboseFlag {
+// 			fmt.Printf("Reading config from: %s\n", cfgFile)
+// 		}
+// 		viper.SetConfigFile(cfgFile)
+// 	} else {
+// 		viper.SetConfigFile(defaultCfgFile)
+//
+// 		// If a config file is found, read it in.
+// 		if err := viper.ReadInConfig(); err == nil {
+// 			if verboseFlag {
+// 				fmt.Printf("Reading config from: %s\n", defaultCfgFile)
+// 			}
+// 		}
+// 	}
+//
+// 	viper.AutomaticEnv() // read in environment variables that match
+// }
