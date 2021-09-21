@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 NAME HERE <EMAIL ADDRESS>
+Copyright © 2021 Ecogy Energy
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,31 +13,47 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cmd
 
 import (
 	"fmt"
-	"os"
 	"github.com/spf13/cobra"
+	"os"
 
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var (
+	// userHome is the current user's home directory.
+	userHome, _ = os.UserHomeDir()
+
+	// defaultCfgFile is the default config file path.
+	defaultCfgFile = fmt.Sprintf("%s/.config/nkn-esi/nkn-esi.yaml", userHome)
+
+	// cfgFile is the file path given by the user via the config flag.
+	cfgFile string
+	// verbose is the bool for the persistent flag verbose.
+	verboseFlag bool
+)
+
+const (
+	// configFlagName is the name of the config flag.
+	configFlagName = "config"
+	// verboseFlagName is the name of the verbose flag.
+	verboseFlagName = "verbose"
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "nkn-esi",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "NKN-ESI (or nESI) is an NKN based Energy Services Interface (ESI)",
+	Long: `NKN-ESI (or nESI) is an NKN based Energy Services Interface (ESI).
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+Create and maintain facilities and registries. NKN-ESI can be used to facilitate
+services such as load shifting, or the timed increased consumption of energy.
+This allows an aggregator, utility, or distribution system operator to easily
+and cost effectively maintain a stable and resilient electricity grid.`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -46,40 +62,35 @@ func Execute() {
 	cobra.CheckErr(rootCmd.Execute())
 }
 
+// init initializes root.go.
 func init() {
-	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(initMain)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
+	rootCmd.PersistentFlags().StringVar(&cfgFile, configFlagName, "", fmt.Sprintf("config file (default is %s", defaultCfgFile))
+	rootCmd.PersistentFlags().BoolVarP(&verboseFlag, verboseFlagName, "v", false, "make the operation more talkative")
+}
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.nkn-esi.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+// initMain is the main initialization function.
+func initMain() {
+	initConfig()
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
 		// Use config file from the flag.
+		if verboseFlag {
+			fmt.Printf("Reading config from: %s\n", cfgFile)
+		}
 		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := os.UserHomeDir()
-		cobra.CheckErr(err)
-
-		// Search config in home directory with name ".nkn-esi" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigType("yaml")
-		viper.SetConfigName(".nkn-esi")
 	}
-
+	viper.SetConfigFile(defaultCfgFile)
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+		if verboseFlag {
+			fmt.Printf("Reading config from: %s\n", defaultCfgFile)
+		}
 	}
 }
