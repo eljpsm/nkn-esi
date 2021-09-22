@@ -23,7 +23,7 @@ import (
 
 // registryListCmd represents the list command
 var registryListCmd = &cobra.Command{
-	Use:   "list",
+	Use:   "list <registry-config.json>",
 	Short: "List the available Facilities in the Registry",
 	Long: `List the available Facilities in the Registry.`,
 	Args: cobra.ExactArgs(1),
