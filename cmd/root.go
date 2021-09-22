@@ -101,12 +101,18 @@ func initConfig() {
 	viper.ReadInConfig() // read in config
 }
 
-func writeNewCfgFile() {
-	registryPublicKey, registryPrivateKey, _ := newNKNAccount()
+// writeNewCfgFile writes a new config file.
+func writeNewCfgFile() error {
+	registryPublicKey, registryPrivateKey, err := newNKNAccount()
+	if err != nil {
+		return err
+	}
 	viper.Set(registryPublicKeyCfgName, hex.EncodeToString(registryPublicKey))
 	viper.Set(registryPrivateKeyCfgName, hex.EncodeToString(registryPrivateKey))
 
 	viper.WriteConfig()
+
+	return nil
 }
 
 // newNKNAccount returns a new NKN account with a random seed.
@@ -118,13 +124,13 @@ func newNKNAccount() ([]byte, []byte, error) {
 	return account.Seed(), account.PubKey(), nil
 }
 
-func newNKNMulticlient(publicKeyName string, privateKeyName string, baseIdentifier string, numSubClients int) (*nkn.MultiClient, error) {
+// newNKNMulticlient creates a new NKN Multiclient.
+func newNKNMulticlient(privateKeyName string, baseIdentifier string, numSubClients int) (*nkn.MultiClient, error) {
 	if verboseFlag {
 		fmt.Println("Creating new Multiclient ...")
-		fmt.Printf("Base identfier: %s\n", baseIdentifier)
-		fmt.Printf("Number of sub clients: %d\n", numSubClients)
 	}
-	account, err := nkn.NewAccount(nil)
+	privateKey, _ := hex.DecodeString(viper.Get(privateKeyName).(string))
+	account, err := nkn.NewAccount(privateKey)
 	if err != nil {
 		return nil, err
 	}

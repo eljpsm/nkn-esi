@@ -40,14 +40,11 @@ func registryStart(cmd *cobra.Command, args []string) {
 	if verboseFlag {
 		fmt.Printf("Starting Registry ...\n")
 	}
-	//publicKey := viper.Get(registryPublicKeyCfgName).([]byte)
-	//privateKey := viper.Get(registryPrivateKeyCfgName).([]byte)
 
-	//client := newNKNMulticlient()
 	// Create a new Registry Multiclient.
-	//client := newNKNMulticlient("registry", defaultNumSubClients)
+	client, _ := newNKNMulticlient(registryPrivateKeyCfgName, "registry", defaultNumSubClients)
 
 	// Upon successfully connecting, print a message.
-	//<- client.OnConnect.C
+	<- client.OnConnect.C
 	fmt.Println("Connection opened on Registry")
 }
