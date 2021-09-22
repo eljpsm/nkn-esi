@@ -21,32 +21,33 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-)
-
 // registryStartCmd represents the start command
 var registryStartCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Start the registry on the desired address and port",
 	Long:  `Start the registry on the desired address and port.`,
-	Args: cobra.MaximumNArgs(0),
+	Args:  cobra.MaximumNArgs(0),
 	Run:   registryStart,
 }
 
 // init initializes registry_list.go.
 func init() {
 	registryCmd.AddCommand(registryStartCmd)
-
-	registryStartCmd.Flags().StringP("address", "a", defaultRegistryAddress, "the address the registry will listen on")
-	registryStartCmd.Flags().IntP("port", "p", defaultRegistryPort, "the port the registry will listen on")
 }
 
 // registryStart is the function run by registryStartCmd.
 func registryStart(cmd *cobra.Command, args []string) {
-	address, _ := cmd.Flags().GetString("address")
-	port, _ := cmd.Flags().GetInt("port")
-
 	if verboseFlag {
-		fmt.Printf("Starting Registry: %s:%d\n", address, port)
+		fmt.Printf("Starting Registry ...\n")
 	}
+	//publicKey := viper.Get(registryPublicKeyCfgName).([]byte)
+	//privateKey := viper.Get(registryPrivateKeyCfgName).([]byte)
+
+	//client := newNKNMulticlient()
+	// Create a new Registry Multiclient.
+	//client := newNKNMulticlient("registry", defaultNumSubClients)
+
+	// Upon successfully connecting, print a message.
+	//<- client.OnConnect.C
+	fmt.Println("Connection opened on Registry")
 }

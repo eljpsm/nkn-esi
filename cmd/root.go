@@ -17,30 +17,34 @@ limitations under the License.
 package cmd
 
 import (
+	"encoding/hex"
+	"fmt"
+	"github.com/nknorg/nkn-sdk-go"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"os"
 )
 
 var (
 	// userHome is the current user's home directory.
-	// userHome, _ = os.UserHomeDir()
+	userHome, _ = os.UserHomeDir()
 
 	// defaultCfgFile is the default config file path.
-	// defaultCfgFile = fmt.Sprintf("%s/.config/nkn-esi/nkn-esi.yaml", userHome)
+	defaultCfgFile = fmt.Sprintf("%s/.config/nkn-esi/nkn-esi.yaml", userHome)
 
 	// cfgFile is the file path given by the user via the config flag.
-	// cfgFile string
+	cfgFile string
 	// verboseFlag is the bool for the persistent flag verbose.
 	verboseFlag bool
 )
 
 const (
-	// defaultRegistryAddress is the default address the registry will listen on.
-	defaultRegistryAddress = "0.0.0.0"
-	// defaultRegistryPort is the default port the registry will listen on.
-	defaultRegistryPort = 9090
-
+	registryPublicKeyCfgName  = "registry_public_key"
+	registryPrivateKeyCfgName = "registry_private_key"
+	// defaultNumSubClients is the default number of sub clients created using nkn.Multiclient.
+	defaultNumSubClients = 3
 	// configFlagName is the name of the config flag.
-	// configFlagName = "config"
+	configFlagName = "config"
 	// verboseFlagName is the name of the verbose flag.
 	verboseFlagName = "verbose"
 )
@@ -65,35 +69,69 @@ func Execute() {
 
 // init initializes root.go.
 func init() {
-	cobra.OnInitialize(initMain)
+	cobra.OnInitialize(initConfig)
 
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, configFlagName, "", fmt.Sprintf("config file (default is %s", defaultCfgFile))
+	rootCmd.PersistentFlags().StringVar(&cfgFile, configFlagName, "", fmt.Sprintf("config file (default is %s", defaultCfgFile))
 	rootCmd.PersistentFlags().BoolVarP(&verboseFlag, verboseFlagName, "v", false, "make the operation more talkative")
 }
 
-// initMain is the main initialization function.
-func initMain() {
-	// initConfig()
+// initConfig reads in config file and ENV variables if set.
+func initConfig() {
+	if cfgFile != "" {
+		// Use config file from the flag.
+		if verboseFlag {
+			fmt.Printf("Reading config from: %s\n", cfgFile)
+		}
+		viper.SetConfigFile(cfgFile)
+	} else {
+		viper.SetConfigFile(defaultCfgFile)
+
+		// If a config file is found, read it in.
+		if err := viper.ReadInConfig(); err == nil {
+			if verboseFlag {
+				fmt.Printf("Reading config from: %s\n", defaultCfgFile)
+			}
+		} else {
+			// Else, create a new config.
+			writeNewCfgFile()
+		}
+	}
+
+	viper.AutomaticEnv() // read in environment variables that match
+	viper.ReadInConfig() // read in config
 }
 
-// initConfig reads in config file and ENV variables if set.
-// func initConfig() {
-// 	if cfgFile != "" {
-// 		// Use config file from the flag.
-// 		if verboseFlag {
-// 			fmt.Printf("Reading config from: %s\n", cfgFile)
-// 		}
-// 		viper.SetConfigFile(cfgFile)
-// 	} else {
-// 		viper.SetConfigFile(defaultCfgFile)
-//
-// 		// If a config file is found, read it in.
-// 		if err := viper.ReadInConfig(); err == nil {
-// 			if verboseFlag {
-// 				fmt.Printf("Reading config from: %s\n", defaultCfgFile)
-// 			}
-// 		}
-// 	}
-//
-// 	viper.AutomaticEnv() // read in environment variables that match
-// }
+func writeNewCfgFile() {
+	registryPublicKey, registryPrivateKey, _ := newNKNAccount()
+	viper.Set(registryPublicKeyCfgName, hex.EncodeToString(registryPublicKey))
+	viper.Set(registryPrivateKeyCfgName, hex.EncodeToString(registryPrivateKey))
+
+	viper.WriteConfig()
+}
+
+// newNKNAccount returns a new NKN account with a random seed.
+func newNKNAccount() ([]byte, []byte, error) {
+	account, err := nkn.NewAccount(nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	return account.Seed(), account.PubKey(), nil
+}
+
+func newNKNMulticlient(publicKeyName string, privateKeyName string, baseIdentifier string, numSubClients int) (*nkn.MultiClient, error) {
+	if verboseFlag {
+		fmt.Println("Creating new Multiclient ...")
+		fmt.Printf("Base identfier: %s\n", baseIdentifier)
+		fmt.Printf("Number of sub clients: %d\n", numSubClients)
+	}
+	account, err := nkn.NewAccount(nil)
+	if err != nil {
+		return nil, err
+	}
+	client, err := nkn.NewMultiClient(account, baseIdentifier, numSubClients, true, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}
