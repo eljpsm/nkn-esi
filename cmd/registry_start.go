@@ -18,19 +18,27 @@ package cmd
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
+	"io/ioutil"
+	"os"
 )
 
-var registryPrivateKey string
 var registryNumSubClients int
+
+type Registry struct {
+	Name       string   `json:"name"`
+	PrivateKey string   `json:"privateKey"`
+	Peers      []string `json:"peers"`
+}
 
 // registryStartCmd represents the start command
 var registryStartCmd = &cobra.Command{
-	Use:   "start",
+	Use:   "start <registry-config.json>",
 	Short: "Start the registry on the desired address and port",
 	Long:  `Start the registry on the desired address and port.`,
-	Args:  cobra.MaximumNArgs(0),
+	Args:  cobra.ExactArgs(1),
 	Run:   registryStart,
 }
 
@@ -38,7 +46,6 @@ var registryStartCmd = &cobra.Command{
 func init() {
 	registryCmd.AddCommand(registryStartCmd)
 
-	registryStartCmd.Flags().StringVarP(&registryPrivateKey, "private-key", "p", defaultPrivateKey, "private key to start specific instance")
 	registryStartCmd.Flags().IntVarP(&registryNumSubClients, "subclients", "s", defaultNumSubClients, "number of subclients to use in multiclient")
 }
 
@@ -48,29 +55,36 @@ func registryStart(cmd *cobra.Command, args []string) {
 		fmt.Printf("Starting Registry ...\n")
 	}
 
+	registryPath := args[0]
+	var registry Registry
+
 	var private []byte
 	var public []byte
 	var err error
 
-	if registryPrivateKey == "" {
-		// If the user hasn't passed in a private key, create a new one.
-		private, err = newNKNPrivateKey()
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-	} else {
-		// Else, decode the user provided key and use that instead.
-		private, err = hex.DecodeString(registryPrivateKey)
-		if err != nil {
-			fmt.Println(err.Error())
-		}
+	// Open and unmarshal registry file.
+	registryFile, err := os.Open(registryPath)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer registryFile.Close()
+
+	byteValue, err := ioutil.ReadAll(registryFile)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	json.Unmarshal(byteValue, &registry)
+
+	private, err = hex.DecodeString(registry.PrivateKey)
+	if err != nil {
+		fmt.Println(err.Error())
 	}
 
 	// Open a new multiclient with the private key.
 	if verboseFlag {
 		fmt.Printf("Opening Multiclient with private key: %s\n", hex.EncodeToString(private))
 	}
-	client, err := openMulticlient(private)
+	client, err := openMulticlient(private, registryNumSubClients)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -82,4 +96,11 @@ func registryStart(cmd *cobra.Command, args []string) {
 	// Upon successfully connecting, print a message.
 	<-client.OnConnect.C
 	fmt.Println("Connection opened on Registry")
+
+	registryLoop()
+}
+
+func registryLoop() {
+	for {
+	}
 }

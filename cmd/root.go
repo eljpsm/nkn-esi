@@ -98,20 +98,9 @@ func initConfig() {
 	viper.ReadInConfig() // read in config
 }
 
-// newNKNPrivateKey returns a new NKN account with a random seed.
-func newNKNPrivateKey() ([]byte, error) {
-	account, err := nkn.NewAccount(nil)
-	if err != nil {
-		return nil, err
-	}
-
-	secret := account.Seed()
-
-	return secret, nil
-}
 
 // openMulticlient returns a new Multiclient with the given private key.
-func openMulticlient(private []byte) (*nkn.MultiClient, error) {
+func openMulticlient(private []byte, numSubClients int) (*nkn.MultiClient, error) {
 	// Create an account using the private key.
 	account, err := nkn.NewAccount(private)
 	if err != nil {
@@ -119,7 +108,7 @@ func openMulticlient(private []byte) (*nkn.MultiClient, error) {
 	}
 
 	// Create a new multiclient using the private key.
-	client, err := nkn.NewMultiClient(account, "registry", registryNumSubClients, true, nil)
+	client, err := nkn.NewMultiClient(account, "registry", numSubClients, true, nil)
 	if err != nil {
 		return nil, err
 	}
