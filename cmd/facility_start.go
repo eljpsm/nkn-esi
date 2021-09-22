@@ -30,7 +30,7 @@ var facilityStartCmd = &cobra.Command{
 
 // init initializes facility_start.go.
 func init() {
-	rootCmd.AddCommand(facilityStartCmd)
+	facilityCmd.AddCommand(facilityStartCmd)
 }
 
 // facilityStart is the function run by facilityStartCmd.
