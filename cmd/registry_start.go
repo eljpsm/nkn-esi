@@ -17,9 +17,13 @@ limitations under the License.
 package cmd
 
 import (
+	"encoding/hex"
 	"fmt"
 	"github.com/spf13/cobra"
 )
+
+var registryPrivateKey string
+var registryNumSubClients int
 
 // registryStartCmd represents the start command
 var registryStartCmd = &cobra.Command{
@@ -33,6 +37,9 @@ var registryStartCmd = &cobra.Command{
 // init initializes registry_list.go.
 func init() {
 	registryCmd.AddCommand(registryStartCmd)
+
+	registryStartCmd.Flags().StringVarP(&registryPrivateKey, "private-key", "p", "", "private key to start specific instance")
+	registryStartCmd.Flags().IntVarP(&registryNumSubClients, "subclients", "s", defaultNumSubClients, "number of subclients to use in multiclient")
 }
 
 // registryStart is the function run by registryStartCmd.
@@ -41,10 +48,38 @@ func registryStart(cmd *cobra.Command, args []string) {
 		fmt.Printf("Starting Registry ...\n")
 	}
 
-	// Create a new Registry Multiclient.
-	client, _ := newNKNMulticlient(registryPrivateKeyCfgName, "registry", defaultNumSubClients)
+	var private []byte
+	var public []byte
+	var err error
+
+	if registryPrivateKey == "" {
+		// If the user hasn't passed in a private key, create a new one.
+		private, err = newNKNPrivateKey()
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+	} else {
+		// Else, decode the user provided key and use that instead.
+		private, err = hex.DecodeString(registryPrivateKey)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+	}
+
+	// Open a new multiclient with the private key.
+	if verboseFlag {
+		fmt.Printf("Opening Multiclient with private key: %s\n", hex.EncodeToString(private))
+	}
+	client, err := openMulticlient(private)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	public = client.PubKey()
+
+	// Print the key information.
+	printPublicPrivateKeys(private, public)
 
 	// Upon successfully connecting, print a message.
-	<- client.OnConnect.C
+	<-client.OnConnect.C
 	fmt.Println("Connection opened on Registry")
 }

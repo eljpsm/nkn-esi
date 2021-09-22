@@ -39,8 +39,6 @@ var (
 )
 
 const (
-	registryPublicKeyCfgName  = "registry_public_key"
-	registryPrivateKeyCfgName = "registry_private_key"
 	// defaultNumSubClients is the default number of sub clients created using nkn.Multiclient.
 	defaultNumSubClients = 3
 	// configFlagName is the name of the config flag.
@@ -91,9 +89,6 @@ func initConfig() {
 			if verboseFlag {
 				fmt.Printf("Reading config from: %s\n", defaultCfgFile)
 			}
-		} else {
-			// Else, create a new config.
-			writeNewCfgFile()
 		}
 	}
 
@@ -101,43 +96,37 @@ func initConfig() {
 	viper.ReadInConfig() // read in config
 }
 
-// writeNewCfgFile writes a new config file.
-func writeNewCfgFile() error {
-	registryPublicKey, registryPrivateKey, err := newNKNAccount()
-	if err != nil {
-		return err
-	}
-	viper.Set(registryPublicKeyCfgName, hex.EncodeToString(registryPublicKey))
-	viper.Set(registryPrivateKeyCfgName, hex.EncodeToString(registryPrivateKey))
-
-	viper.WriteConfig()
-
-	return nil
-}
-
-// newNKNAccount returns a new NKN account with a random seed.
-func newNKNAccount() ([]byte, []byte, error) {
+// newNKNPrivateKey returns a new NKN account with a random seed.
+func newNKNPrivateKey() ([]byte, error) {
 	account, err := nkn.NewAccount(nil)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	return account.Seed(), account.PubKey(), nil
+
+	secret := account.Seed()
+
+	return secret, nil
 }
 
-// newNKNMulticlient creates a new NKN Multiclient.
-func newNKNMulticlient(privateKeyName string, baseIdentifier string, numSubClients int) (*nkn.MultiClient, error) {
-	if verboseFlag {
-		fmt.Println("Creating new Multiclient ...")
-	}
-	privateKey, _ := hex.DecodeString(viper.Get(privateKeyName).(string))
-	account, err := nkn.NewAccount(privateKey)
-	if err != nil {
-		return nil, err
-	}
-	client, err := nkn.NewMultiClient(account, baseIdentifier, numSubClients, true, nil)
+// openMulticlient returns a new Multiclient with the given private key.
+func openMulticlient(private []byte) (*nkn.MultiClient, error) {
+	// Create an account using the private key.
+	account, err := nkn.NewAccount(private)
 	if err != nil {
 		return nil, err
 	}
 
-	return client, nil
+	// Create a new multiclient using the private key.
+	client, err := nkn.NewMultiClient(account, "registry", registryNumSubClients, true, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, err
+}
+
+// printPublicPrivateKeys prints the provided private and public keys with additional info.
+func printPublicPrivateKeys(private []byte, public []byte) {
+	fmt.Println(fmt.Sprintf("Private Key: %s", hex.EncodeToString(private)))
+	fmt.Println(fmt.Sprintf("Public Key: %s", hex.EncodeToString(public)))
 }
