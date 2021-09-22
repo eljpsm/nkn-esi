@@ -39,6 +39,8 @@ var (
 )
 
 const (
+	// defaultPrivateKey is the default private key which appears on help messages.
+	defaultPrivateKey = ""
 	// defaultNumSubClients is the default number of sub clients created using nkn.Multiclient.
 	defaultNumSubClients = 3
 	// configFlagName is the name of the config flag.

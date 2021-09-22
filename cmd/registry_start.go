@@ -38,7 +38,7 @@ var registryStartCmd = &cobra.Command{
 func init() {
 	registryCmd.AddCommand(registryStartCmd)
 
-	registryStartCmd.Flags().StringVarP(&registryPrivateKey, "private-key", "p", "", "private key to start specific instance")
+	registryStartCmd.Flags().StringVarP(&registryPrivateKey, "private-key", "p", defaultPrivateKey, "private key to start specific instance")
 	registryStartCmd.Flags().IntVarP(&registryNumSubClients, "subclients", "s", defaultNumSubClients, "number of subclients to use in multiclient")
 }
 
