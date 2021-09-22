@@ -1,0 +1,52 @@
+// Copyright 2019 SolarNetwork Foundation.
+// Copyright © 2021 Ecogy Energy
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+syntax = "proto3";
+
+package api.esi;
+
+option go_package = "github.com/elijahjpassmore/api/esi";
+
+import "google/protobuf/timestamp.proto";
+import "api/esi/der_route.proto";
+import "api/esi/location.proto";
+import "api/esi/price_components.proto";
+import "api/esi/time_unit.proto";
+
+/**
+ * Price components associated with a date or time span.
+ */
+message PriceDatum {
+
+  // The route info.
+  DerRoute route = 1;
+
+  // The start date of this power profile (inclusive).
+  google.protobuf.Timestamp ts = 2;
+  
+  // The length of `time_unit` units of time this datum covers, starting from `ts`.
+  uint32 time_length = 3;
+
+  // The time unit used by `time_length`.
+  TimeUnit time_unit = 4;
+  
+  // The power components of this datum.
+  PriceComponents price_components = 5;
+  
+  // The location associated with this price.
+  Location location = 6;
+
+}

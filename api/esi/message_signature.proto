@@ -1,0 +1,45 @@
+// Copyright 2019 SolarNetwork Foundation.
+// Copyright © 2021 Ecogy Energy
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+syntax = "proto3";
+
+package api.esi;
+
+option go_package = "github.com/elijahjpassmore/api/esi";
+
+/**
+ * A cryptographic message signature.
+ *
+ * A message signature is an AES encrypted SHA-256 message digest followed by
+ * a SHA-256 ECDSA signature of that digest. The AES encryption key is derived
+ * from the public EC key of the recipient and the public and private keys of 
+ * the sender, all hashed as a SHA-256 key. The ECDSA signature is signed with
+ * the private key of the sender. Thus the sender and recipient must have
+ * previously exchanged their public keys.
+ *
+ * The message data used in the digest and signature is defined by the message
+ * this signature is included with. The encompassing message must define what
+ * message properties are required.
+ */
+message MessageSignature {
+
+  // The initialization vector used for the symmetric encryption.
+  bytes iv = 1;
+  
+  // An encrypted message digest and signature.
+  bytes signature = 2;
+  
+}

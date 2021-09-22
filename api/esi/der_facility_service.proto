@@ -1,0 +1,122 @@
+// Copyright 2019 SolarNetwork Foundation.
+// Copyright © 2021 Ecogy Energy
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+syntax = "proto3";
+
+package api.esi;
+
+option go_package = "github.com/elijahjpassmore/api/esi";
+
+import "google/protobuf/empty.proto";
+import "api/esi/datum_request.proto";
+import "api/esi/der_facility_registration.proto";
+import "api/esi/der_route.proto";
+import "api/esi/power_parameters.proto";
+import "api/esi/power_profile_datum.proto";
+import "api/esi/price_datum.proto";
+import "api/esi/price_map_offer.proto";
+import "api/esi/price_map_offer_feedback.proto";
+import "api/esi/price_map_offer_feedback_response.proto";
+import "api/esi/price_map_offer_response.proto";
+import "api/esi/price_map_offer_status.proto";
+import "api/esi/price_map_offer_status_request.proto";
+import "api/esi/price_parameters.proto";
+
+/**
+ * The energy services interface (ESI) facility service API, where a facility is
+ * something that manages distributed energy resources (DER).
+ * 
+ * In the Interoperability Strategic Vision document created by the Grid
+ * Modernization Laboratory Consortium, this API is often refered to as an
+ * "Distributed Energy Resource Facility" or DERF for short. See
+ * https://gridmod.labworks.org/resources/interoperability-strategic-vision
+ * for more information.
+ */
+service DerFacilityService {
+
+  // ===========================================================================
+  // DerFacility registration
+  // ===========================================================================
+
+  // Complete the facility registration process, either successfully or as an
+  // error.
+  //
+  // This method is called at some point after a call was made to
+  // `DerOperatorService.SubmitDerFacilityRegistrationForm()`, after the
+  // exchange has completed its validation of the submitted registration form
+  // data. A fully automated system might invoke this method within seconds of
+  // that submission, or a manual verification process might require multiple
+  // days to complete before this method can  be invoked.
+  rpc CompleteDerFacilityRegistration(
+  	api.esi.DerFacilityRegistration)
+  returns (google.protobuf.Empty);
+
+  // ===========================================================================
+  // PriceMap proposals/execution
+  // ===========================================================================
+
+  // Propose a price map offer for the service to accept, reject, or propose a
+  // counter offer.
+  //
+  // The exchange will invoke this method to make a price map offer to the
+  // facility. The facility must respond with either an acceptance/rejection 
+  // of the offer or a counter offer in the form of a different price map proposal.
+  // If a counter offer is proposed, the exchange can then respond with a new offer,
+  // and the process repeats as many times as necessary until the facility responds
+  // with an acceptance/rejection value (without a counter-offer).
+  rpc ProposePriceMapOffer(stream api.esi.PriceMapOffer)
+  returns (stream api.esi.PriceMapOfferResponse);
+  
+  // Get the status of a price map offer.
+  rpc GetPriceMapOfferStatus(api.esi.PriceMapOfferStatusRequest)
+  returns (api.esi.PriceMapOfferStatus);
+  
+  // Provide feedback on a price map offer, after the offer event is over.
+  rpc ProvidePriceMapOfferFeedback(
+  	api.esi.PriceMapOfferFeedback)
+  returns (api.esi.PriceMapOfferFeedbackResponse);
+
+  // Provide pricing data to the facility.
+  rpc ProvidePrices(stream api.esi.PriceDatum)
+  returns (google.protobuf.Empty);
+
+  // ===========================================================================
+  // Data access
+  // ===========================================================================
+
+  // Query for list of power profile datum over a time range.
+  rpc ListPowerProfile(api.esi.DatumRequest)
+  returns (stream api.esi.PowerProfileDatum);
+  
+  // ===========================================================================
+  // Configurable parameters
+  // ===========================================================================
+
+  // Get the power parameters currently used by the service.
+  rpc GetPowerParameters(api.esi.DerRoute)
+  returns (api.esi.PowerParameters);
+  
+  // Set the power parameters, and return the power parameters active after the
+  // request, which may or may not have been changed by the request metrics if
+  // the service cannot or refuses to change them.
+  rpc SetPowerParameters(api.esi.PowerParameters)
+  returns (api.esi.PowerParameters);
+
+  // Get the price metrics currently used by the service.
+  rpc GetPriceParameters(api.esi.DerRoute)
+  returns (api.esi.PriceParameters);
+
+}

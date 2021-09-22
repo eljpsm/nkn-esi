@@ -1,0 +1,43 @@
+// Copyright 2019 SolarNetwork Foundation.
+// Copyright © 2021 Ecogy Energy
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+syntax = "proto3";
+
+package api.esi;
+
+option go_package = "github.com/elijahjpassmore/api/esi";
+
+import "api/esi/der_route.proto";
+import "api/esi/price_map.proto";
+
+// Characteristics of a price map.
+message PriceMapCharacteristics {
+
+  // The routing info.
+  //
+  // The MessageSignature of the route must include the following:
+  //
+  // * `exchange_uid` UTF-8 bytes
+  // * `facility_uid` UTF-8 bytes
+  // 
+  // Then for each `price_map` the properties defined in price_map.proto
+  // must be included.
+  DerRoute route = 1;
+
+  // The price maps on offer.
+  repeated PriceMap price_map = 2;
+
+}

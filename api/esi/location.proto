@@ -1,0 +1,57 @@
+// Copyright 2019 SolarNetwork Foundation.
+// Copyright © 2021 Ecogy Energy
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+syntax = "proto3";
+
+package api.esi;
+
+option go_package = "github.com/elijahjpassmore/api/esi";
+
+import "api/esi/latlng.proto";
+
+// A discreet unit of time, using Gregorian calendar units where appropriate.
+message Location {
+
+  // CLDR region code of the country/region of the location.
+  string country = 1;
+  
+  // A country-specific regional identifier.
+  string region = 2;
+  
+  // A full IANA tz database time zone name. See https://www.iana.org/time-zones or
+  // https://en.wikipedia.org/wiki/List_of_tz_database_time_zones.
+  string time_zone = 3;
+  
+  // Get a country-specific high-level administrative area identifier such as state, province, or
+  // prefecture.
+  string state_province = 4;
+  
+  // A postal code.
+  string postal_code = 5;
+  
+  // A city or town.
+  string locality = 6;
+  
+  // A portion of a location, such as a neighborhood, borough, or district.
+  string sublocality = 7;
+  
+  // Street level address.
+  repeated string street_address = 8;
+  
+  // A latitude/longitude coordinate.
+  LatLng latlng = 9;
+
+}
