@@ -6,6 +6,7 @@ require (
 	github.com/nknorg/nkn-sdk-go v1.3.6
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.9.0
+	google.golang.org/protobuf v1.27.1
 )
 
 require (
@@ -33,7 +34,6 @@ require (
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
 	golang.org/x/sys v0.0.0-20210823070655-63515b42dcdf // indirect
 	golang.org/x/text v0.3.6 // indirect
-	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/ini.v1 v1.63.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
