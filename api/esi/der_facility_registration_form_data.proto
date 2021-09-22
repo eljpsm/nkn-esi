@@ -1,0 +1,77 @@
+// Copyright 2019 SolarNetwork Foundation.
+// Copyright 2021 Ecogy Energy.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+syntax = "proto3";
+
+package api.esi;
+
+option go_package = "github.com/elijahjpassmore/api/esi";
+
+import "api/esi/crypto_key.proto";
+import "api/esi/form_data.proto";
+import "api/esi/der_route.proto";
+
+/**
+ * A filled-in DER facility registration form.
+ */
+message DerFacilityRegistrationFormData {
+
+  // The UID of the DerFacilityExchange to register with and a facility-
+  // provided unique ID that the exchange can refer to the facility by.
+  // 
+  // The exchange ID value will have been previously provided via a
+  // `DerFacilityRegistrationForm` message.
+  // 
+  // The facility ID must be unique at least within the domain represented by
+  // `facility_endpoint_uri`. That is, the ID must be unique within the facility.
+  // This ID is defined externally to this API. If a facility is directly
+  // connected to an exchange, the facility might generate its own unique ID,
+  // for example as a UUID. If a facility sits behind a proxy or aggregator
+  // service, then the proxy or aggregator service might be responsible for
+  // generating unique IDs. In that case, this facility must provide some
+  // external method of obtaining its ID from that service. For example, when an
+  // EV charger first boots it might come pre-configured to register itself with
+  // a proxy service, or prompt for registration with a proxy service; either
+  // way it obtains its facility ID which is then passed to the exchange here.
+  //
+  // Note that the MessageSignature of the route must include the 
+  // `facility_endpoint_uri` UTF-8 bytes and `facility_nonce` values. The 
+  // recipient's public key should already have been obtained by the facility,
+  // and the facility's public key is included in this message.
+  DerRoute route = 1;
+  
+  // The gRPC compliant URI the exchange can access the facility on.
+  // 
+  // This endpoint might be a direct connection to the facility submitting the
+  // registration form, or it might be a proxy facility that manages the ESI
+  // service on behalf of the facility submitting the registration form.
+  string facility_endpoint_uri = 2;
+  
+  // A cryptographic set of random bytes to use with registration.
+  // 
+  // This nonce is used to support a facility proxy service, so that when the
+  // `CompleteDerFacilityRegistration` method is called on the proxy, the
+  // facility submitting the registration form can verify the exchange is the
+  // same during both interactions.
+  bytes facility_nonce = 3;
+  
+  // The facility's public key.
+  CryptoKey facility_public_key = 4;
+
+  // The completed registration form.
+  FormData data = 5;
+  
+}

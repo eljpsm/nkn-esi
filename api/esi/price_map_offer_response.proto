@@ -1,0 +1,65 @@
+// Copyright 2019 SolarNetwork Foundation.
+// Copyright 2021 Ecogy Energy.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+syntax = "proto3";
+
+package api.esi;
+
+option go_package = "github.com/elijahjpassmore/api/esi";
+
+import "api/esi/der_route.proto";
+import "api/esi/price_map.proto";
+import "api/esi/uuid.proto";
+
+// A response to an offer on a price map.
+//
+// An offer response is considered "final" if the `accept` field is set to
+// true or false. Otherwise, the `counter_offer` must be populated with a 
+// proposed counter offer and the offer is considered "pending" still.
+message PriceMapOfferResponse {
+
+  // The routing info.
+  //
+  // The MessageSignature of the route must include the following:
+  //
+  // * `exchange_uid` UTF-8 bytes
+  // * `facility_uid` UTF-8 bytes
+  // * `offer_id.hi` big-endian encoded bytes
+  // * `offer_id.lo` big-endian encoded bytes
+  //
+  // Then, if the response is "final":
+  //  
+  // * `accepted` 0x01 for true, 0x00 for false
+  // 
+  // Otherwise, when the response has a counter offer, then all the 
+  // `price_map` properties defined in price_map.proto must be included.
+  DerRoute route = 1;
+
+  // The globally unique ID of this offer.
+  Uuid offer_id = 2;
+
+  // Either the offer is accepted/rejected and considered "final", or a 
+  // counter-offer is proposed and the offer is considered "pending" still.
+  oneof accept_oneof {
+  
+    // An accept/reject flag.
+    bool accept = 3;
+    
+    // The price map on offer.
+    PriceMap counter_offer = 4;
+  }
+
+}
