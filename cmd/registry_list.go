@@ -24,10 +24,10 @@ import (
 // registryListCmd represents the list command
 var registryListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List the available exchanges in the registry",
-	Long: `List the available exchanges in the registry.`,
-	Args: cobra.MaximumNArgs(0),
-	Run: registryList,
+	Short: "List the available facilities in the registry",
+	Long: `List the available facilities in the registry.`,
+	Args: cobra.ExactArgs(1),
+	RunE: registryList,
 }
 
 // init initializes registry_list.go.
@@ -36,8 +36,17 @@ func init() {
 }
 
 // registryList is the function run by registryListCmd.
-func registryList(cmd *cobra.Command, args []string) {
+func registryList(cmd *cobra.Command, args []string) error {
 	if verboseFlag {
-		fmt.Println("Listing Registry entries ...")
+		fmt.Println("Listing Registry facilities ...")
 	}
+	registry, err := openRegistry(args[0])
+	if err != nil {
+		return err
+	}
+	for _, s := range registry.Facilities {
+		fmt.Println(s)
+	}
+
+	return nil
 }

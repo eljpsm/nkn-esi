@@ -17,7 +17,6 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
 	"github.com/nknorg/nkn-sdk-go"
 	"github.com/spf13/cobra"
 )
@@ -30,25 +29,27 @@ var keysCmd = &cobra.Command{
 
 Be sure to write down the private key for later!
 `,
-	Run: newKeyPair,
+	RunE: newKeyPair,
 }
 
 func init() {
 	rootCmd.AddCommand(keysCmd)
 }
 
-func newKeyPair(cmd *cobra.Command, args []string) {
+func newKeyPair(cmd *cobra.Command, args []string) error {
 	private, err := newNKNPrivateKey()
 	if err != nil {
-		fmt.Println(err.Error())
+		return err
 	}
 	client, err := openMulticlient(private, defaultNumSubClients)
 	if err != nil {
-		fmt.Println(err.Error())
+		return err
 	}
 	public := client.PubKey()
 
 	printPublicPrivateKeys(private, public)
+
+	return nil
 }
 
 // newNKNPrivateKey returns a new NKN account with a random seed.

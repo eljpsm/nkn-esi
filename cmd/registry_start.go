@@ -18,20 +18,11 @@ package cmd
 
 import (
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
-	"io/ioutil"
-	"os"
 )
 
 var registryNumSubClients int
-
-type Registry struct {
-	Name       string   `json:"name"`
-	PrivateKey string   `json:"privateKey"`
-	Peers      []string `json:"peers"`
-}
 
 // registryStartCmd represents the start command
 var registryStartCmd = &cobra.Command{
@@ -39,7 +30,7 @@ var registryStartCmd = &cobra.Command{
 	Short: "Start the registry on the desired address and port",
 	Long:  `Start the registry on the desired address and port.`,
 	Args:  cobra.ExactArgs(1),
-	Run:   registryStart,
+	RunE:   registryStart,
 }
 
 // init initializes registry_list.go.
@@ -50,34 +41,25 @@ func init() {
 }
 
 // registryStart is the function run by registryStartCmd.
-func registryStart(cmd *cobra.Command, args []string) {
+func registryStart(cmd *cobra.Command, args []string) error {
 	if verboseFlag {
 		fmt.Printf("Starting Registry ...\n")
 	}
 
 	registryPath := args[0]
-	var registry Registry
 
 	var private []byte
 	var public []byte
 	var err error
 
-	// Open and unmarshal registry file.
-	registryFile, err := os.Open(registryPath)
+	registry, err := openRegistry(registryPath)
 	if err != nil {
-		fmt.Println(err.Error())
+		return err
 	}
-	defer registryFile.Close()
-
-	byteValue, err := ioutil.ReadAll(registryFile)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	json.Unmarshal(byteValue, &registry)
 
 	private, err = hex.DecodeString(registry.PrivateKey)
 	if err != nil {
-		fmt.Println(err.Error())
+		return err
 	}
 
 	// Open a new multiclient with the private key.
@@ -86,7 +68,7 @@ func registryStart(cmd *cobra.Command, args []string) {
 	}
 	client, err := openMulticlient(private, registryNumSubClients)
 	if err != nil {
-		fmt.Println(err.Error())
+		return err
 	}
 	public = client.PubKey()
 
@@ -98,6 +80,8 @@ func registryStart(cmd *cobra.Command, args []string) {
 	fmt.Println("Connection opened on Registry")
 
 	registryLoop()
+
+	return nil
 }
 
 func registryLoop() {
