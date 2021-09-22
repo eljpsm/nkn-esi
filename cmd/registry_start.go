@@ -45,7 +45,7 @@ func init() {
 // registryStart is the function run by registryStartCmd.
 func registryStart(cmd *cobra.Command, args []string) error {
 	if verboseFlag {
-		fmt.Printf("Starting Registry ...\n")
+		fmt.Printf("Starting Registry instance ...\n")
 	}
 
 	// The path to the registry config should be the first and only argument.
@@ -91,8 +91,11 @@ func registryStart(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// registryLoop is the main loop of Registry.
+// registryLoop is the main loop of a Registry.
 func registryLoop(client *nkn.MultiClient) error {
+	if verboseFlag {
+		fmt.Printf("Entering registryLoop ...\n")
+	}
 	for {
 	}
 }

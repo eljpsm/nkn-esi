@@ -17,6 +17,8 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
+	"github.com/nknorg/nkn-sdk-go"
 	"github.com/spf13/cobra"
 )
 
@@ -35,5 +37,17 @@ func init() {
 
 // facilityStart is the function run by facilityStartCmd.
 func facilityStart(cmd *cobra.Command, args []string) error {
+	if verboseFlag {
+		fmt.Printf("Starting Facility instance ...\n")
+	}
 	return nil
+}
+
+// facilityLoop is the main loop of a Facility.
+func facilityLoop(client *nkn.MultiClient) error {
+	if verboseFlag {
+		fmt.Printf("Entering facilityLoop ...\n")
+	}
+	for {
+	}
 }
