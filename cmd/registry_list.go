@@ -40,7 +40,7 @@ func registryList(cmd *cobra.Command, args []string) error {
 	if verboseFlag {
 		fmt.Println("Listing Registry facilities ...")
 	}
-	registry, err := openRegistry(args[0])
+	registry, err := openRegistryConfig(args[0])
 	if err != nil {
 		return err
 	}

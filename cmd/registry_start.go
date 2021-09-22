@@ -19,9 +19,11 @@ package cmd
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/nknorg/nkn-sdk-go"
 	"github.com/spf13/cobra"
 )
 
+// registryNumSubClients is the number of subclients in the Registry Multiclient.
 var registryNumSubClients int
 
 // registryStartCmd represents the start command
@@ -46,13 +48,15 @@ func registryStart(cmd *cobra.Command, args []string) error {
 		fmt.Printf("Starting Registry ...\n")
 	}
 
+	// The path to the registry config should be the first and only argument.
 	registryPath := args[0]
 
 	var private []byte
 	var public []byte
 	var err error
 
-	registry, err := openRegistry(registryPath)
+	// Get the registry config located at registryPath.
+	registry, err := openRegistryConfig(registryPath)
 	if err != nil {
 		return err
 	}
@@ -61,7 +65,6 @@ func registryStart(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
 	// Open a new multiclient with the private key.
 	if verboseFlag {
 		fmt.Printf("Opening Multiclient with private key: %s\n", hex.EncodeToString(private))
@@ -75,16 +78,21 @@ func registryStart(cmd *cobra.Command, args []string) error {
 	// Print the key information.
 	printPublicPrivateKeys(private, public)
 
-	// Upon successfully connecting, print a message.
 	<-client.OnConnect.C
-	fmt.Println("Connection opened on Registry")
+	if verboseFlag {
+		fmt.Println("Connection opened on Registry")
+	}
 
-	registryLoop()
+	err = registryLoop(client)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func registryLoop() {
+// registryLoop is the main loop of Registry.
+func registryLoop(client *nkn.MultiClient) error {
 	for {
 	}
 }

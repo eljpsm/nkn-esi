@@ -29,14 +29,16 @@ var keysCmd = &cobra.Command{
 
 Be sure to write down the private key for later!
 `,
-	RunE: newKeyPair,
+	RunE: newNKNKeyPair,
 }
 
+// init initializes keys.go.
 func init() {
 	rootCmd.AddCommand(keysCmd)
 }
 
-func newKeyPair(cmd *cobra.Command, args []string) error {
+// newNKNKeyPair generates new private and public keys.
+func newNKNKeyPair(cmd *cobra.Command, args []string) error {
 	private, err := newNKNPrivateKey()
 	if err != nil {
 		return err

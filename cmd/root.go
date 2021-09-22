@@ -39,8 +39,6 @@ var (
 )
 
 const (
-	// defaultPrivateKey is the default private key which appears on help messages.
-	defaultPrivateKey = ""
 	// defaultNumSubClients is the default number of sub clients created using nkn.Multiclient.
 	defaultNumSubClients = 3
 	// configFlagName is the name of the config flag.
@@ -97,7 +95,6 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 	viper.ReadInConfig() // read in config
 }
-
 
 // openMulticlient returns a new Multiclient with the given private key.
 func openMulticlient(private []byte, numSubClients int) (*nkn.MultiClient, error) {

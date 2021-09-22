@@ -24,11 +24,14 @@ import (
 	"os"
 )
 
+// Registry represents the necessary information for a registry.
 type Registry struct {
 	Name       string   `json:"name"`
 	PrivateKey string   `json:"privateKey"`
-	Facilities []string `json:"peers"`
+	Facilities []string `json:"facilities"`
 }
+
+var MissingRegistryPrivateKeyErr = errors.New("registry missing privateKey field")
 
 // registryCmd represents the registry command
 var registryCmd = &cobra.Command{
@@ -43,7 +46,8 @@ func init() {
 	rootCmd.AddCommand(registryCmd)
 }
 
-func openRegistry(registryPath string) (Registry, error) {
+// openRegistryConfig opens and reads the given registry config.
+func openRegistryConfig(registryPath string) (Registry, error) {
 	var registry Registry
 
 	// Open registry file.
@@ -60,7 +64,7 @@ func openRegistry(registryPath string) (Registry, error) {
 	// Unmarshal it.
 	json.Unmarshal(byteValue, &registry)
 	if registry.PrivateKey == "" {
-		return registry, errors.New("field PrivateKey must not be empty")
+		return registry, MissingRegistryPrivateKeyErr
 	}
 	// Return the result.
 	return registry, nil
