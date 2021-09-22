@@ -20,15 +20,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// facilityCmd represents the facility command
-var facilityCmd = &cobra.Command{
-	Use:   "facility",
-	Short: "Manage Facility instances",
-	Long: `Manage Facility instances.`,
-	Args: cobra.ExactArgs(1),
+// facilityStartCmd represents the start command
+var facilityStartCmd = &cobra.Command{
+	Use:   "start",
+	Short: "Start a Facility instance",
+	Long: `Start a Facility instance.`,
+	RunE: facilityStart,
 }
 
-// init initializes facility.go.
+// init initializes facility_start.go.
 func init() {
-	rootCmd.AddCommand(facilityCmd)
+	rootCmd.AddCommand(facilityStartCmd)
+}
+
+// facilityStart is the function run by facilityStartCmd.
+func facilityStart(cmd *cobra.Command, args []string) error {
+	return nil
 }

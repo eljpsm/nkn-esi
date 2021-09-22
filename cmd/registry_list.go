@@ -24,8 +24,8 @@ import (
 // registryListCmd represents the list command
 var registryListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List the available facilities in the registry",
-	Long: `List the available facilities in the registry.`,
+	Short: "List the available Facilities in the Registry",
+	Long: `List the available Facilities in the Registry.`,
 	Args: cobra.ExactArgs(1),
 	RunE: registryList,
 }

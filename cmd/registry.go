@@ -36,8 +36,8 @@ var MissingRegistryPrivateKeyErr = errors.New("registry missing privateKey field
 // registryCmd represents the registry command
 var registryCmd = &cobra.Command{
 	Use:   "registry",
-	Short: "Manage registry instances.",
-	Long:  `Manage registry instances.`,
+	Short: "Manage Registry instances.",
+	Long:  `Manage Registry instances.`,
 	Args:  cobra.ExactArgs(1),
 }
 

@@ -29,8 +29,8 @@ var registryNumSubClients int
 // registryStartCmd represents the start command
 var registryStartCmd = &cobra.Command{
 	Use:   "start <registry-config.json>",
-	Short: "Start the registry on the desired address and port",
-	Long:  `Start the registry on the desired address and port.`,
+	Short: "Start a Registry instance",
+	Long:  `Start a Registry instance.`,
 	Args:  cobra.ExactArgs(1),
 	RunE:   registryStart,
 }
