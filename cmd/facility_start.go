@@ -150,7 +150,10 @@ func facilityExecutor(input string) (string, error) {
 	case "info":
 		fmt.Println(facility)
 	case "discover":
-		esi.DiscoverRegistry(facilityClient, fields[1], facility)
+		_, err := esi.DiscoverRegistry(facilityClient, fields[1], facility)
+		if err != nil {
+			return "", err
+		}
 	case "register":
 	}
 
