@@ -40,21 +40,20 @@ func init() {
 }
 
 // openFacilityConfig opens and reads the given facility config.
-func openFacilityConfig(facilityPath string) (esi.DerFacilityExchangeInfo, error) {
+func openFacilityConfig(facilityPath string) error {
 	// Open facility file.
 	registryFile, err := os.Open(facilityPath)
 	if err != nil {
-		return facilityInfo, err
+		return err
 	}
 	defer registryFile.Close()
 
 	byteValue, err := ioutil.ReadAll(registryFile)
 	if err != nil {
-		return facilityInfo, err
+		return err
 	}
 	// Unmarshal it.
 	json.Unmarshal(byteValue, &facilityInfo)
 
-	// Return the result.
-	return facilityInfo, nil
+	return nil
 }

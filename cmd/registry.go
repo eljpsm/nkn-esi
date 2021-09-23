@@ -18,20 +18,13 @@ package cmd
 
 import (
 	"encoding/json"
-	"errors"
+	"github.com/elijahjpassmore/nkn-esi/api/esi"
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"os"
 )
 
-// Registry represents the necessary information for a registry.
-type Registry struct {
-	Name       string   `json:"name"`
-	PrivateKey string   `json:"privateKey"`
-	Facilities []string `json:"facilities"`
-}
-
-var MissingRegistryPrivateKeyErr = errors.New("registry missing privateKey field")
+var registryInfo esi.DerRegistryInfo
 
 // registryCmd represents the registry command
 var registryCmd = &cobra.Command{
@@ -47,25 +40,20 @@ func init() {
 }
 
 // openRegistryConfig opens and reads the given registry config.
-func openRegistryConfig(registryPath string) (Registry, error) {
-	var registry Registry
-
+func openRegistryConfig(registryPath string) error {
 	// Open registry file.
 	registryFile, err := os.Open(registryPath)
 	if err != nil {
-		return registry, err
+		return err
 	}
 	defer registryFile.Close()
 
 	byteValue, err := ioutil.ReadAll(registryFile)
 	if err != nil {
-		return registry, err
+		return err
 	}
 	// Unmarshal it.
-	json.Unmarshal(byteValue, &registry)
-	if registry.PrivateKey == "" {
-		return registry, MissingRegistryPrivateKeyErr
-	}
-	// Return the result.
-	return registry, nil
+	json.Unmarshal(byteValue, &registryInfo)
+
+	return nil
 }

@@ -29,8 +29,8 @@ import (
 )
 
 var (
-	facilityClient     *nkn.MultiClient
-	unknownCommandErr  = errors.New("unknown command")
+	facilityClient    *nkn.MultiClient
+	unknownCommandErr = errors.New("unknown command")
 )
 
 // facilityStartCmd represents the start command
@@ -57,7 +57,7 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 		fmt.Printf("Starting Facility instance ...\n")
 	}
 
-	// The path to the facility config should be the first and only argument.
+	// The path to the facility config should be the first argument.
 	facilityPath := args[0]
 	// The private key associated with the Facility.
 	facilityPrivateKey, err := hex.DecodeString(args[1])
@@ -66,7 +66,7 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get the facility config located at facilityPath.
-	facilityInfo, err = openFacilityConfig(facilityPath)
+	err = openFacilityConfig(facilityPath)
 	if err != nil {
 		return err
 	}
@@ -118,7 +118,7 @@ func facilityCompleter(d prompt.Document) []prompt.Suggest {
 	s := []prompt.Suggest{
 		{Text: "exit", Description: "Exit out of Facility instance"},
 		{Text: "info", Description: "Print info on Facility"},
-		{Text: "discover", Description: "Discover and send Facility info to Registry"},
+		{Text: "signup", Description: "Signup and send Facility info to Registry"},
 	}
 	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
 }
@@ -141,7 +141,7 @@ func facilityExecutor(input string) (string, error) {
 		os.Exit(0)
 	case "info":
 		fmt.Println(facilityInfo)
-	case "discover":
+	case "signup":
 		_, err := esi.DiscoverRegistry(facilityClient, fields[1], facilityInfo)
 		if err != nil {
 			return "", err

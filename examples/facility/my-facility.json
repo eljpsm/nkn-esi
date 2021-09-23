@@ -1,22 +1,22 @@
 {
-  "name": "My Facility",
-  "facilityPublicKey": "",
-  "location": {
-    "country": "",
-    "region": "",
-    "timeZone": "",
-    "stateProvince": "",
-    "postalCode": "",
-    "locality": "",
-    "sublocality": "",
-    "streetAddress": [
+  "Name": "My Facility",
+  "FacilityPublicKey": "",
+  "Location": {
+    "Country": "",
+    "Region": "",
+    "TimeZone": "",
+    "StateProvince": "",
+    "PostalCode": "",
+    "Locality": "",
+    "Sublocality": "",
+    "StreetAddress": [
       ""
     ],
-    "latLng": {
-      "latitude": 0,
-      "longitude": 0
+    "LatLng": {
+      "Latitude": 0,
+      "Longitude": 0
     }
   },
-  "facilities": [
+  "Facilities": [
   ]
 }

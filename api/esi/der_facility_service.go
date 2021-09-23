@@ -15,7 +15,7 @@ func interfaceEncode(i interface{}) ([]byte, error) {
 	return b, nil
 }
 
-func bytesDecode(b []byte, i interface{}) (interface{}, error) {
+func BytesDecode(b []byte, i interface{}) (interface{}, error) {
 	err := json.Unmarshal(b, i)
 	if err != nil {
 		return i, err
