@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/c-bata/go-prompt"
+	"github.com/elijahjpassmore/nkn-esi/api/esi"
 	"github.com/nknorg/nkn-sdk-go"
 	"github.com/spf13/cobra"
 	"os"
@@ -28,20 +29,30 @@ import (
 )
 
 var (
+	userFacility      esi.DerFacilityExchangeInfo
+	userFacilityClient *nkn.MultiClient
+	facilityPrivateKey []byte
+	facilityPublicKey []byte
 	UnknownCommandErr = errors.New("unknown command")
 )
+
+// facilityNumSubClients is the number of subclients in the Facility Multiclient.
+var facilityNumSubClients int
 
 // facilityStartCmd represents the start command
 var facilityStartCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Start a Facility instance",
 	Long:  `Start a Facility instance.`,
+	Args: cobra.ExactArgs(2),
 	RunE:  facilityStart,
 }
 
 // init initializes facility_start.go.
 func init() {
 	facilityCmd.AddCommand(facilityStartCmd)
+
+	facilityStartCmd.Flags().IntVarP(&facilityNumSubClients, "subclients", "s", defaultNumSubClients, "number of subclients to use in multiclient")
 }
 
 // facilityStart is the function run by facilityStartCmd.
@@ -50,42 +61,35 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 		fmt.Printf("Starting Facility instance ...\n")
 	}
 
-	// The path to the facility config should be the first and only argument.
-	facilityPath := args[0]
-
-	var private []byte
-	var public []byte
 	var err error
 
+	// The path to the facility config should be the first and only argument.
+	facilityPath := args[0]
+	// The private key associated with the Facility.
+	facilityPrivateKey, err = hex.DecodeString(args[1])
+
 	// Get the facility config located at facilityPath.
-	registry, err := openFacilityConfig(facilityPath)
+	userFacility, err = openFacilityConfig(facilityPath)
 	if err != nil {
 		return err
 	}
 
-	private, err = hex.DecodeString(registry.PrivateKey)
+	userFacilityClient, err = openMulticlient(facilityPrivateKey, facilityNumSubClients)
 	if err != nil {
 		return err
 	}
-	// Open a new multiclient with the private key.
-	if verboseFlag {
-		fmt.Printf("Opening Multiclient with private key: %s\n", hex.EncodeToString(private))
-	}
-	client, err := openMulticlient(private, registryNumSubClients)
-	if err != nil {
-		return err
-	}
-	public = client.PubKey()
+
+	facilityPublicKey = userFacilityClient.PubKey()
 
 	// Print the key information.
-	printPublicPrivateKeys(private, public)
+	printPublicPrivateKeys(facilityPrivateKey, facilityPublicKey)
 
-	<-client.OnConnect.C
+	<-userFacilityClient.OnConnect.C
 	if verboseFlag {
-		fmt.Println("Connection opened on Registry")
+		fmt.Println("Connection opened on Facility")
 	}
 
-	err = facilityLoop(client)
+	err = facilityLoop()
 	if err != nil {
 		return err
 	}
@@ -94,7 +98,7 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 }
 
 // facilityLoop is the main loop of a Facility.
-func facilityLoop(client *nkn.MultiClient) error {
+func facilityLoop() error {
 	//defer handleExit()
 	var input string
 
@@ -106,7 +110,7 @@ func facilityLoop(client *nkn.MultiClient) error {
 		input = prompt.Input("> ", facilityCompleter)
 
 		// Execute the input and receive a message and error.
-		message, err := facilityExecutor(input, client)
+		message, err := facilityExecutor(input)
 
 		// If the execution results in an error, alert the user.
 		if err != nil {
@@ -125,12 +129,14 @@ func facilityCompleter(d prompt.Document) []prompt.Suggest {
 	// Useful prompts that the user can use in the shell.
 	s := []prompt.Suggest{
 		{Text: "exit", Description: "Exit out of Facility instance"},
+		{Text: "info", Description: "Print info on Facility"},
+		{Text: "discover", Description: "Discover and send Facility info to Registry"},
 	}
 	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
 }
 
 // facilityExecutor is the function which executes user input.
-func facilityExecutor(input string, client *nkn.MultiClient) (string, error) {
+func facilityExecutor(input string) (string, error) {
 	fields := strings.Fields(input)
 	fmt.Println(fields)
 
@@ -146,13 +152,10 @@ func facilityExecutor(input string, client *nkn.MultiClient) (string, error) {
 	case "exit":
 		// Exit out of the program.
 		os.Exit(0)
+	case "info":
+		fmt.Println(userFacility)
+	case "discover":
 	case "register":
-		// Register the Facility with another Facility.
-		msg, err := client.Send(nkn.NewStringArray(fields[1]), []byte("Hello, World!"), nil)
-		if err != nil {
-			return "", err
-		}
-		fmt.Println(msg.C)
 	}
 
 	return "", nil

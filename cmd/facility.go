@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"github.com/elijahjpassmore/nkn-esi/api/esi"
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"os"
@@ -25,17 +26,35 @@ import (
 
 // Facility represents the necessary information for a facility.
 type Facility struct {
-	Name       string   `json:"name"`
-	PrivateKey string   `json:"privateKey"`
-	Facilities []string `json:"facilities"`
+	Name       string
+	PrivateKey string
+	Location   Location
+	Facilities []string
+}
+
+type Location struct {
+	Country       string
+	Region        string
+	TimeZone      string
+	StateProvince string
+	PostalCode    string
+	Locality      string
+	Sublocality   string
+	StreetAddress []string
+	LatLng        LatLng
+}
+
+type LatLng struct {
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
 }
 
 // facilityCmd represents the facility command
 var facilityCmd = &cobra.Command{
 	Use:   "facility",
 	Short: "Manage Facility instances",
-	Long: `Manage Facility instances.`,
-	Args: cobra.ExactArgs(1),
+	Long:  `Manage Facility instances.`,
+	Args:  cobra.ExactArgs(1),
 }
 
 // init initializes facility.go.
@@ -44,10 +63,10 @@ func init() {
 }
 
 // openFacilityConfig opens and reads the given facility config.
-func openFacilityConfig(facilityPath string) (Facility, error) {
-	var facility Facility
+func openFacilityConfig(facilityPath string) (esi.DerFacilityExchangeInfo, error) {
+	var facility esi.DerFacilityExchangeInfo
 
-	// Open registry file.
+	// Open facility file.
 	registryFile, err := os.Open(facilityPath)
 	if err != nil {
 		return facility, err
@@ -60,9 +79,7 @@ func openFacilityConfig(facilityPath string) (Facility, error) {
 	}
 	// Unmarshal it.
 	json.Unmarshal(byteValue, &facility)
-	if facility.PrivateKey == "" {
-		return facility, MissingRegistryPrivateKeyErr
-	}
+
 	// Return the result.
 	return facility, nil
 }
