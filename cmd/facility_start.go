@@ -29,10 +29,10 @@ import (
 )
 
 var (
-	userFacility      esi.DerFacilityExchangeInfo
-	userFacilityClient *nkn.MultiClient
-	facilityPrivateKey []byte
-	facilityPublicKey []byte
+	facility esi.DerFacilityExchangeInfo
+	client            *nkn.MultiClient
+	privateKey        []byte
+	publicKey         []byte
 	UnknownCommandErr = errors.New("unknown command")
 )
 
@@ -63,27 +63,27 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 	// The path to the facility config should be the first and only argument.
 	facilityPath := args[0]
 	// The private key associated with the Facility.
-	facilityPrivateKey, err = hex.DecodeString(args[1])
+	privateKey, err = hex.DecodeString(args[1])
 
 	// Get the facility config located at facilityPath.
-	userFacility, err = openFacilityConfig(facilityPath)
+	facility, err = openFacilityConfig(facilityPath)
 	if err != nil {
 		return err
 	}
 
 	// Open a Multiclient with the private key and the desired number of subclients.
-	userFacilityClient, err = openMulticlient(facilityPrivateKey, numSubClients)
+	client, err = openMulticlient(privateKey, numSubClients)
 	if err != nil {
 		return err
 	}
 
-	facilityPublicKey = userFacilityClient.PubKey()
+	publicKey = client.PubKey()
 
 	// Print the key information.
-	// printPublicPrivateKeys(facilityPrivateKey, facilityPublicKey)
+	// printPublicPrivateKeys(privateKey, publicKey)
 
-	<-userFacilityClient.OnConnect.C
-	fmt.Println(fmt.Sprintf("\nConnection opened on Facility '%s'\n", userFacility.Name))
+	<-client.OnConnect.C
+	fmt.Println(fmt.Sprintf("\nConnection opened on Facility '%s'\n", facility.Name))
 
 	err = facilityLoop()
 	if err != nil {
@@ -103,7 +103,7 @@ func facilityLoop() error {
 	}
 	for {
 		// Prompt the user for input.
-		input = prompt.Input(fmt.Sprintf("Facility '%s'> ", userFacility.Name), facilityCompleter)
+		input = prompt.Input(fmt.Sprintf("Facility '%s'> ", facility.Name), facilityCompleter)
 
 		// Execute the input and receive a message and error.
 		message, err := facilityExecutor(input)
@@ -148,9 +148,9 @@ func facilityExecutor(input string) (string, error) {
 		// Exit out of the program.
 		os.Exit(0)
 	case "info":
-		fmt.Println(userFacility)
+		fmt.Println(facility)
 	case "discover":
-		esi.DiscoverRegistry(fields[1], userFacility)
+		esi.DiscoverRegistry(client, fields[1], facility)
 	case "register":
 	}
 
