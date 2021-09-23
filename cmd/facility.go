@@ -17,8 +17,18 @@ limitations under the License.
 package cmd
 
 import (
+	"encoding/json"
 	"github.com/spf13/cobra"
+	"io/ioutil"
+	"os"
 )
+
+// Facility represents the necessary information for a facility.
+type Facility struct {
+	Name       string   `json:"name"`
+	PrivateKey string   `json:"privateKey"`
+	Facilities []string `json:"facilities"`
+}
 
 // facilityCmd represents the facility command
 var facilityCmd = &cobra.Command{
@@ -31,4 +41,28 @@ var facilityCmd = &cobra.Command{
 // init initializes facility.go.
 func init() {
 	rootCmd.AddCommand(facilityCmd)
+}
+
+// openFacilityConfig opens and reads the given facility config.
+func openFacilityConfig(facilityPath string) (Facility, error) {
+	var facility Facility
+
+	// Open registry file.
+	registryFile, err := os.Open(facilityPath)
+	if err != nil {
+		return facility, err
+	}
+	defer registryFile.Close()
+
+	byteValue, err := ioutil.ReadAll(registryFile)
+	if err != nil {
+		return facility, err
+	}
+	// Unmarshal it.
+	json.Unmarshal(byteValue, &facility)
+	if facility.PrivateKey == "" {
+		return facility, MissingRegistryPrivateKeyErr
+	}
+	// Return the result.
+	return facility, nil
 }

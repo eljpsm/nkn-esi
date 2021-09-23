@@ -10,6 +10,7 @@ require (
 )
 
 require (
+	github.com/c-bata/go-prompt v0.2.5 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gorilla/websocket v1.4.1 // indirect
@@ -20,12 +21,17 @@ require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/itchyny/base58-go v0.0.5 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
+	github.com/mattn/go-colorable v0.1.7 // indirect
+	github.com/mattn/go-isatty v0.0.12 // indirect
+	github.com/mattn/go-runewidth v0.0.9 // indirect
+	github.com/mattn/go-tty v0.0.3 // indirect
 	github.com/mitchellh/mapstructure v1.4.2 // indirect
 	github.com/nknorg/ncp-go v1.0.3 // indirect
 	github.com/nknorg/nkn/v2 v2.0.6 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pbnjay/memory v0.0.0-20190104145345-974d429e7ae4 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
+	github.com/pkg/term v1.1.0 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect

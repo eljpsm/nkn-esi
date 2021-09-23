@@ -32,7 +32,7 @@ var registryStartCmd = &cobra.Command{
 	Short: "Start a Registry instance",
 	Long:  `Start a Registry instance.`,
 	Args:  cobra.ExactArgs(1),
-	RunE:   registryStart,
+	RunE:  registryStart,
 }
 
 // init initializes registry_list.go.
@@ -97,5 +97,9 @@ func registryLoop(client *nkn.MultiClient) error {
 		fmt.Printf("Entering registryLoop ...\n")
 	}
 	for {
+		msg := <-client.OnMessage.C
+		fmt.Println(msg)
+		msg.Reply([]byte("acknowledged"))
 	}
 }
+
