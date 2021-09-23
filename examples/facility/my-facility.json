@@ -1,6 +1,22 @@
 {
   "name": "My Facility",
-  "privateKey": "",
+  "facilityPublicKey": "",
+  "location": {
+    "country": "",
+    "region": "",
+    "timeZone": "",
+    "stateProvince": "",
+    "postalCode": "",
+    "locality": "",
+    "sublocality": "",
+    "streetAddress": [
+      ""
+    ],
+    "latLng": {
+      "latitude": 0,
+      "longitude": 0
+    }
+  },
   "facilities": [
   ]
 }
