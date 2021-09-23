@@ -1,6 +1,8 @@
 package esi
 
-import "github.com/golang/protobuf/ptypes/empty"
+import (
+	"github.com/golang/protobuf/ptypes/empty"
+)
 
 // DiscoverRegistry discovers and sends Facility information to a Registry.
 func DiscoverRegistry(registryPublicKey string, info DerFacilityExchangeInfo) (empty.Empty, error) {

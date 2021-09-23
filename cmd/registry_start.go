@@ -23,9 +23,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// registryNumSubClients is the number of subclients in the Registry Multiclient.
-var registryNumSubClients int
-
 // registryStartCmd represents the start command
 var registryStartCmd = &cobra.Command{
 	Use:   "start <registry-config.json>",
@@ -39,7 +36,7 @@ var registryStartCmd = &cobra.Command{
 func init() {
 	registryCmd.AddCommand(registryStartCmd)
 
-	registryStartCmd.Flags().IntVarP(&registryNumSubClients, "subclients", "s", defaultNumSubClients, "number of subclients to use in multiclient")
+	registryStartCmd.Flags().IntVarP(&numSubClients, "subclients", "s", defaultNumSubClients, "number of subclients to use in multiclient")
 }
 
 // registryStart is the function run by registryStartCmd.
@@ -69,7 +66,7 @@ func registryStart(cmd *cobra.Command, args []string) error {
 	if verboseFlag {
 		fmt.Printf("Opening Multiclient with private key: %s\n", hex.EncodeToString(private))
 	}
-	client, err := openMulticlient(private, registryNumSubClients)
+	client, err := openMulticlient(private, numSubClients)
 	if err != nil {
 		return err
 	}

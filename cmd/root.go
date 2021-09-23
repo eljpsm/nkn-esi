@@ -36,6 +36,9 @@ var (
 	cfgFile string
 	// verboseFlag is the bool for the persistent flag verbose.
 	verboseFlag bool
+
+	// numSubClients is the number of clients when opening a new nkn.Multiclient.
+	numSubClients int
 )
 
 const (

@@ -36,9 +36,6 @@ var (
 	UnknownCommandErr = errors.New("unknown command")
 )
 
-// facilityNumSubClients is the number of subclients in the Facility Multiclient.
-var facilityNumSubClients int
-
 // facilityStartCmd represents the start command
 var facilityStartCmd = &cobra.Command{
 	Use:   "start",
@@ -52,7 +49,7 @@ var facilityStartCmd = &cobra.Command{
 func init() {
 	facilityCmd.AddCommand(facilityStartCmd)
 
-	facilityStartCmd.Flags().IntVarP(&facilityNumSubClients, "subclients", "s", defaultNumSubClients, "number of subclients to use in multiclient")
+	facilityStartCmd.Flags().IntVarP(&numSubClients, "subclients", "s", defaultNumSubClients, "number of subclients to use in multiclient")
 }
 
 // facilityStart is the function run by facilityStartCmd.
@@ -74,7 +71,8 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	userFacilityClient, err = openMulticlient(facilityPrivateKey, facilityNumSubClients)
+	// Open a Multiclient with the private key and the desired number of subclients.
+	userFacilityClient, err = openMulticlient(facilityPrivateKey, numSubClients)
 	if err != nil {
 		return err
 	}
@@ -82,12 +80,10 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 	facilityPublicKey = userFacilityClient.PubKey()
 
 	// Print the key information.
-	printPublicPrivateKeys(facilityPrivateKey, facilityPublicKey)
+	// printPublicPrivateKeys(facilityPrivateKey, facilityPublicKey)
 
 	<-userFacilityClient.OnConnect.C
-	if verboseFlag {
-		fmt.Println("Connection opened on Facility")
-	}
+	fmt.Println(fmt.Sprintf("\nConnection opened on Facility '%s'\n", userFacility.Name))
 
 	err = facilityLoop()
 	if err != nil {
@@ -107,7 +103,7 @@ func facilityLoop() error {
 	}
 	for {
 		// Prompt the user for input.
-		input = prompt.Input("> ", facilityCompleter)
+		input = prompt.Input(fmt.Sprintf("Facility '%s'> ", userFacility.Name), facilityCompleter)
 
 		// Execute the input and receive a message and error.
 		message, err := facilityExecutor(input)
@@ -138,7 +134,6 @@ func facilityCompleter(d prompt.Document) []prompt.Suggest {
 // facilityExecutor is the function which executes user input.
 func facilityExecutor(input string) (string, error) {
 	fields := strings.Fields(input)
-	fmt.Println(fields)
 
 	// If there is no input, simply return.
 	if len(fields) == 0 {
@@ -155,6 +150,7 @@ func facilityExecutor(input string) (string, error) {
 	case "info":
 		fmt.Println(userFacility)
 	case "discover":
+		esi.DiscoverRegistry(fields[1], userFacility)
 	case "register":
 	}
 
