@@ -70,8 +70,7 @@ func registryStart(cmd *cobra.Command, args []string) error {
 	}
 
 	<-registryClient.OnConnect.C
-	fmt.Println(fmt.Sprintf("\nConnection opened on Registry '%s'\n"), registryInfo.Name)
-	fmt.Println(registryInfo)
+	fmt.Println(fmt.Sprintf("\nConnection opened on Registry '%s'\n", registryInfo.Name))
 
 	// Enter the Registry shell.
 	err = registryLoop()
@@ -84,6 +83,8 @@ func registryStart(cmd *cobra.Command, args []string) error {
 
 // registryLoop is the main loop of a Registry.
 func registryLoop() error {
+	fmt.Println("Awaiting messages ...")
+
 	for {
 		msg := <- registryClient.OnMessage.C
 
