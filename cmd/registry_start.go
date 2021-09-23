@@ -102,4 +102,3 @@ func registryLoop(client *nkn.MultiClient) error {
 		msg.Reply([]byte("acknowledged"))
 	}
 }
-

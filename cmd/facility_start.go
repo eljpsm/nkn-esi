@@ -124,7 +124,6 @@ func facilityLoop(client *nkn.MultiClient) error {
 func facilityCompleter(d prompt.Document) []prompt.Suggest {
 	// Useful prompts that the user can use in the shell.
 	s := []prompt.Suggest{
-		{Text: "register", Description: "Register your facility with a Registry"},
 		{Text: "exit", Description: "Exit out of Facility instance"},
 	}
 	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
@@ -140,27 +139,24 @@ func facilityExecutor(input string, client *nkn.MultiClient) (string, error) {
 		return "", nil
 	}
 
-	// If there is only one split input, treat it as a single command with no arguments.
-	if len(fields) == 1 {
-		switch fields[0] {
-		default:
-			return "", UnknownCommandErr
-		case "exit":
-			os.Exit(0)
-		}
-	}
-
-	// Evaluate the first command.
+	// Evaluate the first string.
 	switch fields[0] {
 	default:
 		return "", UnknownCommandErr
+	case "exit":
+		// Exit out of the program.
+		os.Exit(0)
 	case "register":
+		// Register the Facility.
 		msg, err := client.Send(nkn.NewStringArray(fields[1]), []byte("Hello, World!"), nil)
 		if err != nil {
 			return "", err
 		}
 		fmt.Println(msg.C)
 	}
+	case "discover":
+		// Discover a Registry.
+
 
 	return "", nil
 }
