@@ -21,7 +21,6 @@ package api.esi;
 option go_package = "github.com/elijahjpassmore/api/esi";
 
 import "api/esi/location.proto";
-import "api/esi/public_key.proto";
 
 /**
  * Information about a DerFacilityExchange.
@@ -33,7 +32,7 @@ message DerFacilityExchangeInfo {
   
   // A globally-unique identifier for use by machines.
   //string uid = 2;
-  PublicKey facility_public_key = 2;
+  string facility_public_key = 2;
   
   // The gRPC compliant URI to access the exchange service at.
   //string endpoint_uri = 3;

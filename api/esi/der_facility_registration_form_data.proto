@@ -20,7 +20,6 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
-import "api/esi/public_key.proto";
 import "api/esi/form_data.proto";
 import "api/esi/der_route.proto";
 
@@ -69,7 +68,7 @@ message DerFacilityRegistrationFormData {
   bytes facility_nonce = 3;
   
   // The facility's public key.
-  PublicKey facility_public_key = 4;
+  string facility_public_key = 4;
 
   // The completed registration form.
   FormData data = 5;
