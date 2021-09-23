@@ -28,7 +28,8 @@ import "api/esi/form.proto";
 message DerFacilityRegistrationForm {
 
   // The UID of the DerFacilityExchange to get the registration form for.
-  string exchange_uid = 1;
+  //string exchange_uid = 1;
+  PublicKey facility_public_key = 1;
   
   // The registration form.
   Form form = 2;
