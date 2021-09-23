@@ -41,11 +41,6 @@ func DiscoverRegistry(client *nkn.MultiClient, registryPublicKey string, info De
 	return empty.Empty{}, nil
 }
 
-// GetPublicKey returns the other Facility's public key.
-func GetPublicKey(client *nkn.MultiClient, empty2 empty.Empty) (string, error) {
-	return "TODO", nil
-}
-
 // GetDerFacilityRegistrationForm returns the registration for a Facility to use.
 func GetDerFacilityRegistrationForm(client *nkn.MultiClient, request DerFacilityRegistrationFormRequest) (DerFacilityRegistrationForm, error) {
 	return DerFacilityRegistrationForm{}, nil
