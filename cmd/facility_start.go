@@ -147,7 +147,7 @@ func facilityExecutor(input string, client *nkn.MultiClient) (string, error) {
 		// Exit out of the program.
 		os.Exit(0)
 	case "register":
-		// Register the Facility.
+		// Register the Facility with another Facility.
 		msg, err := client.Send(nkn.NewStringArray(fields[1]), []byte("Hello, World!"), nil)
 		if err != nil {
 			return "", err
