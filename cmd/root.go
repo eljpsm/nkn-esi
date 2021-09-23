@@ -108,7 +108,7 @@ func openMulticlient(private []byte, numSubClients int) (*nkn.MultiClient, error
 	}
 
 	// Create a new multiclient using the private key.
-	client, err := nkn.NewMultiClient(account, "registry", numSubClients, true, nil)
+	client, err := nkn.NewMultiClient(account, "", numSubClients, true, nil)
 	if err != nil {
 		return nil, err
 	}
