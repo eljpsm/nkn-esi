@@ -70,7 +70,7 @@ func registryStart(cmd *cobra.Command, args []string) error {
 	}
 
 	<-registryClient.OnConnect.C
-	fmt.Println(fmt.Sprintf("\nConnection opened on Registry '%s'\n", registryInfo.Name))
+	infoMsgColor.Println(fmt.Sprintf("\nConnection opened on Registry '%s'\n", registryInfo.Name))
 
 	// Enter the Registry shell.
 	err = registryLoop()

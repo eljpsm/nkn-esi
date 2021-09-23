@@ -19,6 +19,7 @@ package cmd
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/nknorg/nkn-sdk-go"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -39,6 +40,8 @@ var (
 
 	// numSubClients is the number of clients when opening a new nkn.Multiclient.
 	numSubClients int
+
+	infoMsgColor = color.New(color.FgCyan, color.Bold)
 )
 
 const (
@@ -48,6 +51,7 @@ const (
 	configFlagName = "config"
 	// verboseFlagName is the name of the verbose flag.
 	verboseFlagName = "verbose"
+
 )
 
 // rootCmd represents the base command when called without any subcommands

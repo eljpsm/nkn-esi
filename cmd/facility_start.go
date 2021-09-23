@@ -78,7 +78,7 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 	}
 
 	<-facilityClient.OnConnect.C
-	fmt.Println(fmt.Sprintf("\nConnection opened on Facility '%s'\n", facilityInfo.Name))
+	infoMsgColor.Println(fmt.Sprintf("\nConnection opened on Facility '%s'\n", facilityInfo.Name))
 
 	// Enter the Facility shell.
 	err = facilityShell()
