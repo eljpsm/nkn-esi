@@ -154,9 +154,6 @@ func facilityExecutor(input string, client *nkn.MultiClient) (string, error) {
 		}
 		fmt.Println(msg.C)
 	}
-	case "discover":
-		// Discover a Registry.
-
 
 	return "", nil
 }

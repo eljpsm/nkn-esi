@@ -25,15 +25,8 @@ option go_package = "github.com/elijahjpassmore/api/esi";
  *
  * This message is used to exchange public keys between systems.
  */
-message CryptoKey {
+message PublicKey {
 
-  // The key algorithm
-  string algorithm = 1;
-  
-  // The key encoding
-  string encoding = 2;
-  
-  // The key data
-  bytes key = 3;
-  
+  string public_key = 1;
+
 }
