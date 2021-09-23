@@ -29,11 +29,8 @@ import (
 )
 
 var (
-	facility       esi.DerFacilityExchangeInfo
 	facilityClient     *nkn.MultiClient
-	facilityPrivateKey []byte
-	facilityPublicKey  []byte
-	UnknownCommandErr  = errors.New("unknown command")
+	unknownCommandErr  = errors.New("unknown command")
 )
 
 // facilityStartCmd represents the start command
@@ -41,7 +38,7 @@ var facilityStartCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Start a Facility instance",
 	Long:  `Start a Facility instance.`,
-	Args: cobra.ExactArgs(2),
+	Args:  cobra.ExactArgs(2),
 	RunE:  facilityStart,
 }
 
@@ -54,19 +51,22 @@ func init() {
 
 // facilityStart is the function run by facilityStartCmd.
 func facilityStart(cmd *cobra.Command, args []string) error {
+	var err error
+
 	if verboseFlag {
 		fmt.Printf("Starting Facility instance ...\n")
 	}
 
-	var err error
-
 	// The path to the facility config should be the first and only argument.
 	facilityPath := args[0]
 	// The private key associated with the Facility.
-	facilityPrivateKey, err = hex.DecodeString(args[1])
+	facilityPrivateKey, err := hex.DecodeString(args[1])
+	if err != nil {
+		return err
+	}
 
 	// Get the facility config located at facilityPath.
-	facility, err = openFacilityConfig(facilityPath)
+	facilityInfo, err = openFacilityConfig(facilityPath)
 	if err != nil {
 		return err
 	}
@@ -77,15 +77,11 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	facilityPublicKey = facilityClient.PubKey()
-
-	// Print the key information.
-	// printPublicPrivateKeys(facilityPrivateKey, facilityPublicKey)
-
 	<-facilityClient.OnConnect.C
-	fmt.Println(fmt.Sprintf("\nConnection opened on Facility '%s'\n", facility.Name))
+	fmt.Println(fmt.Sprintf("\nConnection opened on Facility '%s'\n", facilityInfo.Name))
 
-	err = facilityLoop()
+	// Enter the Facility shell.
+	err = facilityShell()
 	if err != nil {
 		return err
 	}
@@ -94,16 +90,12 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 }
 
 // facilityLoop is the main loop of a Facility.
-func facilityLoop() error {
-	//defer handleExit()
+func facilityShell() error {
 	var input string
 
-	if verboseFlag {
-		fmt.Printf("Entering facilityLoop ...\n")
-	}
 	for {
 		// Prompt the user for input.
-		input = prompt.Input(fmt.Sprintf("Facility '%s'> ", facility.Name), facilityCompleter)
+		input = prompt.Input(fmt.Sprintf("Facility '%s'> ", facilityInfo.Name), facilityCompleter)
 
 		// Execute the input and receive a message and error.
 		message, err := facilityExecutor(input)
@@ -143,14 +135,14 @@ func facilityExecutor(input string) (string, error) {
 	// Evaluate the first string.
 	switch fields[0] {
 	default:
-		return "", UnknownCommandErr
+		return "", unknownCommandErr
 	case "exit":
 		// Exit out of the program.
 		os.Exit(0)
 	case "info":
-		fmt.Println(facility)
+		fmt.Println(facilityInfo)
 	case "discover":
-		_, err := esi.DiscoverRegistry(facilityClient, fields[1], facility)
+		_, err := esi.DiscoverRegistry(facilityClient, fields[1], facilityInfo)
 		if err != nil {
 			return "", err
 		}

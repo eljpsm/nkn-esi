@@ -24,30 +24,7 @@ import (
 	"os"
 )
 
-// Facility represents the necessary information for a facility.
-type Facility struct {
-	Name       string
-	PrivateKey string
-	Location   Location
-	Facilities []string
-}
-
-type Location struct {
-	Country       string
-	Region        string
-	TimeZone      string
-	StateProvince string
-	PostalCode    string
-	Locality      string
-	Sublocality   string
-	StreetAddress []string
-	LatLng        LatLng
-}
-
-type LatLng struct {
-	Latitude  float64 `json:"latitude"`
-	Longitude float64 `json:"longitude"`
-}
+var facilityInfo esi.DerFacilityExchangeInfo
 
 // facilityCmd represents the facility command
 var facilityCmd = &cobra.Command{
@@ -64,22 +41,20 @@ func init() {
 
 // openFacilityConfig opens and reads the given facility config.
 func openFacilityConfig(facilityPath string) (esi.DerFacilityExchangeInfo, error) {
-	var facility esi.DerFacilityExchangeInfo
-
 	// Open facility file.
 	registryFile, err := os.Open(facilityPath)
 	if err != nil {
-		return facility, err
+		return facilityInfo, err
 	}
 	defer registryFile.Close()
 
 	byteValue, err := ioutil.ReadAll(registryFile)
 	if err != nil {
-		return facility, err
+		return facilityInfo, err
 	}
 	// Unmarshal it.
-	json.Unmarshal(byteValue, &facility)
+	json.Unmarshal(byteValue, &facilityInfo)
 
 	// Return the result.
-	return facility, nil
+	return facilityInfo, nil
 }
