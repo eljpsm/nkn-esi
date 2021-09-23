@@ -29,11 +29,11 @@ import (
 )
 
 var (
-	facility esi.DerFacilityExchangeInfo
-	client            *nkn.MultiClient
-	privateKey        []byte
-	publicKey         []byte
-	UnknownCommandErr = errors.New("unknown command")
+	facility       esi.DerFacilityExchangeInfo
+	facilityClient     *nkn.MultiClient
+	facilityPrivateKey []byte
+	facilityPublicKey  []byte
+	UnknownCommandErr  = errors.New("unknown command")
 )
 
 // facilityStartCmd represents the start command
@@ -63,7 +63,7 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 	// The path to the facility config should be the first and only argument.
 	facilityPath := args[0]
 	// The private key associated with the Facility.
-	privateKey, err = hex.DecodeString(args[1])
+	facilityPrivateKey, err = hex.DecodeString(args[1])
 
 	// Get the facility config located at facilityPath.
 	facility, err = openFacilityConfig(facilityPath)
@@ -72,17 +72,17 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 	}
 
 	// Open a Multiclient with the private key and the desired number of subclients.
-	client, err = openMulticlient(privateKey, numSubClients)
+	facilityClient, err = openMulticlient(facilityPrivateKey, numSubClients)
 	if err != nil {
 		return err
 	}
 
-	publicKey = client.PubKey()
+	facilityPublicKey = facilityClient.PubKey()
 
 	// Print the key information.
-	// printPublicPrivateKeys(privateKey, publicKey)
+	// printPublicPrivateKeys(facilityPrivateKey, facilityPublicKey)
 
-	<-client.OnConnect.C
+	<-facilityClient.OnConnect.C
 	fmt.Println(fmt.Sprintf("\nConnection opened on Facility '%s'\n", facility.Name))
 
 	err = facilityLoop()
@@ -150,7 +150,7 @@ func facilityExecutor(input string) (string, error) {
 	case "info":
 		fmt.Println(facility)
 	case "discover":
-		esi.DiscoverRegistry(client, fields[1], facility)
+		esi.DiscoverRegistry(facilityClient, fields[1], facility)
 	case "register":
 	}
 
