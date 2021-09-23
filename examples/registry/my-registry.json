@@ -1,6 +1,6 @@
 {
   "name": "My Registry",
-  "RegistryPublicKey": "",
-  "KnownFacilities": [
+  "registry_public_key": "",
+  "known_facilities": [
   ]
 }

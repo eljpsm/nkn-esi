@@ -140,7 +140,7 @@ func facilityExecutor(input string) (string, error) {
 		// Exit out of the program.
 		os.Exit(0)
 	case "info":
-		fmt.Println(facilityInfo)
+		fmt.Printf("%+v\n", facilityInfo)
 	case "signup":
 		_, err := esi.DiscoverRegistry(facilityClient, fields[1], facilityInfo)
 		if err != nil {
