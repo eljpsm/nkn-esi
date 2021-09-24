@@ -44,6 +44,13 @@ var (
 
 	// infoMsgColor is the color associated with information printing.
 	infoMsgColor = color.New(color.FgCyan, color.Bold)
+	// infoMsgColorFunc is the color associated with information printing in function form.
+	infoMsgColorFunc = infoMsgColor.SprintFunc()
+
+	// noteMsgColor is the color associated with note printing.
+	noteMsgColor = color.New(color.FgYellow)
+	// noteMsgColorFunc is the color associated with note printing in function form.
+	noteMsgColorFunc = noteMsgColor.SprintFunc()
 )
 
 const (

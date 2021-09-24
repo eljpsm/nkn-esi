@@ -27,6 +27,8 @@ import (
 
 // registryClient is the Multiclient opened representing the Registry.
 var registryClient *nkn.MultiClient
+// registryPath is the path to the read registry cfg.
+var registryPath string
 
 // registryStartCmd represents the start command
 var registryStartCmd = &cobra.Command{
@@ -53,7 +55,7 @@ func registryStart(cmd *cobra.Command, args []string) error {
 	}
 
 	// The path to the registry config should be the first argument.
-	registryPath := args[0]
+	registryPath = args[0]
 	// The private key associated with the Registry.
 	registryPrivateKey, err := hex.DecodeString(args[1])
 	if err != nil {
@@ -61,7 +63,7 @@ func registryStart(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get the registry config located at registryPath.
-	err = openRegistryConfig(registryPath)
+	err = openRegistryConfig()
 	if err != nil {
 		return err
 	}
@@ -73,7 +75,7 @@ func registryStart(cmd *cobra.Command, args []string) error {
 	}
 
 	<-registryClient.OnConnect.C
-	infoMsgColor.Println(fmt.Sprintf("\nConnection opened on Registry '%s'\n", registryInfo.Name))
+	infoMsgColor.Println(fmt.Sprintf("\nConnection opened on Registry '%s'\n", noteMsgColorFunc(registryInfo.Name)))
 
 	// Enter the Registry shell.
 	err = registryLoop()
@@ -92,7 +94,6 @@ func registryLoop() error {
 
 	for {
 		msg := <-registryClient.OnMessage.C
-		//decodedInterface, err := esi.BytesDecode(msg.Data, &emptyInterface)
 
 		err := proto.Unmarshal(msg.Data, message)
 		if err != nil {
@@ -100,12 +101,25 @@ func registryLoop() error {
 			continue
 		}
 
+		// Evaluate the chunk received.
 		switch x := message.Chunk.(type) {
 		case *esi.RegistryMessage_Info:
-			fmt.Println(x.Info.Name)
+			fmt.Printf("%s has signed up to the registry\n", infoMsgColorFunc(x.Info.Name))
 
-		case *esi.RegistryMessage_GetCandidates:
+			// Append the new public key to the known facilities.
+			inKnownFacilities := false
+			for _, val := range registryInfo.KnownFacilities {
+				if val.FacilityPublicKey == x.Info.FacilityPublicKey {
+					inKnownFacilities = true
+				}
+			}
+			if inKnownFacilities == false {
+				registryInfo.KnownFacilities = append(registryInfo.KnownFacilities, x.Info)
+				saveRegistryConfig(registryInfo)
+				infoMsgColor.Sprintf("Saved Facility public key to known Facilities")
+			}
 
+		case *esi.RegistryMessage_List:
 		}
 	}
 }

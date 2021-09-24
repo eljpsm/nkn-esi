@@ -81,7 +81,7 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 	}
 
 	<-facilityClient.OnConnect.C
-	infoMsgColor.Println(fmt.Sprintf("\nConnection opened on Facility '%s'\n", facilityInfo.Name))
+	infoMsgColor.Println(fmt.Sprintf("\nConnection opened on Facility '%s'\n", noteMsgColorFunc(facilityInfo.Name)))
 
 	// Enter the Facility shell.
 	err = facilityShell()
@@ -152,7 +152,7 @@ func messageReceiver(messagesCh chan string) {
 // inputReceiver receives and returns any inputs.
 func inputReceiver(inputCh chan string) {
 	for {
-		input := prompt.Input(fmt.Sprintf("Facility '%s'> ", facilityInfo.Name), facilityCompleter)
+		input := prompt.Input("> ", facilityCompleter)
 		inputCh <- string(input)
 	}
 }
@@ -185,7 +185,7 @@ func facilityExecutor(input string) (string, error) {
 		// Exit out of the program.
 		os.Exit(0)
 	case "info":
-		fmt.Println(registryInfo)
+		fmt.Println(facilityInfo)
 	case "signup":
 		_, err := esi.DiscoverRegistry(facilityClient, fields[1], facilityInfo)
 		if err != nil {

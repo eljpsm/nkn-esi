@@ -40,7 +40,7 @@ func init() {
 }
 
 // openRegistryConfig opens and reads the given registry config.
-func openRegistryConfig(registryPath string) error {
+func openRegistryConfig() error {
 	// Open registry file.
 	registryFile, err := os.Open(registryPath)
 	if err != nil {
@@ -55,5 +55,15 @@ func openRegistryConfig(registryPath string) error {
 	// Unmarshal it.
 	json.Unmarshal(byteValue, &registryInfo)
 
+	return nil
+}
+
+func saveRegistryConfig(data interface{}) error {
+	file, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	_ = ioutil.WriteFile(registryPath, file, 0644)
 	return nil
 }

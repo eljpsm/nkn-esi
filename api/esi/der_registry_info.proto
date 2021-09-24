@@ -19,8 +19,10 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
+import "api/esi/der_facility_exchange_info.proto";
+
 message DerRegistryInfo {
   string name = 1;
   string registry_public_key = 2;
-  repeated string known_facilities = 3;
+  repeated DerFacilityExchangeInfo known_facilities = 3;
 }

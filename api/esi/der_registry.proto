@@ -21,6 +21,7 @@ package api.esi;
 option go_package = "github.com/elijahjpassmore/api/esi";
 
 import "api/esi/der_facility_exchange_info.proto";
+import "api/esi/der_facility_exchange_request.proto";
 
 message DerRegistryRequestCandidates {
 
@@ -31,7 +32,7 @@ message RegistryMessage {
 
   oneof chunk {
     DerFacilityExchangeInfo info = 1;
-    DerRegistryRequestCandidates getCandidates = 2;
+    DerFacilityExchangeRequest list = 2;
   }
 
 }
