@@ -187,7 +187,7 @@ func facilityExecutor(input string) (string, error) {
 
 	case "signup":
 		// Sign up to a registry.
-		_, err := esi.SignupRegistry(facilityClient, fields[1], facilityInfo)
+		err := esi.SignupRegistry(facilityClient, fields[1], facilityInfo)
 		if err != nil {
 			return "", err
 		}
