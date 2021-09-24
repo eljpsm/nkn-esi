@@ -2,21 +2,19 @@
   "name": "My Facility",
   "facility_public_key": "",
   "location": {
-    "country": "",
-    "region": "",
-    "time_zone": "",
-    "state_province": "",
-    "postal_code": "",
-    "locality": "",
-    "sublocality": "",
+    "country": "New Zealand",
+    "region": "My Region",
+    "time_zone": "NZT",
+    "state_province": "My Province",
+    "postal_code": "My Postal Code",
+    "locality": "My Locality",
+    "sublocality": "My Sublocality",
     "street_address": [
-      ""
+      "My Street Address"
     ],
-    "latLng": {
+    "latlng": {
       "latitude": 0,
       "longitude": 0
     }
-  },
-  "facilities": [
-  ]
+  }
 }
