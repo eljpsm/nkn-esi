@@ -30,7 +30,9 @@ import (
 )
 
 var (
-	facilityClient    *nkn.MultiClient
+	// facilityClient is the Multiclient opened representing the Facility.
+	facilityClient *nkn.MultiClient
+	// unknownCommandErr is the error returned for any unknown input.
 	unknownCommandErr = errors.New("unknown command")
 )
 
@@ -92,20 +94,22 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 
 // facilityLoop is the main loop of a Facility.
 func facilityShell() error {
+	// Create two channels, one for incoming messages and another for outgoing inputs.
 	messages := make(chan string)
 	inputs := make(chan string)
-
-	go facilityReceiver(messages)
+	go messageReceiver(messages)
 	go inputReceiver(inputs)
 
 	for {
-
 		select {
+
 		case message, ok := <-messages:
+			// Evaluate incoming messages.
 			if !ok {
 				break
 			}
 
+			// Print any new message received from the receiver.
 			fmt.Println(message)
 
 		case input, ok := <-inputs:
@@ -128,6 +132,28 @@ func facilityShell() error {
 
 		}
 
+	}
+}
+
+// messageReceiver receives and returns any incoming messages.
+func messageReceiver(messagesCh chan string) {
+	message := &esi.RegistryMessage{}
+
+	for {
+		msg := <-facilityClient.OnMessage.C
+		err := proto.Unmarshal(msg.Data, message)
+		if err != nil {
+			continue
+		}
+		messagesCh <- message.String()
+	}
+}
+
+// inputReceiver receives and returns any inputs.
+func inputReceiver(inputCh chan string) {
+	for {
+		input := prompt.Input(fmt.Sprintf("Facility '%s'> ", facilityInfo.Name), facilityCompleter)
+		inputCh <- string(input)
 	}
 }
 
@@ -169,24 +195,4 @@ func facilityExecutor(input string) (string, error) {
 	}
 
 	return "", nil
-}
-
-func facilityReceiver(messagesCh chan string) {
-	message := &esi.RegistryMessage{}
-
-	for {
-		msg := <-facilityClient.OnMessage.C
-		err := proto.Unmarshal(msg.Data, message)
-		if err != nil {
-			continue
-		}
-		messagesCh <- message.String()
-	}
-}
-
-func inputReceiver(inputCh chan string) {
-	for {
-		input := prompt.Input(fmt.Sprintf("Facility '%s'> ", facilityInfo.Name), facilityCompleter)
-		inputCh <- string(input)
-	}
 }

@@ -42,6 +42,7 @@ var (
 	// numSubClients is the number of clients when opening a new nkn.Multiclient.
 	numSubClients int
 
+	// infoMsgColor is the color associated with information printing.
 	infoMsgColor = color.New(color.FgCyan, color.Bold)
 )
 

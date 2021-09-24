@@ -25,6 +25,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// registryClient is the Multiclient opened representing the Registry.
 var registryClient *nkn.MultiClient
 
 // registryStartCmd represents the start command
