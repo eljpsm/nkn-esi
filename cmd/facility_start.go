@@ -159,7 +159,7 @@ func facilityExecutor(input string) (string, error) {
 		// Exit out of the program.
 		os.Exit(0)
 	case "info":
-		fmt.Println(proto.Marshal(&esi.RegistryMessage{Chunk: &esi.RegistryMessage_Info{Info: &facilityInfo}}))
+		fmt.Println(registryInfo)
 	case "signup":
 		_, err := esi.DiscoverRegistry(facilityClient, fields[1], facilityInfo)
 		if err != nil {
