@@ -31,8 +31,7 @@ import (
 var (
 	// facilityClient is the Multiclient opened representing the Facility.
 	facilityClient *nkn.MultiClient
-	// facilityPath is the path to the read facility cfg.
-	facilityPath string
+
 	// unknownCommandErr is the error returned for any unknown input.
 	unknownCommandErr = errors.New("unknown command")
 )
@@ -62,7 +61,7 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 	}
 
 	// The path to the facility config should be the first argument.
-	facilityPath = args[0]
+	facilityPath := args[0]
 	// The private key associated with the Facility.
 	facilityPrivateKey, err := readPrivateKey(args[1])
 	if err != nil {
@@ -70,13 +69,10 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get the facility config located at facilityPath.
-	err = openFacilityConfig()
-	if err != nil {
-		return err
-	}
+	err = readFacilityConfig(facilityPath)
 
 	// Open a Multiclient with the private key and the desired number of subclients.
-	facilityClient, err = openMulticlient(facilityPrivateKey, numSubClients)
+	facilityClient, err = newMultiClient(facilityPrivateKey, numSubClients)
 	if err != nil {
 		return err
 	}
@@ -149,8 +145,9 @@ func messageReceiver(messagesCh chan string) {
 		}
 
 		switch x := message.Chunk.(type) {
-		case *esi.RegistryMessage_Info:
-			messagesCh <- fmt.Sprintf("Received matching Facilities from %s - %s", msg.Src, x.Info.FacilityPublicKey)
+		case *esi.RegistryMessage_DerFacilityExchangeInfo:
+			// If a DerFacilityExchangeInfo is received, add it to the list of known facilities.
+			messagesCh <- fmt.Sprintf("Received matching Facility from %s - %s", noteMsgColorFunc(msg.Src), infoMsgColorFunc(x.DerFacilityExchangeInfo.FacilityPublicKey))
 		}
 	}
 }
@@ -159,7 +156,7 @@ func messageReceiver(messagesCh chan string) {
 func inputReceiver(inputCh chan string) {
 	for {
 		input := prompt.Input("> ", facilityCompleter)
-		inputCh <- string(input)
+		inputCh <- input
 	}
 }
 
@@ -168,7 +165,6 @@ func facilityCompleter(d prompt.Document) []prompt.Suggest {
 	// Useful prompts that the user can use in the shell.
 	s := []prompt.Suggest{
 		{Text: "exit", Description: "Exit out of Facility instance"},
-		{Text: "info", Description: "Print info on Facility"},
 		{Text: "signup", Description: "Signup and send Facility info to Registry"},
 		{Text: "query", Description: "Query a Registry for Facilities by location"},
 	}
@@ -191,8 +187,6 @@ func facilityExecutor(input string) (string, error) {
 	case "exit":
 		// Exit out of the program.
 		os.Exit(0)
-	case "info":
-		fmt.Println(facilityInfo)
 	case "signup":
 		_, err := esi.DiscoverRegistry(facilityClient, fields[1], facilityInfo)
 		if err != nil {

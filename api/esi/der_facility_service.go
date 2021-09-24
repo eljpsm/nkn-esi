@@ -9,7 +9,7 @@ import (
 // DiscoverRegistry discovers and sends Facility information to a Registry.
 func DiscoverRegistry(client *nkn.MultiClient, registryPublicKey string, info DerFacilityExchangeInfo) (empty.Empty, error) {
 	// Encode the given info.
-	data, err := proto.Marshal(&RegistryMessage{Chunk: &RegistryMessage_Info{Info: &info}})
+	data, err := proto.Marshal(&RegistryMessage{Chunk: &RegistryMessage_DerFacilityExchangeInfo{DerFacilityExchangeInfo: &info}})
 	if err != nil {
 		return empty.Empty{}, err
 	}

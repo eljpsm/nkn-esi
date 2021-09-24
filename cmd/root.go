@@ -17,14 +17,10 @@ limitations under the License.
 package cmd
 
 import (
-	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"github.com/fatih/color"
-	"github.com/nknorg/nkn-sdk-go"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"io/ioutil"
 	"os"
 )
 
@@ -110,58 +106,5 @@ func initConfig() {
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
-	viper.ReadInConfig() // read in config
-}
-
-// openMulticlient returns a new Multiclient with the given private key.
-func openMulticlient(private []byte, numSubClients int) (*nkn.MultiClient, error) {
-	// Create an account using the private key.
-	account, err := nkn.NewAccount(private)
-	if err != nil {
-		return nil, err
-	}
-
-	// Create a new multiclient using the private key.
-	client, err := nkn.NewMultiClient(account, "", numSubClients, true, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return client, err
-}
-
-func formatBinary(data []byte) string {
-	//hash := sha256.Sum256(data)
-	return hex.EncodeToString(data)
-}
-
-// printPublicPrivateKeys prints the provided private and public keys with additional info.
-func printPublicPrivateKeys(private []byte, public []byte) {
-	fmt.Println(fmt.Sprintf("Private Key: %s", formatBinary(private)))
-	fmt.Println(fmt.Sprintf("Public Key: %s", formatBinary(public)))
-}
-
-// saveJSONConfig saves a given interface to a path.
-func saveJSONConfig(data interface{}, path string) error {
-	file, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	_ = ioutil.WriteFile(path, file, 0644)
-	return nil
-}
-
-// readPrivateKey reads a stored private key from a path.
-func readPrivateKey(path string) ([]byte, error) {
-	byteKey, err := os.ReadFile(path)
-	if err != nil {
-		return []byte{}, err
-	}
-	var privateKey = make([]byte, len(byteKey))
-
-	length, err := hex.Decode(privateKey, byteKey)
-
-	return privateKey[0:length], nil
-
+	_ = viper.ReadInConfig() // read in config
 }

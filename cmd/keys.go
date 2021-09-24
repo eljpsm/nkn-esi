@@ -43,7 +43,7 @@ func newNKNKeyPair(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	client, err := openMulticlient(private, defaultNumSubClients)
+	client, err := newMultiClient(private, defaultNumSubClients)
 	if err != nil {
 		return err
 	}

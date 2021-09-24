@@ -24,5 +24,4 @@ import "api/esi/der_facility_exchange_info.proto";
 message DerRegistryInfo {
   string name = 1;
   string registry_public_key = 2;
-  repeated DerFacilityExchangeInfo known_facilities = 3;
 }

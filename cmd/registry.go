@@ -39,9 +39,8 @@ func init() {
 	rootCmd.AddCommand(registryCmd)
 }
 
-// openRegistryConfig opens and reads the given registry config.
-func openRegistryConfig() error {
-	// Open registry file.
+// readRegistryConfig opens and reads the given registry config into a DerRegistryInfo struct.
+func readRegistryConfig(registryPath string) error {
 	registryFile, err := os.Open(registryPath)
 	if err != nil {
 		return err
@@ -52,8 +51,10 @@ func openRegistryConfig() error {
 	if err != nil {
 		return err
 	}
-	// Unmarshal it.
-	json.Unmarshal(byteValue, &registryInfo)
+	err = json.Unmarshal(byteValue, &registryInfo)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

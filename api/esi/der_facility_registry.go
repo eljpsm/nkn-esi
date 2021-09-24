@@ -8,7 +8,7 @@ import (
 // ListDerFacilities returns a list of exchanges based on a given location.
 func ListDerFacilities(client *nkn.MultiClient, registryPublicKey string, request DerFacilityExchangeRequest) error {
 	// Encode the given info.
-	data, err := proto.Marshal(&RegistryMessage{Chunk: &RegistryMessage_List{List: &request}})
+	data, err := proto.Marshal(&RegistryMessage{Chunk: &RegistryMessage_DerFacilityExchangeRequest{DerFacilityExchangeRequest: &request}})
 	if err != nil {
 		return err
 	}

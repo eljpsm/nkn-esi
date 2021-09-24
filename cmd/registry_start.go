@@ -24,11 +24,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// registryClient is the Multiclient opened representing the Registry.
-var registryClient *nkn.MultiClient
-
-// registryPath is the path to the read registry cfg.
-var registryPath string
+var (
+	// registryClient is the Multiclient opened representing the Registry.
+	registryClient *nkn.MultiClient
+)
 
 // registryStartCmd represents the start command
 var registryStartCmd = &cobra.Command{
@@ -55,7 +54,7 @@ func registryStart(cmd *cobra.Command, args []string) error {
 	}
 
 	// The path to the registry config should be the first argument.
-	registryPath = args[0]
+	registryPath := args[0]
 	// The private key associated with the Registry.
 	registryPrivateKey, err := readPrivateKey(args[1])
 	if err != nil {
@@ -63,13 +62,13 @@ func registryStart(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get the registry config located at registryPath.
-	err = openRegistryConfig()
+	err = readRegistryConfig(registryPath)
 	if err != nil {
 		return err
 	}
 
 	// Open a Multiclient with the private key and the desired number of subclients.
-	registryClient, err = openMulticlient(registryPrivateKey, numSubClients)
+	registryClient, err = newMultiClient(registryPrivateKey, numSubClients)
 	if err != nil {
 		return err
 	}
@@ -90,8 +89,9 @@ func registryStart(cmd *cobra.Command, args []string) error {
 // registryLoop is the main loop of a Registry.
 func registryLoop() error {
 	fmt.Println("Awaiting messages ...")
-
 	message := &esi.RegistryMessage{}
+
+	// Facilities currently stored in memory.
 	facilities := make(map[string]*esi.DerFacilityExchangeInfo)
 
 	for {
@@ -105,16 +105,17 @@ func registryLoop() error {
 
 		// Evaluate the chunk received.
 		switch x := message.Chunk.(type) {
-		case *esi.RegistryMessage_Info:
 
-			// Append the new public key to the known facilities.
-			if _, ok := facilities[x.Info.FacilityPublicKey]; !ok {
+		case *esi.RegistryMessage_DerFacilityExchangeInfo:
+			// If the message received is a DerFacilityExchangeInfo interface, return a list of stored facilities and
+			// append the new public key.
+			if _, ok := facilities[x.DerFacilityExchangeInfo.FacilityPublicKey]; !ok {
 				infoMsgColor.Printf("Saved Facility public key(s) to known Facilities\n")
 
-				facilities[x.Info.FacilityPublicKey] = x.Info
+				facilities[x.DerFacilityExchangeInfo.FacilityPublicKey] = x.DerFacilityExchangeInfo
 
 				for _, v := range facilities {
-					data, err := proto.Marshal(&esi.FacilityMessage{Chunk: &esi.FacilityMessage_Info{Info: v}})
+					data, err := proto.Marshal(&esi.FacilityMessage{Chunk: &esi.FacilityMessage_DerFacilityExchangeInfo{DerFacilityExchangeInfo: v}})
 					if err != nil {
 						panic(err)
 					}
@@ -126,12 +127,17 @@ func registryLoop() error {
 				}
 			}
 
-		case *esi.RegistryMessage_List:
+		case *esi.RegistryMessage_DerFacilityExchangeRequest:
+			// If the message received is a DerFacilityExchangeRequest interface, send a list of facilities that contain
+			// the same listed details.
 			for _, v := range facilities {
 				if v.Location.Country == "New Zealand" {
-					data, _ := proto.Marshal(&esi.FacilityMessage{Chunk: &esi.FacilityMessage_Info{Info: v}})
+					data, _ := proto.Marshal(&esi.FacilityMessage{Chunk: &esi.FacilityMessage_DerFacilityExchangeInfo{DerFacilityExchangeInfo: v}})
 					fmt.Printf("Send Facility %s to %s\n", infoMsgColorFunc(v.FacilityPublicKey), noteMsgColorFunc(msg.Src))
-					registryClient.Send(nkn.NewStringArray(msg.Src), data, nil)
+					_, err = registryClient.Send(nkn.NewStringArray(msg.Src), data, nil)
+					if err != nil {
+						return err
+					}
 				}
 			}
 		}
