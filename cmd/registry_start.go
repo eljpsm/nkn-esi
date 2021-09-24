@@ -94,6 +94,7 @@ func registryLoop() error {
 
 	for {
 		msg := <-registryClient.OnMessage.C
+		fmt.Printf("Message received from %s\n", msg.Src)
 
 		err := proto.Unmarshal(msg.Data, message)
 		if err != nil {
@@ -120,6 +121,12 @@ func registryLoop() error {
 			}
 
 		case *esi.RegistryMessage_List:
+			for _, val := range registryInfo.KnownFacilities {
+				if val.Location.Country == "New Zealand" {
+					fmt.Printf("Send Facility %s to %s", val.FacilityPublicKey, msg.Src)
+					registryClient.Send(nkn.NewStringArray(msg.Src), val, nil)
+				}
+			}
 		}
 	}
 }

@@ -164,6 +164,7 @@ func facilityCompleter(d prompt.Document) []prompt.Suggest {
 		{Text: "exit", Description: "Exit out of Facility instance"},
 		{Text: "info", Description: "Print info on Facility"},
 		{Text: "signup", Description: "Signup and send Facility info to Registry"},
+		{Text: "query", Description: "Query a Registry for Facilities by location"},
 	}
 	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
 }
@@ -188,6 +189,15 @@ func facilityExecutor(input string) (string, error) {
 		fmt.Println(facilityInfo)
 	case "signup":
 		_, err := esi.DiscoverRegistry(facilityClient, fields[1], facilityInfo)
+		if err != nil {
+			return "", err
+		}
+	case "query":
+		myLocation := esi.Location{
+		Country: "New Zealand",
+		}
+		exRequest := esi.DerFacilityExchangeRequest{Location: &myLocation}
+		err := esi.ListDerFacilities(facilityClient, fields[1], exRequest)
 		if err != nil {
 			return "", err
 		}
