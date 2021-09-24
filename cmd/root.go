@@ -130,12 +130,18 @@ func openMulticlient(private []byte, numSubClients int) (*nkn.MultiClient, error
 	return client, err
 }
 
-// printPublicPrivateKeys prints the provided private and public keys with additional info.
-func printPublicPrivateKeys(private []byte, public []byte) {
-	fmt.Println(fmt.Sprintf("Private Key: %s", hex.EncodeToString(private)))
-	fmt.Println(fmt.Sprintf("Public Key: %s", hex.EncodeToString(public)))
+func formatBinary(data []byte) string {
+	//hash := sha256.Sum256(data)
+	return hex.EncodeToString(data)
 }
 
+// printPublicPrivateKeys prints the provided private and public keys with additional info.
+func printPublicPrivateKeys(private []byte, public []byte) {
+	fmt.Println(fmt.Sprintf("Private Key: %s", formatBinary(private)))
+	fmt.Println(fmt.Sprintf("Public Key: %s", formatBinary(public)))
+}
+
+// saveJSONConfig saves a given interface to a path.
 func saveJSONConfig(data interface{}, path string) error {
 	file, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
@@ -144,4 +150,18 @@ func saveJSONConfig(data interface{}, path string) error {
 
 	_ = ioutil.WriteFile(path, file, 0644)
 	return nil
+}
+
+// readPrivateKey reads a stored private key from a path.
+func readPrivateKey(path string) ([]byte, error) {
+	byteKey, err := os.ReadFile(path)
+	if err != nil {
+		return []byte{}, err
+	}
+	var privateKey = make([]byte, len(byteKey))
+
+	length, err := hex.Decode(privateKey, byteKey)
+
+	return privateKey[0:length], nil
+
 }

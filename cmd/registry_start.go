@@ -17,7 +17,6 @@ limitations under the License.
 package cmd
 
 import (
-	"encoding/hex"
 	"fmt"
 	"github.com/elijahjpassmore/nkn-esi/api/esi"
 	"github.com/golang/protobuf/proto"
@@ -58,7 +57,7 @@ func registryStart(cmd *cobra.Command, args []string) error {
 	// The path to the registry config should be the first argument.
 	registryPath = args[0]
 	// The private key associated with the Registry.
-	registryPrivateKey, err := hex.DecodeString(args[1])
+	registryPrivateKey, err := readPrivateKey(args[1])
 	if err != nil {
 		return err
 	}
@@ -77,6 +76,7 @@ func registryStart(cmd *cobra.Command, args []string) error {
 
 	<-registryClient.OnConnect.C
 	infoMsgColor.Println(fmt.Sprintf("\nConnection opened on Registry '%s'\n", noteMsgColorFunc(registryInfo.Name)))
+	fmt.Printf("Public Key: %s\n", formatBinary(registryClient.PubKey()))
 
 	// Enter the Registry shell.
 	err = registryLoop()
@@ -92,6 +92,7 @@ func registryLoop() error {
 	fmt.Println("Awaiting messages ...")
 
 	message := &esi.RegistryMessage{}
+	facilities := make(map[string]*esi.DerFacilityExchangeInfo)
 
 	for {
 		msg := <-registryClient.OnMessage.C
@@ -107,24 +108,30 @@ func registryLoop() error {
 		case *esi.RegistryMessage_Info:
 
 			// Append the new public key to the known facilities.
-			inKnownFacilities := false
-			for _, val := range registryInfo.KnownFacilities {
-				if val.FacilityPublicKey == x.Info.FacilityPublicKey {
-					inKnownFacilities = true
+			if _, ok := facilities[x.Info.FacilityPublicKey]; !ok {
+				infoMsgColor.Printf("Saved Facility public key(s) to known Facilities\n")
+
+				facilities[x.Info.FacilityPublicKey] = x.Info
+
+				for _, v := range facilities {
+					data, err := proto.Marshal(&esi.FacilityMessage{Chunk: &esi.FacilityMessage_Info{Info: v}})
+					if err != nil {
+						panic(err)
+					}
+
+					_, err = registryClient.Send(nkn.NewStringArray(msg.Src), data, nil)
+					if err != nil {
+						panic(err)
+					}
 				}
-			}
-			if inKnownFacilities == false {
-				fmt.Printf("%s has signed up to the registry\n", noteMsgColorFunc(x.Info.Name))
-				registryInfo.KnownFacilities = append(registryInfo.KnownFacilities, x.Info)
-				saveJSONConfig(registryInfo, registryPath)
-				infoMsgColor.Sprintf("Saved Facility public key to known Facilities")
 			}
 
 		case *esi.RegistryMessage_List:
-			for _, val := range registryInfo.KnownFacilities {
-				if val.Location.Country == "New Zealand" {
-					fmt.Printf("Send Facility %s to %s", infoMsgColorFunc(val.FacilityPublicKey), noteMsgColorFunc(msg.Src))
-					registryClient.Send(nkn.NewStringArray(msg.Src), val, nil)
+			for _, v := range facilities {
+				if v.Location.Country == "New Zealand" {
+					data, _ := proto.Marshal(&esi.FacilityMessage{Chunk: &esi.FacilityMessage_Info{Info: v}})
+					fmt.Printf("Send Facility %s to %s\n", infoMsgColorFunc(v.FacilityPublicKey), noteMsgColorFunc(msg.Src))
+					registryClient.Send(nkn.NewStringArray(msg.Src), data, nil)
 				}
 			}
 		}

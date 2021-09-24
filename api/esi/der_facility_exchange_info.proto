@@ -41,6 +41,6 @@ message DerFacilityExchangeInfo {
   //Location location = 4;
   Location location = 3;
 
-  repeated DerFacilityExchangeInfo known_facilities = 4;
+  //repeated string known_facilities = 4;
 
 }

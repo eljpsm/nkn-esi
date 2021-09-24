@@ -36,3 +36,11 @@ message RegistryMessage {
   }
 
 }
+
+message FacilityMessage {
+
+  oneof chunk {
+    DerFacilityExchangeInfo info = 1;
+  }
+
+}

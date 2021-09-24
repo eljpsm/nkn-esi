@@ -17,7 +17,6 @@ limitations under the License.
 package cmd
 
 import (
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/c-bata/go-prompt"
@@ -65,7 +64,7 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 	// The path to the facility config should be the first argument.
 	facilityPath = args[0]
 	// The private key associated with the Facility.
-	facilityPrivateKey, err := hex.DecodeString(args[1])
+	facilityPrivateKey, err := readPrivateKey(args[1])
 	if err != nil {
 		return err
 	}
@@ -84,6 +83,7 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 
 	<-facilityClient.OnConnect.C
 	infoMsgColor.Println(fmt.Sprintf("\nConnection opened on Facility '%s'\n", noteMsgColorFunc(facilityInfo.Name)))
+	fmt.Printf("Public Key: %s\n", formatBinary(facilityClient.PubKey()))
 
 	// Enter the Facility shell.
 	err = facilityShell()
@@ -150,19 +150,7 @@ func messageReceiver(messagesCh chan string) {
 
 		switch x := message.Chunk.(type) {
 		case *esi.RegistryMessage_Info:
-			fmt.Printf("Received matching Facilities from %s", msg.Src)
-
-			inKnownFacilities := false
-			for _, val := range facilityInfo.KnownFacilities {
-				if val.FacilityPublicKey == x.Info.FacilityPublicKey {
-					inKnownFacilities = true
-				}
-			}
-			if inKnownFacilities == false {
-				facilityInfo.KnownFacilities = append(facilityInfo.KnownFacilities, x.Info)
-				saveJSONConfig(facilityInfo, facilityPath)
-				infoMsgColor.Sprintf("Saved Facility public key(s) to known Facilities")
-			}
+			messagesCh <- fmt.Sprintf("Received matching Facilities from %s - %s", msg.Src, x.Info.FacilityPublicKey)
 		}
 	}
 }
@@ -212,7 +200,7 @@ func facilityExecutor(input string) (string, error) {
 		}
 	case "query":
 		myLocation := esi.Location{
-		Country: "New Zealand",
+			Country: "New Zealand",
 		}
 		exRequest := esi.DerFacilityExchangeRequest{Location: &myLocation}
 		err := esi.ListDerFacilities(facilityClient, fields[1], exRequest)
