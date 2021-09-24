@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/nknorg/nkn-sdk-go"
@@ -124,4 +125,13 @@ func openMulticlient(private []byte, numSubClients int) (*nkn.MultiClient, error
 func printPublicPrivateKeys(private []byte, public []byte) {
 	fmt.Println(fmt.Sprintf("Private Key: %s", hex.EncodeToString(private)))
 	fmt.Println(fmt.Sprintf("Public Key: %s", hex.EncodeToString(public)))
+}
+
+func prettyPrintInterface(i interface{}) (string, error) {
+	iJSON, err := json.MarshalIndent(i, "", "  ")
+	if err != nil {
+		return "", err
+	}
+
+	return string(iJSON), nil
 }

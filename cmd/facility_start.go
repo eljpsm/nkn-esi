@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"github.com/c-bata/go-prompt"
 	"github.com/elijahjpassmore/nkn-esi/api/esi"
+	"github.com/golang/protobuf/proto"
 	"github.com/nknorg/nkn-sdk-go"
 	"github.com/spf13/cobra"
 	"os"
@@ -91,24 +92,42 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 
 // facilityLoop is the main loop of a Facility.
 func facilityShell() error {
-	var input string
+	messages := make(chan string)
+	inputs := make(chan string)
+
+	go facilityReceiver(messages)
+	go inputReceiver(inputs)
 
 	for {
-		// Prompt the user for input.
-		input = prompt.Input(fmt.Sprintf("Facility '%s'> ", facilityInfo.Name), facilityCompleter)
 
-		// Execute the input and receive a message and error.
-		message, err := facilityExecutor(input)
+		select {
+		case message, ok := <-messages:
+			if !ok {
+				break
+			}
 
-		// If the execution results in an error, alert the user.
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-
-		// If a message was sent back, then show the user.
-		if message != "" {
 			fmt.Println(message)
+
+		case input, ok := <-inputs:
+			if !ok {
+				break
+			}
+
+			// Execute the input and receive a message and error.
+			message, err := facilityExecutor(input)
+
+			// If the execution results in an error, alert the user.
+			if err != nil {
+				fmt.Println(err.Error())
+			}
+
+			// If a message was sent back, then show the user.
+			if message != "" {
+				fmt.Println(message)
+			}
+
 		}
+
 	}
 }
 
@@ -140,7 +159,7 @@ func facilityExecutor(input string) (string, error) {
 		// Exit out of the program.
 		os.Exit(0)
 	case "info":
-		fmt.Printf("%+v\n", facilityInfo)
+		fmt.Println(proto.Marshal(&esi.RegistryMessage{Chunk: &esi.RegistryMessage_Info{Info: &facilityInfo}}))
 	case "signup":
 		_, err := esi.DiscoverRegistry(facilityClient, fields[1], facilityInfo)
 		if err != nil {
@@ -150,4 +169,24 @@ func facilityExecutor(input string) (string, error) {
 	}
 
 	return "", nil
+}
+
+func facilityReceiver(messagesCh chan string) {
+	message := &esi.RegistryMessage{}
+
+	for {
+		msg := <-facilityClient.OnMessage.C
+		err := proto.Unmarshal(msg.Data, message)
+		if err != nil {
+			continue
+		}
+		messagesCh <- message.String()
+	}
+}
+
+func inputReceiver(inputCh chan string) {
+	for {
+		input := prompt.Input(fmt.Sprintf("Facility '%s'> ", facilityInfo.Name), facilityCompleter)
+		inputCh <- string(input)
+	}
 }

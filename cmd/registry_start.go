@@ -19,6 +19,8 @@ package cmd
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/elijahjpassmore/nkn-esi/api/esi"
+	"github.com/golang/protobuf/proto"
 	"github.com/nknorg/nkn-sdk-go"
 	"github.com/spf13/cobra"
 )
@@ -85,12 +87,24 @@ func registryStart(cmd *cobra.Command, args []string) error {
 func registryLoop() error {
 	fmt.Println("Awaiting messages ...")
 
-	for {
-		msg := <- registryClient.OnMessage.C
+	message := &esi.RegistryMessage{}
 
-		switch msg.Data {
-		default:
-			fmt.Println(fmt.Sprintf("%s attempted to send data", msg.Src))
+	for {
+		msg := <-registryClient.OnMessage.C
+		//decodedInterface, err := esi.BytesDecode(msg.Data, &emptyInterface)
+
+		err := proto.Unmarshal(msg.Data, message)
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
+
+		switch x := message.Chunk.(type) {
+		case *esi.RegistryMessage_Info:
+			fmt.Println(x.Info.Name)
+
+		case *esi.RegistryMessage_GetCandidates:
+
 		}
 	}
 }

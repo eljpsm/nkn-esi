@@ -1,39 +1,21 @@
 package esi
 
 import (
-	"encoding/json"
+	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/nknorg/nkn-sdk-go"
 )
 
-func interfaceEncode(i interface{}) ([]byte, error) {
-	b, err := json.Marshal(i)
-	if err != nil {
-		return []byte{}, err
-	}
-
-	return b, nil
-}
-
-func BytesDecode(b []byte, i interface{}) (interface{}, error) {
-	err := json.Unmarshal(b, i)
-	if err != nil {
-		return i, err
-	}
-
-	return i, nil
-}
-
 // DiscoverRegistry discovers and sends Facility information to a Registry.
 func DiscoverRegistry(client *nkn.MultiClient, registryPublicKey string, info DerFacilityExchangeInfo) (empty.Empty, error) {
 	// Encode the given info.
-	bytes, err := interfaceEncode(info)
+	data, err := proto.Marshal(&RegistryMessage{Chunk: &RegistryMessage_Info{Info: &info}})
 	if err != nil {
 		return empty.Empty{}, err
 	}
 
 	// Send the information to the Registry.
-	_, err = client.Send(nkn.NewStringArray(registryPublicKey), bytes, nil)
+	_, err = client.Send(nkn.NewStringArray(registryPublicKey), data, nil)
 	if err != nil {
 		return empty.Empty{}, err
 	}
