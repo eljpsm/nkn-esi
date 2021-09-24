@@ -18,10 +18,13 @@ package cmd
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/nknorg/nkn-sdk-go"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"io/ioutil"
 	"os"
 )
 
@@ -36,6 +39,19 @@ var (
 	cfgFile string
 	// verboseFlag is the bool for the persistent flag verbose.
 	verboseFlag bool
+
+	// numSubClients is the number of clients when opening a new nkn.Multiclient.
+	numSubClients int
+
+	// infoMsgColor is the color associated with information printing.
+	infoMsgColor = color.New(color.FgCyan, color.Bold)
+	// infoMsgColorFunc is the color associated with information printing in function form.
+	infoMsgColorFunc = infoMsgColor.SprintFunc()
+
+	// noteMsgColor is the color associated with note printing.
+	noteMsgColor = color.New(color.FgYellow)
+	// noteMsgColorFunc is the color associated with note printing in function form.
+	noteMsgColorFunc = noteMsgColor.SprintFunc()
 )
 
 const (
@@ -45,6 +61,7 @@ const (
 	configFlagName = "config"
 	// verboseFlagName is the name of the verbose flag.
 	verboseFlagName = "verbose"
+
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -105,7 +122,7 @@ func openMulticlient(private []byte, numSubClients int) (*nkn.MultiClient, error
 	}
 
 	// Create a new multiclient using the private key.
-	client, err := nkn.NewMultiClient(account, "registry", numSubClients, true, nil)
+	client, err := nkn.NewMultiClient(account, "", numSubClients, true, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -113,8 +130,38 @@ func openMulticlient(private []byte, numSubClients int) (*nkn.MultiClient, error
 	return client, err
 }
 
+func formatBinary(data []byte) string {
+	//hash := sha256.Sum256(data)
+	return hex.EncodeToString(data)
+}
+
 // printPublicPrivateKeys prints the provided private and public keys with additional info.
 func printPublicPrivateKeys(private []byte, public []byte) {
-	fmt.Println(fmt.Sprintf("Private Key: %s", hex.EncodeToString(private)))
-	fmt.Println(fmt.Sprintf("Public Key: %s", hex.EncodeToString(public)))
+	fmt.Println(fmt.Sprintf("Private Key: %s", formatBinary(private)))
+	fmt.Println(fmt.Sprintf("Public Key: %s", formatBinary(public)))
+}
+
+// saveJSONConfig saves a given interface to a path.
+func saveJSONConfig(data interface{}, path string) error {
+	file, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	_ = ioutil.WriteFile(path, file, 0644)
+	return nil
+}
+
+// readPrivateKey reads a stored private key from a path.
+func readPrivateKey(path string) ([]byte, error) {
+	byteKey, err := os.ReadFile(path)
+	if err != nil {
+		return []byte{}, err
+	}
+	var privateKey = make([]byte, len(byteKey))
+
+	length, err := hex.Decode(privateKey, byteKey)
+
+	return privateKey[0:length], nil
+
 }

@@ -24,25 +24,25 @@ import (
 	"os"
 )
 
-var registryInfo esi.DerRegistryInfo
+var facilityInfo esi.DerFacilityExchangeInfo
 
-// registryCmd represents the registry command
-var registryCmd = &cobra.Command{
-	Use:   "registry",
-	Short: "Manage Registry instances.",
-	Long:  `Manage Registry instances.`,
+// facilityCmd represents the facility command
+var facilityCmd = &cobra.Command{
+	Use:   "facility",
+	Short: "Manage Facility instances",
+	Long:  `Manage Facility instances.`,
 	Args:  cobra.ExactArgs(1),
 }
 
-// init initializes registry.go.
+// init initializes facility.go.
 func init() {
-	rootCmd.AddCommand(registryCmd)
+	rootCmd.AddCommand(facilityCmd)
 }
 
-// openRegistryConfig opens and reads the given registry config.
-func openRegistryConfig() error {
-	// Open registry file.
-	registryFile, err := os.Open(registryPath)
+// openFacilityConfig opens and reads the given facility config.
+func openFacilityConfig() error {
+	// Open facility file.
+	registryFile, err := os.Open(facilityPath)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func openRegistryConfig() error {
 		return err
 	}
 	// Unmarshal it.
-	json.Unmarshal(byteValue, &registryInfo)
+	json.Unmarshal(byteValue, &facilityInfo)
 
 	return nil
 }

@@ -20,23 +20,27 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
-/**
- * Routing information for a DER message.
- */
-message DerRoute {
+import "api/esi/der_facility_exchange_info.proto";
+import "api/esi/der_facility_exchange_request.proto";
 
-  // The identifier of the exchange the request is associated with.
-  //string exchange_uid = 1;
-  string sell_key = 1;
+message DerRegistryRequestCandidates {
 
-  // The facility identifier the request is associated with.
-  //string facility_uid = 2;
-  string buy_key = 2;
-  
-  // A message signature.
-  //
-  // The message data must include the the concatenation of `exchange_uid` and
-  // `facility_uid`, both as UTF-8 bytes. If this route is embedded in another
-  // message, that message may define additional requirements to include.
-  //MessageSignature signature = 3;
+}
+
+// A discreet unit of time, using Gregorian calendar units where appropriate.
+message RegistryMessage {
+
+  oneof chunk {
+    DerFacilityExchangeInfo info = 1;
+    DerFacilityExchangeRequest list = 2;
+  }
+
+}
+
+message FacilityMessage {
+
+  oneof chunk {
+    DerFacilityExchangeInfo info = 1;
+  }
+
 }

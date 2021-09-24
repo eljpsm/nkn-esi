@@ -17,3 +17,5 @@ nkn-esi
 
 *.pb.go
 configs/
+
+*.secret

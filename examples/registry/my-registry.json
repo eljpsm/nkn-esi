@@ -1,6 +1,4 @@
 {
   "name": "My Registry",
-  "privateKey": "",
-  "facilities": [
-  ]
+  "registry_public_key": ""
 }

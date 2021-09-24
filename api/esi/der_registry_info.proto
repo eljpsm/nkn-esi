@@ -1,4 +1,3 @@
-// Copyright 2019 SolarNetwork Foundation.
 // Copyright 2021 Ecogy Energy.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,20 +19,10 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
-/**
- * A cryptographic key.
- *
- * This message is used to exchange public keys between systems.
- */
-message CryptoKey {
+import "api/esi/der_facility_exchange_info.proto";
 
-  // The key algorithm
-  string algorithm = 1;
-  
-  // The key encoding
-  string encoding = 2;
-  
-  // The key data
-  bytes key = 3;
-  
+message DerRegistryInfo {
+  string name = 1;
+  string registry_public_key = 2;
+  repeated DerFacilityExchangeInfo known_facilities = 3;
 }
