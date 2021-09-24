@@ -24,6 +24,7 @@ import (
 	"github.com/nknorg/nkn-sdk-go"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"io/ioutil"
 	"os"
 )
 
@@ -135,11 +136,12 @@ func printPublicPrivateKeys(private []byte, public []byte) {
 	fmt.Println(fmt.Sprintf("Public Key: %s", hex.EncodeToString(public)))
 }
 
-func prettyPrintInterface(i interface{}) (string, error) {
-	iJSON, err := json.MarshalIndent(i, "", "  ")
+func saveJSONConfig(data interface{}, path string) error {
+	file, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return string(iJSON), nil
+	_ = ioutil.WriteFile(path, file, 0644)
+	return nil
 }

@@ -40,7 +40,7 @@ func init() {
 }
 
 // openFacilityConfig opens and reads the given facility config.
-func openFacilityConfig(facilityPath string) error {
+func openFacilityConfig() error {
 	// Open facility file.
 	registryFile, err := os.Open(facilityPath)
 	if err != nil {

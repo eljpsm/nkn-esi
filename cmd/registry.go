@@ -57,13 +57,3 @@ func openRegistryConfig() error {
 
 	return nil
 }
-
-func saveRegistryConfig(data interface{}) error {
-	file, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	_ = ioutil.WriteFile(registryPath, file, 0644)
-	return nil
-}

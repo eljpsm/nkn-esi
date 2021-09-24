@@ -32,6 +32,8 @@ import (
 var (
 	// facilityClient is the Multiclient opened representing the Facility.
 	facilityClient *nkn.MultiClient
+	// facilityPath is the path to the read facility cfg.
+	facilityPath string
 	// unknownCommandErr is the error returned for any unknown input.
 	unknownCommandErr = errors.New("unknown command")
 )
@@ -61,7 +63,7 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 	}
 
 	// The path to the facility config should be the first argument.
-	facilityPath := args[0]
+	facilityPath = args[0]
 	// The private key associated with the Facility.
 	facilityPrivateKey, err := hex.DecodeString(args[1])
 	if err != nil {
@@ -69,7 +71,7 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get the facility config located at facilityPath.
-	err = openFacilityConfig(facilityPath)
+	err = openFacilityConfig()
 	if err != nil {
 		return err
 	}
@@ -145,7 +147,23 @@ func messageReceiver(messagesCh chan string) {
 		if err != nil {
 			continue
 		}
-		messagesCh <- message.String()
+
+		switch x := message.Chunk.(type) {
+		case *esi.RegistryMessage_Info:
+			fmt.Printf("Received matching Facilities from %s", msg.Src)
+
+			inKnownFacilities := false
+			for _, val := range facilityInfo.KnownFacilities {
+				if val.FacilityPublicKey == x.Info.FacilityPublicKey {
+					inKnownFacilities = true
+				}
+			}
+			if inKnownFacilities == false {
+				facilityInfo.KnownFacilities = append(facilityInfo.KnownFacilities, x.Info)
+				saveJSONConfig(facilityInfo, facilityPath)
+				infoMsgColor.Sprintf("Saved Facility public key(s) to known Facilities")
+			}
+		}
 	}
 }
 

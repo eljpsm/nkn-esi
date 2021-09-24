@@ -27,6 +27,7 @@ import (
 
 // registryClient is the Multiclient opened representing the Registry.
 var registryClient *nkn.MultiClient
+
 // registryPath is the path to the read registry cfg.
 var registryPath string
 
@@ -94,8 +95,7 @@ func registryLoop() error {
 
 	for {
 		msg := <-registryClient.OnMessage.C
-		fmt.Printf("Message received from %s\n", msg.Src)
-
+		fmt.Printf("Message received from %s\n", noteMsgColorFunc(msg.Src))
 		err := proto.Unmarshal(msg.Data, message)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -105,7 +105,6 @@ func registryLoop() error {
 		// Evaluate the chunk received.
 		switch x := message.Chunk.(type) {
 		case *esi.RegistryMessage_Info:
-			fmt.Printf("%s has signed up to the registry\n", infoMsgColorFunc(x.Info.Name))
 
 			// Append the new public key to the known facilities.
 			inKnownFacilities := false
@@ -115,15 +114,16 @@ func registryLoop() error {
 				}
 			}
 			if inKnownFacilities == false {
+				fmt.Printf("%s has signed up to the registry\n", noteMsgColorFunc(x.Info.Name))
 				registryInfo.KnownFacilities = append(registryInfo.KnownFacilities, x.Info)
-				saveRegistryConfig(registryInfo)
+				saveJSONConfig(registryInfo, registryPath)
 				infoMsgColor.Sprintf("Saved Facility public key to known Facilities")
 			}
 
 		case *esi.RegistryMessage_List:
 			for _, val := range registryInfo.KnownFacilities {
 				if val.Location.Country == "New Zealand" {
-					fmt.Printf("Send Facility %s to %s", val.FacilityPublicKey, msg.Src)
+					fmt.Printf("Send Facility %s to %s", infoMsgColorFunc(val.FacilityPublicKey), noteMsgColorFunc(msg.Src))
 					registryClient.Send(nkn.NewStringArray(msg.Src), val, nil)
 				}
 			}
