@@ -19,7 +19,9 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
-message DerRegistryInfo {
-  string name = 1;
-  string registry_public_key = 2;
+// A simple acknowledgement message.
+message Ack {
+
+  bool acknowledged = 1;
+
 }

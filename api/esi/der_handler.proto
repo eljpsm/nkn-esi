@@ -22,23 +22,34 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 import "api/esi/der_facility_exchange_info.proto";
 import "api/esi/der_facility_exchange_request.proto";
 
+// Mapping messages from Protocol Buffer structs to a type.
+
+// A special empty message which is to be interpreted as a simple request for facility candidates.
 message DerRegistryRequestCandidates {
 
 }
 
-// A discreet unit of time, using Gregorian calendar units where appropriate.
+// A message received by a Registry.
 message RegistryMessage {
 
   oneof chunk {
+    // DerFacilityExchangeInfo
+    // Should return a list of known facilities.
     DerFacilityExchangeInfo DerFacilityExchangeInfo = 1;
+
+    // DerFacilityExchangeRequest
+    // Should return a list of known facilities that match the given request.
     DerFacilityExchangeRequest DerFacilityExchangeRequest = 2;
   }
 
 }
 
+// A message received by a Facility.
 message FacilityMessage {
 
   oneof chunk {
+    // DerFacilityExchangeInfo
+    // Should add facilities to storage.
     DerFacilityExchangeInfo DerFacilityExchangeInfo = 1;
   }
 

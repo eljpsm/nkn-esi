@@ -103,12 +103,9 @@ func registryLoop() error {
 			continue
 		}
 
-		// Evaluate the chunk received.
+		// Case documentation located at api/esi/der_handler.proto.
 		switch x := message.Chunk.(type) {
-
 		case *esi.RegistryMessage_DerFacilityExchangeInfo:
-			// If the message received is a DerFacilityExchangeInfo interface, return a list of stored facilities and
-			// append the new public key.
 			if _, ok := facilities[x.DerFacilityExchangeInfo.FacilityPublicKey]; !ok {
 				infoMsgColor.Printf("Saved Facility public key(s) to known Facilities\n")
 
@@ -128,8 +125,6 @@ func registryLoop() error {
 			}
 
 		case *esi.RegistryMessage_DerFacilityExchangeRequest:
-			// If the message received is a DerFacilityExchangeRequest interface, send a list of facilities that contain
-			// the same listed details.
 			for _, v := range facilities {
 				if v.Location.Country == "New Zealand" {
 					data, _ := proto.Marshal(&esi.FacilityMessage{Chunk: &esi.FacilityMessage_DerFacilityExchangeInfo{DerFacilityExchangeInfo: v}})

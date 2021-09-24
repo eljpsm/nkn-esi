@@ -6,21 +6,21 @@ import (
 	"github.com/nknorg/nkn-sdk-go"
 )
 
-// DiscoverRegistry discovers and sends Facility information to a Registry.
-func DiscoverRegistry(client *nkn.MultiClient, registryPublicKey string, info DerFacilityExchangeInfo) (empty.Empty, error) {
+// SignupRegistry discovers and sends Facility information to a Registry.
+func SignupRegistry(client *nkn.MultiClient, registryPublicKey string, info DerFacilityExchangeInfo) error {
 	// Encode the given info.
 	data, err := proto.Marshal(&RegistryMessage{Chunk: &RegistryMessage_DerFacilityExchangeInfo{DerFacilityExchangeInfo: &info}})
 	if err != nil {
-		return empty.Empty{}, err
+		return err
 	}
 
 	// Send the information to the Registry.
 	_, err = client.Send(nkn.NewStringArray(registryPublicKey), data, nil)
 	if err != nil {
-		return empty.Empty{}, err
+		return err
 	}
 
-	return empty.Empty{}, nil
+	return nil
 }
 
 // GetDerFacilityRegistrationForm returns the registration for a Facility to use.

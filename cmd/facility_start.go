@@ -106,7 +106,6 @@ func facilityShell() error {
 			if !ok {
 				break
 			}
-
 			// Print any new message received from the receiver.
 			fmt.Println(message)
 
@@ -114,15 +113,12 @@ func facilityShell() error {
 			if !ok {
 				break
 			}
-
 			// Execute the input and receive a message and error.
 			message, err := facilityExecutor(input)
-
 			// If the execution results in an error, alert the user.
 			if err != nil {
 				fmt.Println(err.Error())
 			}
-
 			// If a message was sent back, then show the user.
 			if message != "" {
 				fmt.Println(message)
@@ -144,9 +140,9 @@ func messageReceiver(messagesCh chan string) {
 			continue
 		}
 
+		// Case documentation located at api/esi/der_handler.proto.
 		switch x := message.Chunk.(type) {
 		case *esi.RegistryMessage_DerFacilityExchangeInfo:
-			// If a DerFacilityExchangeInfo is received, add it to the list of known facilities.
 			messagesCh <- fmt.Sprintf("Received matching Facility from %s - %s", noteMsgColorFunc(msg.Src), infoMsgColorFunc(x.DerFacilityExchangeInfo.FacilityPublicKey))
 		}
 	}
@@ -184,23 +180,29 @@ func facilityExecutor(input string) (string, error) {
 	switch fields[0] {
 	default:
 		return "", unknownCommandErr
+
 	case "exit":
 		// Exit out of the program.
 		os.Exit(0)
+
 	case "signup":
-		_, err := esi.DiscoverRegistry(facilityClient, fields[1], facilityInfo)
+		// Sign up to a registry.
+		_, err := esi.SignupRegistry(facilityClient, fields[1], facilityInfo)
 		if err != nil {
 			return "", err
 		}
+
 	case "query":
+		// Query a registry by details.
 		myLocation := esi.Location{
 			Country: "New Zealand",
 		}
 		exRequest := esi.DerFacilityExchangeRequest{Location: &myLocation}
-		err := esi.ListDerFacilities(facilityClient, fields[1], exRequest)
+		err := esi.QueryDerFacilities(facilityClient, fields[1], exRequest)
 		if err != nil {
 			return "", err
 		}
+
 	case "register":
 	}
 

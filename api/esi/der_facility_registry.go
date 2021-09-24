@@ -5,8 +5,8 @@ import (
 	"github.com/nknorg/nkn-sdk-go"
 )
 
-// ListDerFacilities returns a list of exchanges based on a given location.
-func ListDerFacilities(client *nkn.MultiClient, registryPublicKey string, request DerFacilityExchangeRequest) error {
+// QueryDerFacilities returns a list of exchanges based on a given location.
+func QueryDerFacilities(client *nkn.MultiClient, registryPublicKey string, request DerFacilityExchangeRequest) error {
 	// Encode the given info.
 	data, err := proto.Marshal(&RegistryMessage{Chunk: &RegistryMessage_DerFacilityExchangeRequest{DerFacilityExchangeRequest: &request}})
 	if err != nil {
