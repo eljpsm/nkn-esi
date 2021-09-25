@@ -67,6 +67,12 @@ func registryStart(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// Validate the key pair.
+	err = validateCfgKeyPair(registryInfo.RegistryPublicKey, registryClient)
+	if err != nil {
+		return err
+	}
+
 	<-registryClient.OnConnect.C
 	infoMsgColor.Println(fmt.Sprintf("\nConnection opened on Registry '%s'\n", noteMsgColorFunc(registryInfo.Name)))
 	fmt.Printf("Public Key: %s\n", formatBinary(registryClient.PubKey()))

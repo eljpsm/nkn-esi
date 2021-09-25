@@ -2,10 +2,15 @@ package cmd
 
 import (
 	"encoding/hex"
+	"errors"
 	"github.com/nknorg/nkn-sdk-go"
 	"io/ioutil"
 	"os"
+	"reflect"
 )
+
+// invalidKeyPairErr is raised when a key pair is invalid.
+var invalidKeyPairErr = errors.New("key pair does not match or is invalid")
 
 // formatBinary formats a binary key to a hex encoded string for readability.
 func formatBinary(data []byte) string {
@@ -74,4 +79,18 @@ func writeSecretKey(keyPath string) (string, error) {
 
 	// Return the public key.
 	return formatBinary(client.PubKey()), nil
+}
+
+// validateCfgKeyPair validates that the provided public key is expected of the created client.
+func validateCfgKeyPair(cfgPublic string, client *nkn.MultiClient) error {
+	publicBytes, err := hex.DecodeString(cfgPublic)
+	if err != nil {
+		return err
+	}
+	expectedPublic := client.PubKey()
+	if !reflect.DeepEqual(publicBytes, expectedPublic) {
+		return invalidKeyPairErr
+	}
+
+	return nil
 }

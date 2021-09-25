@@ -64,6 +64,12 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// Validate the key pair.
+	err = validateCfgKeyPair(facilityInfo.FacilityPublicKey, facilityClient)
+	if err != nil {
+		return err
+	}
+
 	<-facilityClient.OnConnect.C
 	infoMsgColor.Println(fmt.Sprintf("\nConnection opened on Facility '%s'\n", noteMsgColorFunc(facilityInfo.Name)))
 	fmt.Printf("Public Key: %s\n", formatBinary(facilityClient.PubKey()))
