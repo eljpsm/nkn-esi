@@ -70,10 +70,11 @@ func facilityMessageReceiver(messagesCh chan string) {
 			continue
 		}
 
-		// Case documentation located at api/esi/der_handler.proto.
+		// Case documentation located at api/esi/deer_facility_service.go.
 		switch x := message.Chunk.(type) {
-		case *esi.FacilityMessage_DerFacilityExchangeInfo:
-			messagesCh <- fmt.Sprintf("Received matching Facility from %s - %s", noteMsgColorFunc(msg.Src), infoMsgColorFunc(x.DerFacilityExchangeInfo.FacilityPublicKey))
+		case *esi.FacilityMessage_SendKnownDerFacility:
+			// TODO: Save new facility.
+			messagesCh <- fmt.Sprintf("Received matching Facility from %s - %s", noteMsgColorFunc(msg.Src), infoMsgColorFunc(x.SendKnownDerFacility.FacilityPublicKey))
 
 		case *esi.FacilityMessage_DerFacilityRegistrationFormRequest:
 			// TODO: User created? Pass in as argument?

@@ -39,11 +39,11 @@ message RegistryMessage {
   oneof chunk {
     // DerFacilityExchangeInfo
     // Should return a list of known facilities.
-    DerFacilityExchangeInfo DerFacilityExchangeInfo = 1;
+    DerFacilityExchangeInfo SignupRegistry = 1;
 
     // DerFacilityExchangeRequest
     // Should return a list of known facilities that match the given request.
-    DerFacilityExchangeRequest DerFacilityExchangeRequest = 2;
+    DerFacilityExchangeRequest QueryDerFacilities = 2;
   }
 
 }
@@ -54,7 +54,7 @@ message FacilityMessage {
   oneof chunk {
     // DerFacilityExchangeInfo
     // Should add facilities to storage.
-    DerFacilityExchangeInfo DerFacilityExchangeInfo = 1;
+    DerFacilityExchangeInfo SendKnownDerFacility = 1;
     DerFacilityRegistrationFormRequest DerFacilityRegistrationFormRequest = 2;
     DerFacilityRegistrationForm DerFacilityRegistrationForm = 3;
     DerFacilityRegistrationFormData DerFacilityRegistrationFormData = 4;
