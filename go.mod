@@ -3,16 +3,17 @@ module github.com/elijahjpassmore/nkn-esi
 go 1.17
 
 require (
-	github.com/c-bata/go-prompt v0.2.5
+	github.com/c-bata/go-prompt v0.2.6
+	github.com/fatih/color v1.13.0
+	github.com/golang/protobuf v1.5.2
 	github.com/nknorg/nkn-sdk-go v1.3.6
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.9.0
+	google.golang.org/protobuf v1.27.1
 )
 
 require (
-	github.com/fatih/color v1.13.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.0 // indirect
@@ -31,7 +32,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pbnjay/memory v0.0.0-20190104145345-974d429e7ae4 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
-	github.com/pkg/term v1.1.0 // indirect
+	github.com/pkg/term v1.2.0-beta.2 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
@@ -40,7 +41,6 @@ require (
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
 	golang.org/x/sys v0.0.0-20210823070655-63515b42dcdf // indirect
 	golang.org/x/text v0.3.6 // indirect
-	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/ini.v1 v1.63.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
