@@ -55,10 +55,10 @@ message FacilityMessage {
     // DerFacilityExchangeInfo
     // Should add facilities to storage.
     DerFacilityExchangeInfo SendKnownDerFacility = 1;
-    DerFacilityRegistrationFormRequest DerFacilityRegistrationFormRequest = 2;
-    DerFacilityRegistrationForm DerFacilityRegistrationForm = 3;
-    DerFacilityRegistrationFormData DerFacilityRegistrationFormData = 4;
-    DerFacilityRegistration DerFacilityRegistration = 5;
+    DerFacilityRegistrationFormRequest GetDerFacilityRegistrationForm = 2;
+    DerFacilityRegistrationForm SendDerFacilityRegistrationForm = 3;
+    DerFacilityRegistrationFormData SubmitDerFacilityRegistrationForm = 4;
+    DerFacilityRegistration CompleteDerFacilityRegistration = 5;
   }
 
 }

@@ -77,7 +77,7 @@ func facilityMessageReceiver(messagesCh chan string) {
 			// TODO: Save new facility.
 			messagesCh <- fmt.Sprintf("Received matching Facility from %s - %s", noteMsgColorFunc(msg.Src), infoMsgColorFunc(x.SendKnownDerFacility.FacilityPublicKey))
 
-		case *esi.FacilityMessage_DerFacilityRegistrationFormRequest:
+		case *esi.FacilityMessage_GetDerFacilityRegistrationForm:
 			// TODO: User created? Pass in as argument?
 			messagesCh <- fmt.Sprintf("Received registration from request from %s", noteMsgColorFunc(msg.Src))
 
@@ -93,7 +93,7 @@ func facilityMessageReceiver(messagesCh chan string) {
 			formKey += 1 // increment form key
 			messagesCh <- fmt.Sprintf("Sent registration form to %s", noteMsgColorFunc(msg.Src))
 
-		case *esi.FacilityMessage_DerFacilityRegistrationForm:
+		case *esi.FacilityMessage_SendDerFacilityRegistrationForm:
 			// TODO: User fills in? Automatic? Currently automatic submit.
 			messagesCh <- fmt.Sprintf("Received registration form from %s", noteMsgColorFunc(msg.Src))
 
@@ -106,7 +106,7 @@ func facilityMessageReceiver(messagesCh chan string) {
 
 			messagesCh <- fmt.Sprintf("Submitted registration form to %s", noteMsgColorFunc(msg.Src))
 
-		case *esi.FacilityMessage_DerFacilityRegistrationFormData:
+		case *esi.FacilityMessage_SubmitDerFacilityRegistrationForm:
 			// TODO: Fill in registration form.
 			messagesCh <- fmt.Sprintf("Received registration form data from %s", noteMsgColorFunc(msg.Src))
 
@@ -122,7 +122,7 @@ func facilityMessageReceiver(messagesCh chan string) {
 			messagesCh <- fmt.Sprintf("Submitted completed registration to %s", noteMsgColorFunc(msg.Src))
 			messagesCh <- successMsgColor.Sprintf("Permission granted to %s", noteMsgColorFunc(msg.Src))
 
-		case *esi.FacilityMessage_DerFacilityRegistration:
+		case *esi.FacilityMessage_CompleteDerFacilityRegistration:
 			// TODO: More info?
 			messagesCh <- fmt.Sprintf("Completed registration from %s", noteMsgColorFunc(msg.Src))
 			messagesCh <- successMsgColor.Sprintf("Granted permission to %s", noteMsgColorFunc(msg.Src))

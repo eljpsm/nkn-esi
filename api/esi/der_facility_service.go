@@ -8,7 +8,7 @@ import (
 
 // GetDerFacilityRegistrationForm returns the registration for a Facility to use.
 func GetDerFacilityRegistrationForm(client *nkn.MultiClient, request DerFacilityRegistrationFormRequest) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_DerFacilityRegistrationFormRequest{DerFacilityRegistrationFormRequest: &request}})
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_GetDerFacilityRegistrationForm{GetDerFacilityRegistrationForm: &request}})
 	if err != nil {
 		return err
 	}
@@ -23,7 +23,7 @@ func GetDerFacilityRegistrationForm(client *nkn.MultiClient, request DerFacility
 
 // SendDerFacilityRegistrationForm sends the registration form to the customer.
 func SendDerFacilityRegistrationForm(client *nkn.MultiClient, registrationForm DerFacilityRegistrationForm) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_DerFacilityRegistrationForm{DerFacilityRegistrationForm: &registrationForm}})
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SendDerFacilityRegistrationForm{SendDerFacilityRegistrationForm: &registrationForm}})
 	if err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func SendDerFacilityRegistrationForm(client *nkn.MultiClient, registrationForm D
 // When called, the data will be validated, and any problems will be expressed via standard error details.
 // When received, the receiving Facility will return with the function CompleteDerFacilityRegistration.
 func SubmitDerFacilityRegistrationForm(client *nkn.MultiClient, formData DerFacilityRegistrationFormData) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_DerFacilityRegistrationFormData{DerFacilityRegistrationFormData: &formData}})
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SubmitDerFacilityRegistrationForm{SubmitDerFacilityRegistrationForm: &formData}})
 	if err != nil {
 		return err
 	}
@@ -55,7 +55,7 @@ func SubmitDerFacilityRegistrationForm(client *nkn.MultiClient, formData DerFaci
 
 // CompleteDerFacilityRegistration completes the Facility registration process.
 func CompleteDerFacilityRegistration(client *nkn.MultiClient, registration DerFacilityRegistration) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_DerFacilityRegistration{DerFacilityRegistration: &registration}})
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_CompleteDerFacilityRegistration{CompleteDerFacilityRegistration: &registration}})
 	if err != nil {
 		return err
 	}
