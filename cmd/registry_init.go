@@ -18,7 +18,6 @@ package cmd
 
 import (
 	"encoding/json"
-	"github.com/elijahjpassmore/nkn-esi/api/esi"
 	"io/ioutil"
 	"os"
 
@@ -30,7 +29,7 @@ var registryInitCmd = &cobra.Command{
 	Use:   "init <keyName> <configName>",
 	Short: "Quickly create a new registry configuration and key pair",
 	Long:  `Quickly create a new registry configuration and key pair.`,
-	Args:  cobra.ExactArgs(2),
+	Args:  cobra.ExactArgs(1),
 	RunE:  registryInit,
 }
 
@@ -42,25 +41,22 @@ func init() {
 // registryInit is the function run by registryInitCmd.
 func registryInit(cmd *cobra.Command, args []string) error {
 	var err error
-	keyName := args[0]
-	configName := args[1]
+	registryPath := args[0]
 
-	publicKey, err := writeSecretKey(keyName+secretKeySuffix)
+	publicKey, err := writeSecretKey(registryPath+secretKeySuffix)
 	if err != nil {
 		return err
 	}
 
-	newConfig := esi.DerRegistryInfo{
-		Name: "New Registry",
-		RegistryPublicKey: publicKey,
-	}
+	newConfig := dummyDerRegistryInfo
+	newConfig.RegistryPublicKey = publicKey
 
 	// Write the new config.
 	jsonBytes, err := json.MarshalIndent(newConfig, "", "  ")
 	if err != nil {
 		return err
 	}
-	ioutil.WriteFile(configName+interfaceCfgSuffix, jsonBytes, os.ModePerm)
+	ioutil.WriteFile(registryPath+interfaceCfgSuffix, jsonBytes, os.ModePerm)
 
 	return nil
 }

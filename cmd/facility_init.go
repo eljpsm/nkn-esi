@@ -18,7 +18,6 @@ package cmd
 
 import (
 	"encoding/json"
-	"github.com/elijahjpassmore/nkn-esi/api/esi"
 	"io/ioutil"
 	"os"
 
@@ -27,10 +26,10 @@ import (
 
 // facilityInitCmd represents the facilityInitCmd command
 var facilityInitCmd = &cobra.Command{
-	Use:   "init <keyName> <configName>",
+	Use:   "init <facilityName>",
 	Short: "Quickly create a new facility configuration and key pair",
 	Long:  `Quickly create a new facility configuration and key pair.`,
-	Args:  cobra.ExactArgs(2),
+	Args:  cobra.ExactArgs(1),
 	RunE:  facilityInit,
 }
 
@@ -42,43 +41,22 @@ func init() {
 // facilityInit is the function run by facilityInitCmd.
 func facilityInit(cmd *cobra.Command, args []string) error {
 	var err error
-	keyName := args[0]
-	configName := args[1]
+	facilityPath := args[0]
 
-	publicKey, err := writeSecretKey(keyName+secretKeySuffix)
+	publicKey, err := writeSecretKey(facilityPath+secretKeySuffix)
 	if err != nil {
 		return err
 	}
 
-	newLatlng := esi.LatLng{
-		Latitude: -36.86397,
-		Longitude: 174.72052,
-	}
-	newLocation := esi.Location{
-		Country: "New Zealand",
-		Region: "Auckland",
-		TimeZone: "NZT",
-		StateProvince: "Auckland",
-		PostalCode: "1022",
-		Locality: "Auckland",
-		Sublocality: "Western Springs",
-		StreetAddress: []string{
-			"Motions Road",
-		},
-		Latlng: &newLatlng,
-	}
-	newConfig := esi.DerFacilityExchangeInfo{
-		Name: "New Facility",
-		FacilityPublicKey: publicKey,
-		Location: &newLocation,
-	}
+	newConfig := dummyDerFacilityExchangeInfo
+	newConfig.FacilityPublicKey = publicKey
 
 	// Write the new config.
 	jsonBytes, err := json.MarshalIndent(newConfig, "", "  ")
 	if err != nil {
 		return err
 	}
-	ioutil.WriteFile(configName+interfaceCfgSuffix, jsonBytes, os.ModePerm)
+	ioutil.WriteFile(facilityPath+interfaceCfgSuffix, jsonBytes, os.ModePerm)
 
 	return nil
 }
