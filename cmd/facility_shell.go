@@ -144,7 +144,6 @@ func facilityCompleter(d prompt.Document) []prompt.Suggest {
 	// Useful prompts that the user can use in the shell.
 	s := []prompt.Suggest{
 		{Text: "exit", Description: "Exit out of Facility instance"},
-		{Text: "public", Description: "Print public key"},
 		{Text: "list", Description: "List known facilities"},
 		{Text: "signup", Description: "Signup and send Facility info to Registry"},
 		{Text: "query", Description: "Query a Registry for Facilities by location"},
@@ -168,28 +167,39 @@ func facilityExecutor(input string) error {
 		return errors.New(fmt.Sprintf("unknown command: %s", input))
 
 	case "exit":
+		if len(fields) > 1 {
+			break
+		}
+
 		// Exit out of the program.
 		os.Exit(0)
 
-	case "public":
-		successMsgColor.Printf("%s\n", formatBinary(facilityClient.PubKey()))
-
 	case "list":
+		if len(fields) > 1 {
+			break
+		}
+
 		for _, v := range knownFacilities {
 			fmt.Printf("Name: %s\nCountry: %s\nRegion: %s\nPublic Key: %s\n", v.Name, v.Location.Country, v.Location.Region, v.FacilityPublicKey)
 		}
 
 	case "signup":
-		// Sign up to a registry.
-		err = esi.SignupRegistry(facilityClient, fields[1], facilityInfo)
-		if err != nil {
-			return err
+		for _, v := range fields[1:] {
+			// Sign up to a registry.
+			err = esi.SignupRegistry(facilityClient, v, facilityInfo)
+			if err != nil {
+				return err
+			}
 		}
 
 	case "query":
 		// Query a registry by details.
+		if len(fields) != 2 {
+			break
+		}
+
 		myLocation := esi.Location{
-			Country: "New Zealand",
+			Country: "DC",
 		}
 		exRequest := esi.DerFacilityExchangeRequest{Location: &myLocation}
 		err = esi.QueryDerFacilities(facilityClient, fields[1], exRequest)
@@ -198,6 +208,10 @@ func facilityExecutor(input string) error {
 		}
 
 	case "request":
+		if len(fields) != 2 {
+			break
+		}
+
 		newRequest := esi.DerFacilityRegistrationFormRequest{FacilityPublicKey: fields[1], LanguageCode: fields[2]}
 		err = esi.GetDerFacilityRegistrationForm(facilityClient, newRequest)
 		if err != nil {
