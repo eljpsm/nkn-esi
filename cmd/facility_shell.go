@@ -67,6 +67,7 @@ func facilityMessageReceiver(messagesCh chan string) {
 		msg := <-facilityClient.OnMessage.C
 		err := proto.Unmarshal(msg.Data, message)
 		if err != nil {
+			fmt.Println(err.Error())
 			continue
 		}
 
