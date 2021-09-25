@@ -74,7 +74,7 @@ func facilityMessageReceiver(messagesCh chan string) {
 		// Case documentation located at api/esi/deer_facility_service.go.
 		switch x := message.Chunk.(type) {
 		case *esi.FacilityMessage_SendKnownDerFacility:
-			messagesCh <- fmt.Sprintf("Received matching Facility from %s - %s", noteMsgColorFunc(msg.Src), infoMsgColorFunc(x.SendKnownDerFacility.FacilityPublicKey))
+			messagesCh <- fmt.Sprintf("Received Facility from %s - %s", noteMsgColorFunc(msg.Src), infoMsgColorFunc(x.SendKnownDerFacility.FacilityPublicKey))
 			knownFacilities[x.SendKnownDerFacility.FacilityPublicKey] = x.SendKnownDerFacility
 			messagesCh <- fmt.Sprintf("Saved Facility %s", infoMsgColorFunc(x.SendKnownDerFacility.FacilityPublicKey))
 
@@ -174,7 +174,9 @@ func facilityExecutor(input string) error {
 		successMsgColor.Printf("%s\n", formatBinary(facilityClient.PubKey()))
 
 	case "list":
-		fmt.Println(knownFacilities)
+		for _, v := range knownFacilities {
+			fmt.Printf("Name: %s\nCountry: %s\nRegion: %s\nPublic Key: %s\n", v.Name, v.Location.Country, v.Location.Region, v.FacilityPublicKey)
+		}
 
 	case "signup":
 		// Sign up to a registry.
