@@ -75,9 +75,9 @@ func facilityMessageReceiver(messagesCh chan string) {
 		switch x := message.Chunk.(type) {
 		case *esi.FacilityMessage_SendKnownDerFacility:
 			// TODO: Does this work as expected for Facility to Facility?
-			messagesCh <- fmt.Sprintf("Received Facility from %s - %s", noteMsgColorFunc(msg.Src), infoMsgColorFunc(x.SendKnownDerFacility.FacilityPublicKey))
+			messagesCh <- fmt.Sprintf("Received Facility from %s - %s", noteMsgColorFunc(msg.Src), infoMsgColorFunc(x.SendKnownDerFacility.GetFacilityPublicKey()))
 			knownFacilities[x.SendKnownDerFacility.FacilityPublicKey] = x.SendKnownDerFacility
-			messagesCh <- fmt.Sprintf("Saved Facility %s", infoMsgColorFunc(x.SendKnownDerFacility.FacilityPublicKey))
+			messagesCh <- fmt.Sprintf("Saved Facility %s", infoMsgColorFunc(x.SendKnownDerFacility.GetFacilityPublicKey()))
 
 		case *esi.FacilityMessage_GetDerFacilityRegistrationForm:
 			// TODO: User created? Pass in as argument?
@@ -113,7 +113,8 @@ func facilityMessageReceiver(messagesCh chan string) {
 			messagesCh <- fmt.Sprintf("Received registration form data from %s", noteMsgColorFunc(msg.Src))
 
 			route := esi.DerRoute{
-				BuyKey: msg.Src,
+				BuyKey: facilityInfo.GetFacilityPublicKey(),
+				SellKey: msg.Src,
 			}
 			registration := esi.DerFacilityRegistration{
 				Route: &route,
@@ -180,7 +181,7 @@ func facilityExecutor(input string) error {
 		}
 
 		for _, v := range knownFacilities {
-			fmt.Printf("Name: %s\nCountry: %s\nRegion: %s\nPublic Key: %s\n", v.Name, v.Location.Country, v.Location.Region, v.FacilityPublicKey)
+			fmt.Printf("Name: %s\nCountry: %s\nRegion: %s\nPublic Key: %s\n", v.GetName(), v.Location.GetCountry(), v.Location.GetRegion(), v.GetFacilityPublicKey())
 		}
 
 	case "signup":
@@ -208,7 +209,7 @@ func facilityExecutor(input string) error {
 		}
 
 	case "request":
-		if len(fields) != 2 {
+		if len(fields) != 3 {
 			break
 		}
 

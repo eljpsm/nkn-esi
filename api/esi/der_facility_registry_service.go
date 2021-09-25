@@ -50,5 +50,4 @@ func QueryDerFacilities(client *nkn.MultiClient, registryPublicKey string, reque
 	}
 
 	return nil
-
 }
