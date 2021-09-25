@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/elijahjpassmore/nkn-esi/api/esi"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -53,6 +54,10 @@ var (
 	noteMsgColor = color.New(color.FgYellow)
 	// noteMsgColorFunc is the color associated with note printing in function form.
 	noteMsgColorFunc = noteMsgColor.SprintFunc()
+
+	// knownFacilities are the facilities known to the current registry or facility. In a real situation, this would be
+	// stored in a database.
+	knownFacilities = make(map[string]*esi.DerFacilityExchangeInfo)
 )
 
 const (

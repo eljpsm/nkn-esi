@@ -74,8 +74,9 @@ func facilityMessageReceiver(messagesCh chan string) {
 		// Case documentation located at api/esi/deer_facility_service.go.
 		switch x := message.Chunk.(type) {
 		case *esi.FacilityMessage_SendKnownDerFacility:
-			// TODO: Save new facility.
 			messagesCh <- fmt.Sprintf("Received matching Facility from %s - %s", noteMsgColorFunc(msg.Src), infoMsgColorFunc(x.SendKnownDerFacility.FacilityPublicKey))
+			knownFacilities[x.SendKnownDerFacility.FacilityPublicKey] = x.SendKnownDerFacility
+			messagesCh <- fmt.Sprintf("Saved Facility %s", infoMsgColorFunc(x.SendKnownDerFacility.FacilityPublicKey))
 
 		case *esi.FacilityMessage_GetDerFacilityRegistrationForm:
 			// TODO: User created? Pass in as argument?
@@ -143,6 +144,7 @@ func facilityCompleter(d prompt.Document) []prompt.Suggest {
 	s := []prompt.Suggest{
 		{Text: "exit", Description: "Exit out of Facility instance"},
 		{Text: "public", Description: "Print public key"},
+		{Text: "list", Description: "List known facilities"},
 		{Text: "signup", Description: "Signup and send Facility info to Registry"},
 		{Text: "query", Description: "Query a Registry for Facilities by location"},
 		{Text: "request", Description: "Request a registration form from a Facility"},
@@ -169,7 +171,10 @@ func facilityExecutor(input string) error {
 		os.Exit(0)
 
 	case "public":
-		fmt.Printf("%s\n", formatBinary(facilityClient.PubKey()))
+		successMsgColor.Printf("%s\n", formatBinary(facilityClient.PubKey()))
+
+	case "list":
+		fmt.Println(knownFacilities)
 
 	case "signup":
 		// Sign up to a registry.

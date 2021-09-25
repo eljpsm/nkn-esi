@@ -11,7 +11,6 @@ func registryInputReceiver() error {
 	message := &esi.RegistryMessage{}
 
 	// Facilities currently stored in memory.
-	facilities := make(map[string]*esi.DerFacilityExchangeInfo)
 
 	for {
 		msg := <-registryClient.OnMessage.C
@@ -25,19 +24,25 @@ func registryInputReceiver() error {
 		// Case documentation located at api/esi/der_facility_registry_service.go.
 		switch x := message.Chunk.(type) {
 		case *esi.RegistryMessage_SignupRegistry:
-			if _, ok := facilities[x.SignupRegistry.FacilityPublicKey]; !ok {
+			if _, ok := knownFacilities[x.SignupRegistry.FacilityPublicKey]; !ok {
 				infoMsgColor.Printf("Saved Facility public key(s) to known Facilities\n")
 
-				facilities[x.SignupRegistry.FacilityPublicKey] = x.SignupRegistry
-
-				for _, v := range facilities {
+				for _, v := range knownFacilities {
 					esi.SendKnownDerFacility(registryClient, msg.Src, *v)
 				}
+
+				knownFacilities[x.SignupRegistry.FacilityPublicKey] = x.SignupRegistry
 			}
 
 		case *esi.RegistryMessage_QueryDerFacilities:
-			for _, v := range facilities {
+			for _, v := range knownFacilities {
 				if v.Location.Country == "New Zealand" {
+
+					// If the facility querying the registry also fits the criteria, ignore it.
+					if v.FacilityPublicKey == msg.Src {
+						continue
+					}
+
 					esi.SendKnownDerFacility(registryClient, msg.Src, *v)
 				}
 			}
