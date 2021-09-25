@@ -179,7 +179,7 @@ func messageReceiver(messagesCh chan string) {
 
 			// TODO: Fill in the form.
 			data := esi.DerFacilityRegistrationFormData{
-				CustomerFacilityPublicKey: formatBinary(facilityClient.PubKey()),
+				CustomerFacilityPublicKey: msg.Src,
 			}
 
 			esi.SubmitDerFacilityRegistrationForm(facilityClient, data)
@@ -191,7 +191,7 @@ func messageReceiver(messagesCh chan string) {
 			messagesCh <- fmt.Sprintf("Received registration form data from %s", noteMsgColorFunc(msg.Src))
 
 			route := esi.DerRoute{
-				BuyKey: formatBinary(facilityClient.PubKey()),
+				BuyKey: msg.Src,
 			}
 			registration := esi.DerFacilityRegistration{
 				Route: &route,
@@ -200,10 +200,12 @@ func messageReceiver(messagesCh chan string) {
 			esi.CompleteDerFacilityRegistration(facilityClient, registration)
 
 			messagesCh <- fmt.Sprintf("Submitted completed registration to %s", noteMsgColorFunc(msg.Src))
+			messagesCh <- infoMsgColor.Sprintf("Permission granted to %s", noteMsgColorFunc(msg.Src))
 
 		case *esi.FacilityMessage_DerFacilityRegistration:
 			// TODO: More info?
 			messagesCh <- fmt.Sprintf("Completed registration from %s", noteMsgColorFunc(msg.Src))
+			messagesCh <- infoMsgColor.Sprintf("Granted permission to %s", noteMsgColorFunc(msg.Src))
 		}
 	}
 }
