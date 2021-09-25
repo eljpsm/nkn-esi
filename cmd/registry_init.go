@@ -50,7 +50,6 @@ func registryInit(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// New registry config.
 	newConfig := esi.DerRegistryInfo{
 		Name: "New Registry",
 		RegistryPublicKey: publicKey,

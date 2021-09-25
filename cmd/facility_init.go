@@ -28,8 +28,8 @@ import (
 // facilityInitCmd represents the facilityInitCmd command
 var facilityInitCmd = &cobra.Command{
 	Use:   "init <keyName> <configName>",
-	Short: "Quickly create a new registry configuration and key pair",
-	Long:  `Quickly create a new registry configuration and key pair.`,
+	Short: "Quickly create a new facility configuration and key pair",
+	Long:  `Quickly create a new facility configuration and key pair.`,
 	Args:  cobra.ExactArgs(2),
 	RunE:  facilityInit,
 }
@@ -39,7 +39,7 @@ func init() {
 	facilityCmd.AddCommand(facilityInitCmd)
 }
 
-// registryInit is the function run by registryInitCmd.
+// facilityInit is the function run by facilityInitCmd.
 func facilityInit(cmd *cobra.Command, args []string) error {
 	var err error
 	keyName := args[0]
@@ -50,12 +50,10 @@ func facilityInit(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// new latlng config.
 	newLatlng := esi.LatLng{
 		Latitude: -36.86397,
 		Longitude: 174.72052,
 	}
-	// New location config.
 	newLocation := esi.Location{
 		Country: "New Zealand",
 		Region: "Auckland",
@@ -69,7 +67,6 @@ func facilityInit(cmd *cobra.Command, args []string) error {
 		},
 		Latlng: &newLatlng,
 	}
-	// New registry config.
 	newConfig := esi.DerFacilityExchangeInfo{
 		Name: "New Facility",
 		FacilityPublicKey: publicKey,
