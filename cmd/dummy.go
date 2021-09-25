@@ -21,31 +21,31 @@ import "github.com/elijahjpassmore/nkn-esi/api/esi"
 var (
 	// dummyDerRegistryInfo is a dummy DerRegistryInfo.
 	dummyDerRegistryInfo = esi.DerRegistryInfo{
-		Name:              "New Registry",
+		Name:              "Dummy Registry",
 		RegistryPublicKey: "",
 	}
 	// dummyLatLng is a dummy LatLng.
 	dummyLatLng = esi.LatLng{
-		Latitude:  -36.86397,
-		Longitude: 174.72052,
+		Latitude:  90.0,
+		Longitude: 180.0,
 	}
 	// dummyLocation is a dummy Location.
 	dummyLocation = esi.Location{
-		Country:       "New Zealand",
-		Region:        "Auckland",
-		TimeZone:      "NZT",
-		StateProvince: "Auckland",
-		PostalCode:    "1022",
-		Locality:      "Auckland",
-		Sublocality:   "Western Springs",
+		Country:       "DC",
+		Region:        "Phoney",
+		TimeZone:      "DMT",
+		StateProvince: "Unreal",
+		PostalCode:    "0000",
+		Locality:      "Hoax",
+		Sublocality:   "Fraud",
 		StreetAddress: []string{
-			"Motions Road",
+			"30 Fake Street",
 		},
 		Latlng: &dummyLatLng,
 	}
 	// dummyDerFacilityExchangeInfo is a dummy DerFacilityExchangeInfo.
 	dummyDerFacilityExchangeInfo = esi.DerFacilityExchangeInfo{
-		Name:              "New Facility",
+		Name:              "Dummy Facility",
 		FacilityPublicKey: "",
 		Location:          &dummyLocation,
 	}

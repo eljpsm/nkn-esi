@@ -1,0 +1,20 @@
+{
+  "name": "Animal Facility",
+  "facility_public_key": "",
+  "location": {
+    "country": "NZ",
+    "region": "Auckland",
+    "time_zone": "NZT",
+    "state_province": "Auckland",
+    "postal_code": "1022",
+    "locality": "Auckland",
+    "sublocality": "Western Springs",
+    "street_address": [
+      "Motions Road"
+    ],
+    "latlng": {
+      "latitude": -36.86397,
+      "longitude": 174.72052
+    }
+  }
+}

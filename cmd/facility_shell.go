@@ -74,6 +74,7 @@ func facilityMessageReceiver(messagesCh chan string) {
 		// Case documentation located at api/esi/deer_facility_service.go.
 		switch x := message.Chunk.(type) {
 		case *esi.FacilityMessage_SendKnownDerFacility:
+			// TODO: Does this work as expected for Facility to Facility?
 			messagesCh <- fmt.Sprintf("Received Facility from %s - %s", noteMsgColorFunc(msg.Src), infoMsgColorFunc(x.SendKnownDerFacility.FacilityPublicKey))
 			knownFacilities[x.SendKnownDerFacility.FacilityPublicKey] = x.SendKnownDerFacility
 			messagesCh <- fmt.Sprintf("Saved Facility %s", infoMsgColorFunc(x.SendKnownDerFacility.FacilityPublicKey))
