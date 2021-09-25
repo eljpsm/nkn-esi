@@ -10,9 +10,6 @@ import (
 	"strings"
 )
 
-// unknownCommandErr is the error returned for any unknown input.
-var unknownCommandErr = errors.New("unknown command")
-
 // facilityLoop is the main shell of a Facility.
 func facilityShell() error {
 	// Create two channels, one for incoming messages and another for outgoing inputs.
@@ -164,7 +161,7 @@ func facilityExecutor(input string) error {
 	// Evaluate the first string.
 	switch fields[0] {
 	default:
-		return unknownCommandErr
+		return errors.New(fmt.Sprintf("unknown command: %s", input))
 
 	case "exit":
 		// Exit out of the program.

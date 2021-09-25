@@ -7,7 +7,7 @@ import (
 	"github.com/nknorg/nkn-sdk-go"
 )
 
-// registryInputReceiver is the main loop of a Registry.
+// registryInputReceiver receives and returns any registry inputs.
 func registryInputReceiver() error {
 	message := &esi.RegistryMessage{}
 
