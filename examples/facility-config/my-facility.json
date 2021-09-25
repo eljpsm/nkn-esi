@@ -1,10 +1,10 @@
 {
   "name": "My Facility",
-  "facility_public_key": "",
+  "facility_public_key": "My Public Key",
   "location": {
-    "country": "New Zealand",
+    "country": "My Country",
     "region": "My Region",
-    "time_zone": "NZT",
+    "time_zone": "My TimeZone",
     "state_province": "My Province",
     "postal_code": "My Postal Code",
     "locality": "My Locality",
@@ -13,8 +13,8 @@
       "My Street Address"
     ],
     "latlng": {
-      "latitude": 0,
-      "longitude": 0
+      "latitude": 90.0,
+      "longitude": 180.0
     }
   }
 }
