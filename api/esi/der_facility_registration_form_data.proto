@@ -57,7 +57,7 @@ message DerFacilityRegistrationFormData {
   // This endpoint might be a direct connection to the facility submitting the
   // registration form, or it might be a proxy facility that manages the ESI
   // service on behalf of the facility submitting the registration form.
-  string facility_endpoint_uri = 2;
+  // string facility_endpoint_uri = 2;
   
   // A cryptographic set of random bytes to use with registration.
   // 
@@ -68,7 +68,7 @@ message DerFacilityRegistrationFormData {
   bytes facility_nonce = 3;
   
   // The facility's public key.
-  string facility_public_key = 4;
+  string customer_facility_public_key = 4;
 
   // The completed registration form.
   FormData data = 5;

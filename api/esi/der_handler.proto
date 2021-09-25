@@ -21,6 +21,10 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 
 import "api/esi/der_facility_exchange_info.proto";
 import "api/esi/der_facility_exchange_request.proto";
+import "api/esi/der_facility_registration_form.proto";
+import "api/esi/der_facility_registration_form_request.proto";
+import "api/esi/der_facility_registration_form_data.proto";
+import "api/esi/der_facility_registration.proto";
 
 // Mapping messages from Protocol Buffer structs to a type.
 
@@ -51,6 +55,10 @@ message FacilityMessage {
     // DerFacilityExchangeInfo
     // Should add facilities to storage.
     DerFacilityExchangeInfo DerFacilityExchangeInfo = 1;
+    DerFacilityRegistrationFormRequest DerFacilityRegistrationFormRequest = 2;
+    DerFacilityRegistrationForm DerFacilityRegistrationForm = 3;
+    DerFacilityRegistrationFormData DerFacilityRegistrationFormData = 4;
+    DerFacilityRegistration DerFacilityRegistration = 5;
   }
 
 }

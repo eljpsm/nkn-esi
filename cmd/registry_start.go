@@ -49,10 +49,6 @@ func init() {
 func registryStart(cmd *cobra.Command, args []string) error {
 	var err error
 
-	if verboseFlag {
-		fmt.Printf("Starting Registry instance ...\n")
-	}
-
 	// The path to the registry config should be the first argument.
 	registryPath := args[0]
 	// The private key associated with the Registry.

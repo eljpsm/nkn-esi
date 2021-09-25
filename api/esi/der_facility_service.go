@@ -8,13 +8,11 @@ import (
 
 // SignupRegistry discovers and sends Facility information to a Registry.
 func SignupRegistry(client *nkn.MultiClient, registryPublicKey string, info DerFacilityExchangeInfo) error {
-	// Encode the given info.
 	data, err := proto.Marshal(&RegistryMessage{Chunk: &RegistryMessage_DerFacilityExchangeInfo{DerFacilityExchangeInfo: &info}})
 	if err != nil {
 		return err
 	}
 
-	// Send the information to the Registry.
 	_, err = client.Send(nkn.NewStringArray(registryPublicKey), data, nil)
 	if err != nil {
 		return err
@@ -24,20 +22,65 @@ func SignupRegistry(client *nkn.MultiClient, registryPublicKey string, info DerF
 }
 
 // GetDerFacilityRegistrationForm returns the registration for a Facility to use.
-func GetDerFacilityRegistrationForm(client *nkn.MultiClient, request DerFacilityRegistrationFormRequest) (DerFacilityRegistrationForm, error) {
-	return DerFacilityRegistrationForm{}, nil
+func GetDerFacilityRegistrationForm(client *nkn.MultiClient, request DerFacilityRegistrationFormRequest) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_DerFacilityRegistrationFormRequest{DerFacilityRegistrationFormRequest: &request}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(request.FacilityPublicKey), data, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// SendDerFacilityRegistrationForm sends the registration form to the customer.
+func SendDerFacilityRegistrationForm(client *nkn.MultiClient, registrationForm DerFacilityRegistrationForm) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_DerFacilityRegistrationForm{DerFacilityRegistrationForm: &registrationForm}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(registrationForm.CustomerFacilityPublicKey), data, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // SubmitDerFacilityRegistrationForm submits a registration form for a Facility.
 // When called, the data will be validated, and any problems will be expressed via standard error details.
 // When received, the receiving Facility will return with the function CompleteDerFacilityRegistration.
-func SubmitDerFacilityRegistrationForm(client *nkn.MultiClient, data DerFacilityRegistrationFormData) (DerFacilityRegistrationFormDataReceipt, error) {
-	return DerFacilityRegistrationFormDataReceipt{}, nil
+func SubmitDerFacilityRegistrationForm(client *nkn.MultiClient, formData DerFacilityRegistrationFormData) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_DerFacilityRegistrationFormData{DerFacilityRegistrationFormData: &formData}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(formData.CustomerFacilityPublicKey), data, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // CompleteDerFacilityRegistration completes the Facility registration process.
-func CompleteDerFacilityRegistration(client *nkn.MultiClient, registration DerFacilityRegistration) (empty.Empty, error) {
-	return empty.Empty{}, nil
+func CompleteDerFacilityRegistration(client *nkn.MultiClient, registration DerFacilityRegistration) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_DerFacilityRegistration{DerFacilityRegistration: &registration}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(registration.Route.BuyKey), data, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // ProvideDerCharacteristics publishes DER characteristics for Facilities.

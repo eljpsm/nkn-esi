@@ -34,12 +34,12 @@ var facilityCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 }
 
-// init initializes facility.go.
+// init initializes facility-config.go.
 func init() {
 	rootCmd.AddCommand(facilityCmd)
 }
 
-// readFacilityConfig opens and reads the given facility config into a DerFacilityExchangeInfo struct.
+// readFacilityConfig opens and reads the given facility-config config into a DerFacilityExchangeInfo struct.
 func readFacilityConfig(facilityPath string) error {
 	registryFile, err := os.Open(facilityPath)
 	if err != nil {
