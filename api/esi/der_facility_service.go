@@ -2,7 +2,6 @@ package esi
 
 import (
 	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/nknorg/nkn-sdk-go"
 )
 
@@ -69,68 +68,68 @@ func CompleteDerFacilityRegistration(client *nkn.MultiClient, registration DerFa
 }
 
 // ProvideDerCharacteristics publishes DER characteristics for Facilities.
-func ProvideDerCharacteristics(client *nkn.MultiClient, characteristics DerCharacteristics) (empty.Empty, error) {
-	return empty.Empty{}, nil
+func ProvideDerCharacteristics(client *nkn.MultiClient, characteristics DerCharacteristics) error {
+	return nil
 }
 
 // ProvidePriceMaps publishes DER price maps for Facilities.
-func ProvidePriceMaps(client *nkn.MultiClient, characteristics PriceMapCharacteristics) (empty.Empty, error) {
-	return empty.Empty{}, nil
+func ProvidePriceMaps(client *nkn.MultiClient, characteristics PriceMapCharacteristics) error {
+	return nil
 }
 
 // ProvideSupportedDerPrograms publishes the supported program types.
-func ProvideSupportedDerPrograms(client *nkn.MultiClient, set DerProgramSet) (empty.Empty, error) {
-	return empty.Empty{}, nil
+func ProvideSupportedDerPrograms(client *nkn.MultiClient, set DerProgramSet) error {
+	return nil
 }
 
 // ProposePriceMapOffer propose a price map offer for the service to accept, reject, or propose a counter offer.
 // The exchange will invoke this method to make a price map offer to the Facility. THe Facility must respond with either
 // an acceptance/rejection of the offer or a counter offer in the form of a different price map proposal.
-func ProposePriceMapOffer(client *nkn.MultiClient, request PriceMapOfferStatusRequest) (PriceMapOfferStatus, error) {
-	return PriceMapOfferStatus{}, nil
+func ProposePriceMapOffer(client *nkn.MultiClient, request PriceMapOfferStatusRequest) error {
+	return nil
 }
 
 // GetPriceMapOfferFeedback returns the status of a price map offer.
-func GetPriceMapOfferFeedback(client *nkn.MultiClient, feedback PriceMapOfferFeedback) (PriceMapOfferFeedbackResponse, error) {
-	return PriceMapOfferFeedbackResponse{}, nil
+func GetPriceMapOfferFeedback(client *nkn.MultiClient, feedback PriceMapOfferFeedback) error {
+	return nil
 }
 
 // ProvidePriceMapOfferStatus provides the status of a price map offer.
-func ProvidePriceMapOfferStatus(client *nkn.MultiClient, status PriceMapOfferStatus) (PriceMapOfferStatusResponse, error) {
-	return PriceMapOfferStatusResponse{}, nil
+func ProvidePriceMapOfferStatus(client *nkn.MultiClient, status PriceMapOfferStatus) error {
+	return nil
 }
 
 // ProvidePriceMapOfferFeedback provides feedback on a price map offer, after the offer event is over.
-func ProvidePriceMapOfferFeedback(client *nkn.MultiClient, feedback PriceMapOfferFeedback) (PriceMapOfferFeedbackResponse, error) {
-	return PriceMapOfferFeedbackResponse{}, nil
+func ProvidePriceMapOfferFeedback(client *nkn.MultiClient, feedback PriceMapOfferFeedback) error {
+	return nil
 }
 
 // ListPrices returns the list of price datum over a time range.
-func ListPrices(client *nkn.MultiClient, request DatumRequest) (PriceDatum, error) {
-	return PriceDatum{}, nil
+func ListPrices(client *nkn.MultiClient, request DatumRequest) error {
+	return nil
 }
 
 // ProvidePrices provides pricing data to the Facility.
-func ProvidePrices(client *nkn.MultiClient, datum PriceDatum) (empty.Empty, error) {
-	return empty.Empty{}, nil
+func ProvidePrices(client *nkn.MultiClient, datum PriceDatum) error {
+	return nil
 }
 
 // ListPowerProfile returns a list of power profile datum over a time range.
-func ListPowerProfile(client *nkn.MultiClient, datum PriceDatum) (PowerProfileDatum, error) {
-	return PowerProfileDatum{}, nil
+func ListPowerProfile(client *nkn.MultiClient, datum DatumRequest) error {
+	return nil
 }
 
 // GetPowerParameters gets the power parameters currently used by the services.
-func GetPowerParameters(client *nkn.MultiClient, route DerRoute) (PowerParameters, error) {
-	return PowerParameters{}, nil
+func GetPowerParameters(client *nkn.MultiClient, route DerRoute) error {
+	return nil
 }
 
 // SetPowerParameters sets the power parameters, and then returns the power parameters active after the request.
-func SetPowerParameters(client *nkn.MultiClient, parameters PowerParameters) (PowerParameters, error) {
-	return PowerParameters{}, nil
+func SetPowerParameters(client *nkn.MultiClient, parameters PowerParameters) error {
+	return nil
 }
 
 // GetPriceParameters returns the price parameters currently used by the service.
-func GetPriceParameters(client *nkn.MultiClient, route DerRoute) (PriceParameters, error) {
-	return PriceParameters{}, nil
+func GetPriceParameters(client *nkn.MultiClient, route DerRoute) error {
+	return nil
 }

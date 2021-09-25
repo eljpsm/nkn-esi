@@ -123,7 +123,6 @@ func facilityMessageReceiver(messagesCh chan string) {
 			messagesCh <- successMsgColor.Sprintf("Permission granted to %s", noteMsgColorFunc(msg.Src))
 
 		case *esi.FacilityMessage_CompleteDerFacilityRegistration:
-			// TODO: More info?
 			messagesCh <- fmt.Sprintf("Completed registration from %s", noteMsgColorFunc(msg.Src))
 			messagesCh <- successMsgColor.Sprintf("Granted permission to %s", noteMsgColorFunc(msg.Src))
 		}
