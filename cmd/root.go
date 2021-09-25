@@ -63,6 +63,11 @@ const (
 	// verboseFlagName is the name of the verbose flag.
 	verboseFlagName = "verbose"
 
+	// interfaceCfgSuffix is the suffix used to store interface files.
+	interfaceCfgSuffix = ".json"
+	// secretKeySuffix is the suffix used to store secret keys.
+	secretKeySuffix = ".secret"
+
 )
 
 // rootCmd represents the base command when called without any subcommands

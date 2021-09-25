@@ -2,10 +2,41 @@ package cmd
 
 import (
 	"encoding/hex"
-	"fmt"
 	"github.com/nknorg/nkn-sdk-go"
+	"io/ioutil"
 	"os"
 )
+
+// formatBinary formats a binary key to a hex encoded string for readability.
+func formatBinary(data []byte) string {
+	return hex.EncodeToString(data)
+}
+
+// readPrivateKey reads a stored private key from a path.
+func readPrivateKey(path string) ([]byte, error) {
+	byteKey, err := os.ReadFile(path)
+	if err != nil {
+		return []byte{}, err
+	}
+	var privateKey = make([]byte, len(byteKey))
+
+	length, err := hex.Decode(privateKey, byteKey)
+
+	return privateKey[0:length], nil
+
+}
+
+// newNKNPrivateKey returns a new NKN account with a random seed.
+func newNKNPrivateKey() ([]byte, error) {
+	account, err := nkn.NewAccount(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	secret := account.Seed()
+
+	return secret, nil
+}
 
 // newMultiClient returns a new MultiClient with the given private key.
 func newMultiClient(private []byte, numSubClients int) (*nkn.MultiClient, error) {
@@ -24,27 +55,23 @@ func newMultiClient(private []byte, numSubClients int) (*nkn.MultiClient, error)
 	return client, err
 }
 
-// formatBinary formats a binary key to a hex encoded string for readability.
-func formatBinary(data []byte) string {
-	return hex.EncodeToString(data)
-}
+// writeSecretKey writes a new secret key to the desired path and returns the public key.
+func writeSecretKey(keyPath string) (string, error) {
+	var err error
 
-// printPublicPrivateKeys prints the provided private and public keys with additional info.
-func printPublicPrivateKeys(private []byte, public []byte) {
-	fmt.Println(fmt.Sprintf("Private Key: %s", formatBinary(private)))
-	fmt.Println(fmt.Sprintf("Public Key: %s", formatBinary(public)))
-}
-
-// readPrivateKey reads a stored private key from a path.
-func readPrivateKey(path string) ([]byte, error) {
-	byteKey, err := os.ReadFile(path)
+	// Create a new key pair.
+	newKey, err := newNKNPrivateKey()
 	if err != nil {
-		return []byte{}, err
+		return "", nil
 	}
-	var privateKey = make([]byte, len(byteKey))
+	client, err := newMultiClient(newKey, defaultNumSubClients)
+	if err != nil {
+		return "", nil
+	}
 
-	length, err := hex.Decode(privateKey, byteKey)
+	// Convert the key to a hex and write it to the desired path.
+	ioutil.WriteFile(keyPath, []byte(formatBinary(newKey)), os.ModePerm)
 
-	return privateKey[0:length], nil
-
+	// Return the public key.
+	return formatBinary(client.PubKey()), nil
 }
