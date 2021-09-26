@@ -66,9 +66,6 @@ message DerFacilityRegistrationFormData {
   // facility submitting the registration form can verify the exchange is the
   // same during both interactions.
   bytes facility_nonce = 3;
-  
-  // The facility's public key.
-  string customer_facility_public_key = 4;
 
   // The completed registration form.
   FormData data = 5;

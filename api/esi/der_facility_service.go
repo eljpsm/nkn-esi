@@ -44,7 +44,7 @@ func SubmitDerFacilityRegistrationForm(client *nkn.MultiClient, formData DerFaci
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(formData.GetCustomerFacilityPublicKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(formData.Route.GetSellKey()), data, nil)
 	if err != nil {
 		return err
 	}
