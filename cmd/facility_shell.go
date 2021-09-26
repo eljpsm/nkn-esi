@@ -265,7 +265,7 @@ func facilityInputReceiver() {
 			for i, v := range receivedRegistrationForms {
 				if v.GetProviderFacilityPublicKey() == facilityPublicKey {
 					// TODO: nonce
-					// Contains the results of key -> repsonse.
+					// Contains the results of key -> response.
 					results := make(map[string]string)
 					formData := esi.FormData{
 						Data: results,
@@ -279,8 +279,16 @@ func facilityInputReceiver() {
 					for _, v := range v.Form.Settings {
 						// For all the settings, print the desired setting, get an input and then store it in the
 						// results.
-						shell.Printf("%s [%s]: ", v.Label, v.Placeholder)
+						shell.Printf("%s [%s]: ", v.GetLabel(), v.GetPlaceholder())
 						result := c.ReadLine()
+
+						// If input is not given, then use the placeholder value.
+						if v.GetPlaceholder() != "" {
+							if result == "" {
+								result = v.GetPlaceholder()
+							}
+						}
+
 						results[v.Key] = result
 					}
 
