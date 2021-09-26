@@ -209,7 +209,7 @@ func facilityInputReceiver() {
 		Func: func(c *ishell.Context) {
 			c.Print("Facility Public Key: ")
 			facilityPublicKey := c.ReadLine()
-			c.Println("Language Code: ")
+			c.Print("Language Code: ")
 			languageCode := c.ReadLine()
 
 			request := esi.DerFacilityRegistrationFormRequest{
