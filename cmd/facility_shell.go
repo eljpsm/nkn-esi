@@ -45,11 +45,18 @@ func facilityMessageReceiver() {
 	message := &esi.FacilityMessage{}
 
 	// TODO: User created? Pass in as argument?
+	// An example setting for form.
+	formSetting := esi.FormSetting{
+		Key: "0",
+		Label: "Do you like apples?: ",
+		Caption: "",
+		Placeholder: "Y",
+	}
 	// An example English language form.
 	enForm := esi.Form{
 		LanguageCode: "en",
 		Key:          fmt.Sprintf("%f", formKey),
-		Settings:     nil,
+		Settings:     []*esi.FormSetting{&formSetting},
 	}
 	// An example English language registration form.
 	registrationForm := esi.DerFacilityRegistrationForm{
@@ -260,7 +267,8 @@ func facilityInputReceiver() {
 			c.Print("Facility Public Key: ")
 			facilityPublicKey := c.ReadLine()
 
-			for _, v := range receivedRegistrationForms {
+			signed := false
+			for i, v := range receivedRegistrationForms {
 				if v.GetProviderFacilityPublicKey() == facilityPublicKey {
 					data := esi.DerFacilityRegistrationFormData{
 						CustomerFacilityPublicKey: facilityInfo.GetFacilityPublicKey(),
@@ -271,10 +279,20 @@ func facilityInputReceiver() {
 						log.Error(err.Error())
 					}
 
+					signed = true
+
+					// Remove form from list.
+					receivedRegistrationForms[i] = receivedRegistrationForms[len(receivedRegistrationForms) - 1]
+					receivedRegistrationForms[len(receivedRegistrationForms) - 1] = esi.DerFacilityRegistrationForm{}
+					receivedRegistrationForms = receivedRegistrationForms[:len(receivedRegistrationForms) - 1]
+
 					log.WithFields(log.Fields{
 						"end": v.GetProviderFacilityPublicKey(),
 					}).Info("Sent registration form")
 				}
+			}
+			if !signed {
+				shell.Printf("No form found with public key '%s`\n", facilityPublicKey)
 			}
 		},
 	})
