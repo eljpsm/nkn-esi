@@ -3,7 +3,6 @@ module github.com/elijahjpassmore/nkn-esi
 go 1.17
 
 require (
-	github.com/c-bata/go-prompt v0.2.6
 	github.com/fatih/color v1.13.0
 	github.com/golang/protobuf v1.5.2
 	github.com/nknorg/nkn-sdk-go v1.3.6
@@ -27,15 +26,12 @@ require (
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mattn/go-colorable v0.1.9 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
-	github.com/mattn/go-runewidth v0.0.9 // indirect
-	github.com/mattn/go-tty v0.0.3 // indirect
 	github.com/mitchellh/mapstructure v1.4.2 // indirect
 	github.com/nknorg/ncp-go v1.0.3 // indirect
 	github.com/nknorg/nkn/v2 v2.0.6 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pbnjay/memory v0.0.0-20190104145345-974d429e7ae4 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
-	github.com/pkg/term v1.2.0-beta.2 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
