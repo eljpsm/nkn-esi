@@ -170,7 +170,7 @@ func facilityInputReceiver() {
 		Func: func(c *ishell.Context) {
 			if len(knownFacilities) > 0 {
 				for _, v := range knownFacilities {
-					fmt.Printf("\nName: %s\nCountry: %s\nRegion: %s\nPublic Key: %s\n", v.GetName(), v.Location.GetCountry(), v.Location.GetRegion(), v.GetFacilityPublicKey())
+					fmt.Printf("\nName: %s\nCountry: %s\nPublic Key: %s\n", v.GetName(), v.Location.GetCountry(), v.GetFacilityPublicKey())
 				}
 				fmt.Println()
 			}
@@ -200,8 +200,25 @@ func facilityInputReceiver() {
 			c.Print("Country: ")
 			country := c.ReadLine()
 
+			// Currently, doesn't make a difference.
+			programTypes := []string{
+				"SPINNING RESERVE",
+				"FREQUENCY REGULATION",
+				"RAMPING",
+				"ARTIFICIAL INERTIA",
+				"VOLTAGE MANAGEMENT",
+				"PEAK CAPACITY MANAGEMENT",
+				"CONTRACTUAL OBLIGATIONS",
+				"MARKET PRICE RESPONSE",
+			}
+			programChoices := c.Checklist(programTypes, "Press SPACE to select desired programs", nil)
+
 			newLocation := esi.Location{
 				Country: country,
+			}
+			newPrograms := []esi.DerProgramType(nil)
+			for _, v := range programChoices {
+				newPrograms = append(newPrograms, esi.DerProgramType(v))
 			}
 
 			request := esi.DerFacilityExchangeRequest{Location: &newLocation}

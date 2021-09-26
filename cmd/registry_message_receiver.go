@@ -54,7 +54,13 @@ func registryMessageReceiver() {
 
 		case *esi.RegistryMessage_QueryDerFacilities:
 			// TODO: Look at more than just country.
+			log.WithFields(log.Fields{
+				"publicKey": msg.Src,
+			}).Info("Query for facility")
+
 			for _, v := range knownFacilities {
+				log.Info(v.Location.Country)
+				log.Info(x.QueryDerFacilities.Location.GetCountry())
 				if v.Location.Country == x.QueryDerFacilities.Location.GetCountry() {
 
 					// If the facility querying the registry also fits the criteria, ignore it.
