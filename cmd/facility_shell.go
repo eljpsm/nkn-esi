@@ -12,6 +12,9 @@ import (
 	"sync"
 )
 
+// receivedRegistrationForms is a list of registration forms the user can then fill out.
+var receivedRegistrationForms = []esi.DerFacilityRegistrationForm{}
+
 // facilityLoop is the main shell of a Facility.
 func facilityShell() {
 	logName := strings.TrimSuffix(facilityPath, filepath.Ext(facilityPath)) + logSuffix
@@ -65,7 +68,6 @@ func facilityMessageReceiver() {
 		// Case documentation located at api/esi/deer_facility_service.go.
 		switch x := message.Chunk.(type) {
 		case *esi.FacilityMessage_SendKnownDerFacility:
-			// TODO: Does this work as expected for Facility to Facility?
 			knownFacilities[x.SendKnownDerFacility.FacilityPublicKey] = x.SendKnownDerFacility
 
 			log.WithFields(log.Fields{
@@ -78,8 +80,9 @@ func facilityMessageReceiver() {
 				"src": msg.Src,
 			}).Info("Received registration form")
 
-			// Fill the registration form with Customer key.
+			// Set the basic info.
 			registrationForm.CustomerFacilityPublicKey = msg.Src
+			registrationForm.ProviderFacilityPublicKey = facilityInfo.GetFacilityPublicKey()
 
 			// Send the registration form.
 			err = esi.SendDerFacilityRegistrationForm(facilityClient, registrationForm)
@@ -94,24 +97,11 @@ func facilityMessageReceiver() {
 			}).Info("Sent registration form")
 
 		case *esi.FacilityMessage_SendDerFacilityRegistrationForm:
-			// TODO: User fills in? Automatic? Currently automatic submit.
 			log.WithFields(log.Fields{
 				"src": msg.Src,
 			}).Info("Received registration form")
 
-			// TODO: Fill in the form.
-			data := esi.DerFacilityRegistrationFormData{
-				CustomerFacilityPublicKey: msg.Src,
-			}
-
-			err = esi.SubmitDerFacilityRegistrationForm(facilityClient, data)
-			if err != nil {
-				log.Error(err.Error())
-			}
-
-			log.WithFields(log.Fields{
-				"end": msg.Src,
-			}).Info("Sent registration form")
+			receivedRegistrationForms = append(receivedRegistrationForms, *x.SendDerFacilityRegistrationForm)
 
 		case *esi.FacilityMessage_SubmitDerFacilityRegistrationForm:
 			// TODO: Fill in registration form.
@@ -165,14 +155,14 @@ func facilityInputReceiver() {
 	})
 
 	shell.AddCmd(&ishell.Cmd{
-		Name: "list",
+		Name: "facilities",
 		Help: "print known facilities",
 		Func: func(c *ishell.Context) {
 			if len(knownFacilities) > 0 {
 				for _, v := range knownFacilities {
-					fmt.Printf("\nName: %s\nCountry: %s\nPublic Key: %s\n", v.GetName(), v.Location.GetCountry(), v.GetFacilityPublicKey())
+					shell.Printf("\nName: %s\nCountry: %s\nPublic Key: %s\n", v.GetName(), v.Location.GetCountry(), v.GetFacilityPublicKey())
 				}
-				fmt.Println()
+				shell.Println()
 			}
 		},
 	})
@@ -246,6 +236,45 @@ func facilityInputReceiver() {
 			err := esi.GetDerFacilityRegistrationForm(facilityClient, request)
 			if err != nil {
 				log.Error(err.Error())
+			}
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "forms",
+		Help: "print forms to be signed",
+		Func: func(c *ishell.Context) {
+			if len(receivedRegistrationForms) > 0 {
+				for _, v := range receivedRegistrationForms {
+					shell.Printf("\nProvider Public Key: %s\n", v.GetProviderFacilityPublicKey())
+				}
+				shell.Println()
+			}
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "sign",
+		Help: "fill in a received registration form",
+		Func: func(c *ishell.Context) {
+			c.Print("Facility Public Key: ")
+			facilityPublicKey := c.ReadLine()
+
+			for _, v := range receivedRegistrationForms {
+				if v.GetProviderFacilityPublicKey() == facilityPublicKey {
+					data := esi.DerFacilityRegistrationFormData{
+						CustomerFacilityPublicKey: facilityInfo.GetFacilityPublicKey(),
+					}
+
+					err := esi.SubmitDerFacilityRegistrationForm(facilityClient, data)
+					if err != nil {
+						log.Error(err.Error())
+					}
+
+					log.WithFields(log.Fields{
+						"end": v.GetProviderFacilityPublicKey(),
+					}).Info("Sent registration form")
+				}
 			}
 		},
 	})
