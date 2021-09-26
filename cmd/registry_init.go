@@ -26,7 +26,7 @@ import (
 
 // registryInitCmd represents the registryInit command
 var registryInitCmd = &cobra.Command{
-	Use:   "init <keyName> <configName>",
+	Use:   "init <name>",
 	Short: "Quickly create a new registry configuration and key pair",
 	Long:  `Quickly create a new registry configuration and key pair.`,
 	Args:  cobra.ExactArgs(1),

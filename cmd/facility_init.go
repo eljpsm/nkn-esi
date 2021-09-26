@@ -26,7 +26,7 @@ import (
 
 // facilityInitCmd represents the facilityInitCmd command
 var facilityInitCmd = &cobra.Command{
-	Use:   "init <facilityName>",
+	Use:   "init <name>",
 	Short: "Quickly create a new facility configuration and key pair",
 	Long:  `Quickly create a new facility configuration and key pair.`,
 	Args:  cobra.ExactArgs(1),
