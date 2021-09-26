@@ -5,6 +5,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 	"os"
+	"strings"
 )
 
 // registryMessageReceiver receives and returns any incoming registry messages.
@@ -25,7 +26,7 @@ func registryMessageReceiver() {
 		msg := <-registryClient.OnMessage.C
 
 		log.WithFields(log.Fields{
-			"publicKey": msg.Src,
+			"src": msg.Src,
 		}).Info("Message received")
 
 		err := proto.Unmarshal(msg.Data, message)
@@ -59,7 +60,7 @@ func registryMessageReceiver() {
 			}).Info("Query for facility")
 
 			for _, v := range knownFacilities {
-				if v.Location.Country == x.QueryDerFacilities.Location.GetCountry() {
+				if strings.ToLower(v.Location.GetCountry()) == strings.ToLower(x.QueryDerFacilities.Location.GetCountry()) {
 
 					// If the facility querying the registry also fits the criteria, ignore it.
 					if v.FacilityPublicKey == msg.Src {
@@ -70,6 +71,10 @@ func registryMessageReceiver() {
 					if err != nil {
 						log.Error(err.Error())
 					}
+
+					log.WithFields(log.Fields{
+						"end": msg.Src,
+					}).Info("Sent known facility")
 				}
 			}
 		}
