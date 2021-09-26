@@ -48,7 +48,7 @@ func facilityMessageReceiver() {
 	// An example setting for form.
 	formSetting := esi.FormSetting{
 		Key:         "0",
-		Label:       "Do you like apples?: ",
+		Label:       "Do you like apples?",
 		Caption:     "",
 		Placeholder: "Y",
 	}
@@ -265,15 +265,30 @@ func facilityInputReceiver() {
 			for i, v := range receivedRegistrationForms {
 				if v.GetProviderFacilityPublicKey() == facilityPublicKey {
 					// TODO: nonce
-					data := esi.DerFacilityRegistrationFormData{
+					// Contains the results of key -> repsonse.
+					results := make(map[string]string)
+					formData := esi.FormData{
+						Data: results,
+					}
+					// Contains the full form data.
+					registrationFormData := esi.DerFacilityRegistrationFormData{
 						CustomerFacilityPublicKey: facilityInfo.GetFacilityPublicKey(),
+						Data: &formData,
 					}
 
-					err := esi.SubmitDerFacilityRegistrationForm(facilityClient, data)
+					for _, v := range v.Form.Settings {
+						// For all the settings, print the desired setting, get an input and then store it in the
+						// results.
+						shell.Printf("%s [%s]: ", v.Label, v.Placeholder)
+						result := c.ReadLine()
+						results[v.Key] = result
+					}
+
+					// Submit the registration form.
+					err := esi.SubmitDerFacilityRegistrationForm(facilityClient, registrationFormData)
 					if err != nil {
 						log.Error(err.Error())
 					}
-
 					signed = true
 
 					// Remove form from list.
