@@ -13,6 +13,9 @@ require (
 )
 
 require (
+	github.com/abiosoft/ishell v2.0.0+incompatible // indirect
+	github.com/abiosoft/readline v0.0.0-20180607040430-155bce2042db // indirect
+	github.com/flynn-archive/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
@@ -33,6 +36,7 @@ require (
 	github.com/pbnjay/memory v0.0.0-20190104145345-974d429e7ae4 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/pkg/term v1.2.0-beta.2 // indirect
+	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect

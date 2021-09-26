@@ -1,21 +1,36 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/elijahjpassmore/nkn-esi/api/esi"
 	"github.com/golang/protobuf/proto"
+	log "github.com/sirupsen/logrus"
+	"os"
 )
 
 // registryMessageReceiver receives and returns any incoming registry messages.
 func registryMessageReceiver() {
+	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
+	log.SetOutput(os.Stdout)
+	log.SetLevel(log.InfoLevel)
+
+	<-registryClient.OnConnect.C
+	log.WithFields(log.Fields{
+		"publicKey": registryInfo.GetRegistryPublicKey(),
+		"name": registryInfo.GetName(),
+	}).Info("Connection opened")
+
 	message := &esi.RegistryMessage{}
 
 	for {
 		msg := <-registryClient.OnMessage.C
-		fmt.Printf("Message received from %s\n", noteMsgColorFunc(msg.Src))
+
+		log.WithFields(log.Fields{
+			"publicKey": msg.Src,
+		}).Info("Message received")
+
 		err := proto.Unmarshal(msg.Data, message)
 		if err != nil {
-			fmt.Println(err.Error())
+			log.Error(err.Error())
 			continue
 		}
 
@@ -23,7 +38,9 @@ func registryMessageReceiver() {
 		switch x := message.Chunk.(type) {
 		case *esi.RegistryMessage_SignupRegistry:
 			if _, ok := knownFacilities[x.SignupRegistry.FacilityPublicKey]; !ok {
-				infoMsgColor.Printf("Saved Facility public key(s) to known Facilities\n")
+				log.WithFields(log.Fields{
+					"publicKey": msg.Src,
+				}).Info("Saved facility to known facilities")
 
 				for _, v := range knownFacilities {
 					esi.SendKnownDerFacility(registryClient, msg.Src, *v)
