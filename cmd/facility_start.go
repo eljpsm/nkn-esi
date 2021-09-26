@@ -29,7 +29,7 @@ var (
 
 // facilityStartCmd represents the start command
 var facilityStartCmd = &cobra.Command{
-	Use:   "start",
+	Use:   "start <facility-config.json> <facility-key.secret>",
 	Short: "Start a Facility instance",
 	Long:  `Start a Facility instance.`,
 	Args:  cobra.ExactArgs(2),
