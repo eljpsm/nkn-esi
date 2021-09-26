@@ -1,4 +1,3 @@
-// Copyright 2019 SolarNetwork Foundation.
 // Copyright 2021 Ecogy Energy.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,27 +19,9 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
-import "api/esi/der_facility_exchange_info.proto";
-import "api/esi/der_facility_exchange_request.proto";
+// A simple acknowledgement message.
+message Ack {
 
-message DerRegistryRequestCandidates {
-
-}
-
-// A discreet unit of time, using Gregorian calendar units where appropriate.
-message RegistryMessage {
-
-  oneof chunk {
-    DerFacilityExchangeInfo info = 1;
-    DerFacilityExchangeRequest list = 2;
-  }
-
-}
-
-message FacilityMessage {
-
-  oneof chunk {
-    DerFacilityExchangeInfo info = 1;
-  }
+  bool acknowledged = 1;
 
 }

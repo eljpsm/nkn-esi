@@ -1,0 +1,88 @@
+// Copyright 2021 Ecogy Energy.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+syntax = "proto3";
+
+package api.esi;
+
+option go_package = "github.com/elijahjpassmore/api/esi";
+
+import "api/esi/der_facility_exchange_info.proto";
+import "api/esi/der_facility_exchange_request.proto";
+import "api/esi/der_facility_registration_form.proto";
+import "api/esi/der_facility_registration_form_request.proto";
+import "api/esi/der_facility_registration_form_data.proto";
+import "api/esi/der_facility_registration.proto";
+import "api/esi/der_characteristics.proto";
+import "api/esi/price_map_characteristics.proto";
+import "api/esi/der_program_set.proto";
+import "api/esi/price_map_offer_status_request.proto";
+import "api/esi/price_map_offer_feedback.proto";
+import "api/esi/price_map_offer_status.proto";
+import "api/esi/datum_request.proto";
+import "api/esi/price_datum.proto";
+import "api/esi/der_route.proto";
+import "api/esi/power_parameters.proto";
+
+// Mapping messages from Protocol Buffer structs to a type.
+
+// A special empty message which is to be interpreted as a simple request for facility candidates.
+// TODO: Not used at the moment, perhaps not needed?
+message DerRegistryRequestCandidates {
+
+}
+
+// A message received by a Registry.
+message RegistryMessage {
+
+  oneof chunk {
+    // DerFacilityExchangeInfo
+    // Should return a list of known facilities.
+    DerFacilityExchangeInfo SignupRegistry = 1;
+
+    // DerFacilityExchangeRequest
+    // Should return a list of known facilities that match the given request.
+    DerFacilityExchangeRequest QueryDerFacilities = 2;
+  }
+
+}
+
+// A message received by a Facility.
+message FacilityMessage {
+
+  oneof chunk {
+    // DerFacilityExchangeInfo
+    // Should add facilities to storage.
+    DerFacilityExchangeInfo SendKnownDerFacility = 1;
+    DerFacilityRegistrationFormRequest GetDerFacilityRegistrationForm = 2;
+    DerFacilityRegistrationForm SendDerFacilityRegistrationForm = 3;
+    DerFacilityRegistrationFormData SubmitDerFacilityRegistrationForm = 4;
+    DerFacilityRegistration CompleteDerFacilityRegistration = 5;
+    DerCharacteristics ProvideDerCharacteristics = 6;
+    PriceMapCharacteristics ProvidePriceMaps = 7;
+    DerProgramSet ProvideSupportedDerPrograms = 8;
+    PriceMapOfferStatusRequest ProposePriceMapOffer = 9;
+    PriceMapOfferFeedback GetPriceMapOfferFeedback = 10;
+    PriceMapOfferStatus ProvidePriceMapOfferStatus = 11;
+    PriceMapOfferFeedback ProvidePriceMapOfferFeedback = 12;
+    DatumRequest ListPrices = 13;
+    PriceDatum ProvidePrices = 14;
+    DatumRequest ListPowerProfile = 15;
+    DerRoute GetPowerParameters = 16;
+    PowerParameters SetPowerParameters = 17;
+    DerRoute GetPriceParameters = 18;
+  }
+
+}
