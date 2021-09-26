@@ -17,7 +17,6 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
 	"github.com/nknorg/nkn-sdk-go"
 	"github.com/spf13/cobra"
 )
@@ -70,9 +69,6 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	infoMsgColor.Println(fmt.Sprintf("\nConnection opened on Facility '%s'\n", noteMsgColorFunc(facilityInfo.Name)))
-	fmt.Printf("Public Key: %s\n", formatBinary(facilityClient.PubKey()))
 
 	// Enter the Facility shell.
 	facilityShell()

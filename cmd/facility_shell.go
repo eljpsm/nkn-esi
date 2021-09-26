@@ -153,7 +153,16 @@ func facilityMessageReceiver() {
 // facilityInputReceiver receives and returns any facility inputs.
 func facilityInputReceiver() {
 	shell := ishell.New()
-	shell.Println("Sample Interactive Shell")
+	<-facilityClient.OnConnect.C
+	shell.Printf("Connection opened on facility '%s'\n", facilityInfo.GetName())
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "public",
+		Help: "print public key",
+		Func: func(c *ishell.Context) {
+			fmt.Println(facilityInfo.GetFacilityPublicKey())
+		},
+	})
 
 	shell.AddCmd(&ishell.Cmd{
 		Name: "list",
