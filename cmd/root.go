@@ -72,6 +72,8 @@ const (
 	interfaceCfgSuffix = ".json"
 	// secretKeySuffix is the suffix used to store secret keys.
 	secretKeySuffix = ".secret"
+	// logSuffix is the suffix used when storing log files.
+	logSuffix = ".log"
 
 )
 

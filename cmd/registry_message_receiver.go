@@ -43,22 +43,29 @@ func registryMessageReceiver() {
 				}).Info("Saved facility to known facilities")
 
 				for _, v := range knownFacilities {
-					esi.SendKnownDerFacility(registryClient, msg.Src, *v)
+					err = esi.SendKnownDerFacility(registryClient, msg.Src, *v)
+					if err != nil {
+						log.Error(err.Error())
+					}
 				}
 
 				knownFacilities[x.SignupRegistry.FacilityPublicKey] = x.SignupRegistry
 			}
 
 		case *esi.RegistryMessage_QueryDerFacilities:
+			// TODO: Look at more than just country.
 			for _, v := range knownFacilities {
-				if v.Location.Country == "New Zealand" {
+				if v.Location.Country == x.QueryDerFacilities.Location.GetCountry() {
 
 					// If the facility querying the registry also fits the criteria, ignore it.
 					if v.FacilityPublicKey == msg.Src {
 						continue
 					}
 
-					esi.SendKnownDerFacility(registryClient, msg.Src, *v)
+					err = esi.SendKnownDerFacility(registryClient, msg.Src, *v)
+					if err != nil {
+						log.Error(err.Error())
+					}
 				}
 			}
 		}

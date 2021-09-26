@@ -25,6 +25,7 @@ import (
 var (
 	// facilityClient is the Multiclient opened representing the Facility.
 	facilityClient *nkn.MultiClient
+	facilityPath string
 )
 
 // facilityStartCmd represents the start command
@@ -48,7 +49,7 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 	var err error
 
 	// The path to the facility-config config should be the first argument.
-	facilityPath := args[0]
+	facilityPath = args[0]
 	// The private key associated with the Facility.
 	facilityPrivateKey, err := readPrivateKey(args[1])
 	if err != nil {
