@@ -77,11 +77,8 @@ func registryStart(cmd *cobra.Command, args []string) error {
 	infoMsgColor.Println(fmt.Sprintf("\nConnection opened on Registry '%s'\n", noteMsgColorFunc(registryInfo.Name)))
 	fmt.Printf("Public Key: %s\n", formatBinary(registryClient.PubKey()))
 
-	// Enter the Registry shell.
-	err = registryInputReceiver()
-	if err != nil {
-		return err
-	}
+	// Enter the Registry receiver.
+	registryMessageReceiver()
 
 	return nil
 }

@@ -75,10 +75,7 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 	fmt.Printf("Public Key: %s\n", formatBinary(facilityClient.PubKey()))
 
 	// Enter the Facility shell.
-	err = facilityShell()
-	if err != nil {
-		return err
-	}
+	facilityShell()
 
 	return nil
 }

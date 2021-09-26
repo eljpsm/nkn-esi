@@ -6,11 +6,9 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-// registryInputReceiver receives and returns any registry inputs.
-func registryInputReceiver() error {
+// registryMessageReceiver receives and returns any incoming registry messages.
+func registryMessageReceiver() {
 	message := &esi.RegistryMessage{}
-
-	// Facilities currently stored in memory.
 
 	for {
 		msg := <-registryClient.OnMessage.C

@@ -7,11 +7,12 @@ import (
 	"github.com/elijahjpassmore/nkn-esi/api/esi"
 	"github.com/golang/protobuf/proto"
 	"os"
+	"os/exec"
 	"strings"
 )
 
 // facilityLoop is the main shell of a Facility.
-func facilityShell() error {
+func facilityShell() {
 	// Create two channels, one for incoming messages and another for outgoing inputs.
 	messages := make(chan string)
 	inputs := make(chan string)
@@ -173,6 +174,7 @@ func facilityExecutor(input string) error {
 		}
 
 		// Exit out of the program.
+		handleExit()
 		os.Exit(0)
 
 	case "list":
@@ -221,4 +223,13 @@ func facilityExecutor(input string) error {
 	}
 
 	return nil
+}
+
+// handleExit exits out of the shell gracefully.
+// https://github.com/c-bata/go-prompt/issues/228
+func handleExit() {
+	rawModeOff := exec.Command("/bin/stty", "-raw", "echo")
+	rawModeOff.Stdin = os.Stdin
+	_ = rawModeOff.Run()
+	rawModeOff.Wait()
 }
