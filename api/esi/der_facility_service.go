@@ -65,6 +65,10 @@ func CompleteDerFacilityRegistration(client *nkn.MultiClient, registration DerFa
 	return nil
 }
 
+func GetResourceCharacteristics(client *nkn.MultiClient, route DerRoute) error {
+	return nil
+}
+
 // ProposePriceMapOffer propose a price map offer for the service to accept, reject, or propose a counter offer.
 // The exchange will invoke this method to make a price map offer to the Facility. The Facility must respond with either
 // an acceptance/rejection of the offer or a counter offer in the form of a different price map proposal.

@@ -5,6 +5,7 @@ import (
 	"github.com/elijahjpassmore/nkn-esi/api/esi"
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
+	"strings"
 )
 
 // facilityMessageReceiver receives and returns any incoming facility messages.
@@ -23,7 +24,7 @@ func facilityMessageReceiver() {
 	// An example setting for form.
 	formSetting := esi.FormSetting{
 		Key:         "0",
-		Label:       "Do you like apples?",
+		Label:       "Do you wish to register?",
 		Caption:     "",
 		Placeholder: "Y",
 	}
@@ -94,11 +95,17 @@ func facilityMessageReceiver() {
 				"src": msg.Src,
 			}).Info("Received registration form data")
 
-			// INFO: In this case, automatically accept registration forms.
 			registration := esi.DerFacilityRegistration{
 				Route: x.SubmitDerFacilityRegistrationForm.Route,
-				Success: true,
 			}
+			// If the user responded positively, then success.
+			response := strings.ToLower(x.SubmitDerFacilityRegistrationForm.Data.Data["0"])
+			if response == "y" || response == "yes"{
+				registration.Success = true
+			} else {
+				registration.Success = false
+			}
+
 			// If successful, add it as a consumer facility with an empty price map.
 			if registration.Success {
 				consumerFacilitiesPriceMaps[x.SubmitDerFacilityRegistrationForm.Route.GetCustomerKey()] = &esi.PriceMap{}

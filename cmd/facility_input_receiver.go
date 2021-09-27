@@ -106,7 +106,7 @@ func facilityInputReceiver() {
 	})
 
 	shell.AddCmd(&ishell.Cmd{
-		Name: "sign",
+		Name: "register",
 		Help: "fill in a received registration form",
 		Func: func(c *ishell.Context) {
 			c.Print("Facility Public Key: ")
