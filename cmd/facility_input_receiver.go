@@ -317,6 +317,9 @@ func facilityInputReceiver() {
 				for k, _ := range producerFacilities {
 					shell.Printf("Facility Public Key: %s\n", k)
 				}
+				shell.Println()
+			} else {
+				shell.Println()
 			}
 		},
 	})
