@@ -35,6 +35,22 @@ var (
 	producerPriceMaps = make(map[string]*esi.PriceMap)
 	// producerCharacteristics are the characteristics of the currently stored facilities engaged in a consumer role.
 	producerCharacteristics = make(map[string]*esi.DerCharacteristics)
+
+	// auto accept details
+	autoMoney = esi.Money{
+		CurrencyCode: "NZD",
+		Units: 100,
+		Nanos: 0,
+	}
+	avoidMoney = esi.Money{
+		CurrencyCode: "NZD",
+		Units: 1000,
+		Nanos: 0,
+	}
+	autoPrice = esi.PriceParameters{
+		AlwaysBuyBelowPrice: &autoMoney,
+		AvoidBuyOverPrice: &avoidMoney,
+	}
 )
 
 const (

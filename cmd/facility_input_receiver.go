@@ -579,7 +579,6 @@ func facilityInputReceiver() {
 		Name: "feedback",
 		Help: "get feedback on a price map offer",
 		Func: func(c *ishell.Context) {
-
 		},
 	})
 

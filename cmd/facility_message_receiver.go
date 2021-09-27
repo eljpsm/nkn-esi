@@ -155,6 +155,12 @@ func facilityMessageReceiver() {
 
 		case *esi.FacilityMessage_ProposePriceMapOffer:
 			if customerFacilities[msg.Src] == true {
+				// TODO: this is not actually correct, need to work on this
+				if x.ProposePriceMapOffer.PriceMap.Price.ApparentEnergyPrice.Units < autoPrice.AvoidBuyOverPrice.Units {
+					// TODO: autobuy
+					return
+				}
+				// TODO: what does ignore look like?
 				customerPriceMapOffers[msg.Src] = x.ProposePriceMapOffer
 			}
 		}
