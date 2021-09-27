@@ -99,6 +99,10 @@ func facilityMessageReceiver() {
 				Route: x.SubmitDerFacilityRegistrationForm.Route,
 				Success: true,
 			}
+			// If successful, add it as a consumer facility with an empty price map.
+			if registration.Success {
+				consumerFacilities[x.SubmitDerFacilityRegistrationForm.Route.GetBuyKey()] = &esi.PriceMap{}
+			}
 
 			err = esi.CompleteDerFacilityRegistration(facilityClient, registration)
 			if err != nil {

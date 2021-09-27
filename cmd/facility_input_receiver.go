@@ -305,5 +305,13 @@ func facilityInputReceiver() {
 		},
 	})
 
+	shell.AddCmd(&ishell.Cmd{
+		Name: "get",
+		Help: "get characteristics and price map of facility",
+		Func: func(c *ishell.Context) {
+			fmt.Println("TODO")
+		},
+	})
+
 	shell.Run()
 }

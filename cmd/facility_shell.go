@@ -10,23 +10,22 @@ import (
 )
 
 var (
-	// priceMapOffers is the currently stored price map offers.
+	// priceMapOffers are the currently stored price map offers.
 	priceMapOffers = make(map[string]*esi.PriceMapOffer)
 
-	// priceMapOfferFeedbacks is the currently stored price map offer feedbacks.
+	// priceMapOfferFeedbacks are the currently stored price map offer feedbacks.
 	priceMapOfferFeedbacks = make(map[string]*esi.PriceMapOfferFeedback)
 
 	// priceMap is the currently stored price map.
 	priceMap = esi.PriceMap{}
 
-	// receivedRegistrationForms is the currently stored registration forms.
+	// receivedRegistrationForms are the currently stored registration forms.
 	receivedRegistrationForms = make(map[string]*esi.DerFacilityRegistrationForm)
 
-	// producerFacilities is the currently stored facilities engaged as a producer role.
-	producerFacilities = make(map[string]*esi.DerFacilityExchangeInfo)
-
-	// consumerFacilities is the currently stored facilities engaged as a consumer role.
-	consumerFacilities = make(map[string]*esi.DerFacilityExchangeInfo)
+	// consumerFacilitiesPriceMaps are the price maps of the currently stored facilities engaged in a consumer role.
+	consumerFacilitiesPriceMaps = make(map[string]*esi.PriceMap)
+	// consumerFacilitiesCharacteristics are the characteristics of the currently stored facilities engaged in a consumer role.
+	consumerFacilitiesCharacteristics = make(map[string]*esi.DerCharacteristics)
 )
 
 // facilityLoop is the main shell of a Facility.
