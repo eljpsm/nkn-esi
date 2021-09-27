@@ -140,6 +140,18 @@ func facilityMessageReceiver() {
 			if producerFacilities[msg.Src] == true {
 				producerCharacteristics[msg.Src] = x.SendResourceCharacteristics
 			}
+
+		case *esi.FacilityMessage_GetPriceMap:
+			// Check to make sure that the source is a registered customer.
+			if customerFacilities[msg.Src] == true {
+				esi.SendPriceMap(facilityClient, x.GetPriceMap.Route.GetCustomerKey(), priceMap)
+			}
+
+		case *esi.FacilityMessage_SendPriceMap:
+			// Check to make sure that the source is a registered producer.
+			if producerFacilities[msg.Src] == true {
+				producerPriceMaps[msg.Src] = x.SendPriceMap
+			}
 		}
 	}
 }

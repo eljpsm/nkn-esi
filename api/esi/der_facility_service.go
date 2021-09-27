@@ -93,6 +93,34 @@ func SendResourceCharacteristics(client *nkn.MultiClient, characteristics DerCha
 	return nil
 }
 
+func GetPriceMap(client *nkn.MultiClient, request DerPriceMapRequest) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_GetPriceMap{GetPriceMap: &request}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(request.Route.GetProducerKey()), data, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func SendPriceMap(client *nkn.MultiClient, customerKey string, priceMap PriceMap) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SendPriceMap{SendPriceMap: &priceMap}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(customerKey), data, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ProposePriceMapOffer propose a price map offer for the service to accept, reject, or propose a counter offer.
 // The exchange will invoke this method to make a price map offer to the Facility. The Facility must respond with either
 // an acceptance/rejection of the offer or a counter offer in the form of a different price map proposal.

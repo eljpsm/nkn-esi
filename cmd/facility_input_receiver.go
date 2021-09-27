@@ -81,8 +81,8 @@ func facilityInputReceiver() {
 			languageCode := c.ReadLine()
 
 			request := esi.DerFacilityRegistrationFormRequest{
-				PublicKey: facilityPublicKey,
-				LanguageCode:      languageCode,
+				PublicKey:    facilityPublicKey,
+				LanguageCode: languageCode,
 			}
 
 			err := esi.GetDerFacilityRegistrationForm(facilityClient, request)
@@ -308,17 +308,22 @@ func facilityInputReceiver() {
 		Func: func(c *ishell.Context) {
 			if len(customerFacilities) > 0 {
 				shell.Println("\nCUSTOMERS")
-				for k, _ := range customerFacilities {
+				for k := range customerFacilities {
 					shell.Printf("Facility Public Key: %s\n", k)
 				}
 			}
 			if len(producerFacilities) > 0 {
 				shell.Println("\nPRODUCERS")
-				for k, _ := range producerFacilities {
+				// TODO: add placeholders?
+				// TODO: better formatting
+				for k := range producerFacilities {
 					shell.Printf("Facility Public Key: %s\n", k)
-					// TODO: add placeholder? at the moment, no indication of characteristics
 					if producerCharacteristics[k] != nil {
 						shell.Println(producerCharacteristics[k])
+
+					}
+					if producerPriceMaps[k] != nil {
+						shell.Println(producerPriceMaps[k])
 					}
 				}
 				shell.Println()
@@ -393,11 +398,15 @@ func facilityInputReceiver() {
 				CustomerKey: facilityInfo.GetPublicKey(),
 				ProducerKey: publicKey,
 			}
-			newRequest := esi.DerResourceCharacteristicsRequest{
+			newCharacteristicsRequest := esi.DerResourceCharacteristicsRequest{
+				Route: &newRoute,
+			}
+			newPriceMapRequest := esi.DerPriceMapRequest{
 				Route: &newRoute,
 			}
 
-			esi.GetResourceCharacteristics(facilityClient, newRequest)
+			esi.GetResourceCharacteristics(facilityClient, newCharacteristicsRequest)
+			esi.GetPriceMap(facilityClient, newPriceMapRequest)
 		},
 	})
 
