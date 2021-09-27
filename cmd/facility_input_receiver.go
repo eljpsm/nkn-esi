@@ -196,6 +196,9 @@ func facilityInputReceiver() {
 					shell.Printf("%s. %s [%s]: ", setting.GetKey(), setting.GetLabel(), setting.GetPlaceholder())
 					result := c.ReadLine()
 					// If input is not given, then use the placeholder value.
+					//
+					// This placeholder value given by DerFacilityRegistrationFormData is useful for any number of
+					// situations in which user input could be either option or unnecessary.
 					if setting.GetPlaceholder() != "" {
 						if result == "" {
 							result = setting.GetPlaceholder()
@@ -368,6 +371,9 @@ func facilityInputReceiver() {
 				ProducerKey: publicKey,
 				CustomerKey: facilityInfo.GetPublicKey(),
 			}
+			// Each new offer can take a unique UUID for storage.
+			//
+			// In this demo, public keys are used instead - but depending on use case, this could be more useful.
 			newUuid := esi.Uuid{
 				Hi: uuidHigh,
 				Lo: uuidLow,
