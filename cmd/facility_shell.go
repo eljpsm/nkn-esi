@@ -16,8 +16,8 @@ var (
 	// priceMapOfferFeedbacks is the currently stored price map offer feedbacks.
 	priceMapOfferFeedbacks = make(map[string]*esi.PriceMapOfferFeedback)
 
-	// priceMaps is the currently stored price map per negotiation.
-	priceMaps = make(map[string]*esi.PriceMap)
+	// priceMap is the currently stored price map.
+	priceMap = esi.PriceMap{}
 
 	// receivedRegistrationForms is the currently stored registration forms.
 	receivedRegistrationForms = make(map[string]*esi.DerFacilityRegistrationForm)

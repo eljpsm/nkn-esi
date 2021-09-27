@@ -141,7 +141,6 @@ func facilityInputReceiver() {
 					// results.
 					shell.Printf("%s. %s [%s]: ", v.GetKey(), v.GetLabel(), v.GetPlaceholder())
 					result := c.ReadLine()
-
 					// If input is not given, then use the placeholder value.
 					if v.GetPlaceholder() != "" {
 						if result == "" {
@@ -294,7 +293,15 @@ func facilityInputReceiver() {
 				Price:           &newPriceComponents,
 			}
 
-			fmt.Println(newPriceMap)
+			priceMap = newPriceMap
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "peek",
+		Help: "view price map",
+		Func: func(c *ishell.Context) {
+			fmt.Println(priceMap)
 		},
 	})
 
