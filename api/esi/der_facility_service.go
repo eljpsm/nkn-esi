@@ -65,7 +65,17 @@ func CompleteDerFacilityRegistration(client *nkn.MultiClient, registration DerFa
 	return nil
 }
 
-func GetResourceCharacteristics(client *nkn.MultiClient) error {
+func GetResourceCharacteristics(client *nkn.MultiClient, request DerResourceCharacteristicsRequest) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_GetResourceCharacteristics{GetResourceCharacteristics: &request}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(request.Route.GetProducerKey()), data, nil)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

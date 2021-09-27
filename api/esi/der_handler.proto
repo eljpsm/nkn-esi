@@ -68,6 +68,19 @@ message FacilityMessage {
     DerFacilityRegistration CompleteDerFacilityRegistration = 5;
     DerResourceCharacteristicsRequest GetResourceCharacteristics = 6;
     DerPriceMapRequest GetPriceMap = 7;
+    DerCharacteristics ProvideDerCharacteristics = 8;
+    PriceMapCharacteristics ProvidePriceMaps = 9;
+    DerProgramSet ProvideSupportedDerPrograms = 10;
+    PriceMapOffer ProposePriceMapOffer = 11;
+    PriceMapOfferFeedback GetPriceMapOfferFeedback = 12;
+    PriceMapOfferStatus ProvidePriceMapOfferStatus = 13;
+    PriceMapOfferFeedback ProvidePriceMapOfferFeedback = 14;
+    DatumRequest ListPrices = 15;
+    PriceDatum ProvidePrices = 16;
+    DatumRequest ListPowerProfile = 17;
+    DerRoute GetPowerParameters = 18;
+    PowerParameters SetPowerParameters = 19;
+    DerRoute GetPriceParameters = 20;
   }
 
 }
