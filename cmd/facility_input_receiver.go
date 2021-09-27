@@ -26,14 +26,12 @@ func facilityInputReceiver() {
 
 	shell.AddCmd(&ishell.Cmd{
 		Name: "facilities",
-		Help: "print known facilities",
+		Help: "print known facilities received from registry",
 		Func: func(c *ishell.Context) {
-			if len(knownFacilities) > 0 {
-				for _, facility := range knownFacilities {
-					shell.Printf("\nName: %s\nCountry: %s\nPublic Key: %s\n", facility.GetName(), facility.Location.GetCountry(), noteMsgColorFunc(facility.GetPublicKey()))
-				}
-				shell.Println()
+			for _, facility := range knownFacilities {
+				shell.Printf("\nName: %s\nCountry: %s\nPublic Key: %s\n", facility.GetName(), facility.Location.GetCountry(), noteMsgColorFunc(facility.GetPublicKey()))
 			}
+			shell.Println()
 		},
 	})
 
@@ -97,12 +95,10 @@ func facilityInputReceiver() {
 		Name: "forms",
 		Help: "print forms to be signed",
 		Func: func(c *ishell.Context) {
-			if len(receivedRegistrationForms) > 0 {
-				for _, v := range receivedRegistrationForms {
-					shell.Printf("\nProducer Public Key: %s\n", noteMsgColorFunc(v.GetProducerKey()))
-				}
-				shell.Println()
+			for _, v := range receivedRegistrationForms {
+				shell.Printf("\nProducer Public Key: %s\n", noteMsgColorFunc(v.GetProducerKey()))
 			}
+			shell.Println()
 		},
 	})
 
@@ -390,8 +386,7 @@ func facilityInputReceiver() {
 			publicKey := c.ReadLine()
 
 			if !producerFacilities[publicKey] {
-				// TODO: better message, error?
-				shell.Println("no key")
+				shell.Printf("no producer with public key: '%s\n'", publicKey)
 				return
 			}
 
@@ -410,7 +405,7 @@ func facilityInputReceiver() {
 			esi.GetPriceMap(facilityClient, newPriceMapRequest)
 		},
 	})
-	
+
 	shell.AddCmd(&ishell.Cmd{
 		Name: "propose",
 		Help: "propose a price map offer to a producer",
@@ -418,9 +413,7 @@ func facilityInputReceiver() {
 			shell.Print("Producer Public Key: ")
 			publicKey := c.ReadLine()
 			if !producerFacilities[publicKey] {
-				// TODO: better message, error?
-				// TODO: find way to combine with creating a new price map (input)
-				shell.Println("no key")
+				shell.Printf("no producer with public key: '%s'\n", publicKey)
 				return
 			}
 
@@ -550,13 +543,13 @@ func facilityInputReceiver() {
 
 			newTimeStamp := timestamppb.Timestamp{
 				Seconds: unixSeconds(),
-				Nanos: 0,
+				Nanos:   0,
 			}
 
 			newPriceMapOffer := esi.PriceMapOffer{
-				Route: &newRoute,
-				OfferId: &newUuid,
-				When: &newTimeStamp,
+				Route:    &newRoute,
+				OfferId:  &newUuid,
+				When:     &newTimeStamp,
 				PriceMap: &newPriceMap,
 			}
 
@@ -588,6 +581,11 @@ func facilityInputReceiver() {
 		Func: func(c *ishell.Context) {
 			shell.Print("Customer Public Key: ")
 			publicKey := c.ReadLine()
+
+			if customerPriceMapOffers[publicKey] == nil {
+				shell.Printf("no customer with public key: '%s'\n", publicKey)
+				return
+			}
 
 			choice := c.MultiChoice([]string{
 				"YES",
