@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"github.com/elijahjpassmore/nkn-esi/api/esi"
 	"io/ioutil"
 	"os"
 
@@ -43,16 +44,36 @@ func facilityInit(cmd *cobra.Command, args []string) error {
 	var err error
 	facilityPath = args[0]
 
-	publicKey, err := writeSecretKey(facilityPath+secretKeySuffix)
+	publicKey, err := writeSecretKey(facilityPath + secretKeySuffix)
 	if err != nil {
 		return err
 	}
 
-	newConfig := dummyDerFacilityExchangeInfo
-	newConfig.PublicKey = publicKey
+	newLatLng := esi.LatLng{
+		Latitude:  90.0,
+		Longitude: 180.0,
+	}
+	newLocation := esi.Location{
+		Country:       "DC",
+		Region:        "Phoney",
+		TimeZone:      "DMT",
+		StateProvince: "Unreal",
+		PostalCode:    "0000",
+		Locality:      "Hoax",
+		Sublocality:   "Fraud",
+		StreetAddress: []string{
+			"30 Fake Street",
+		},
+		Latlng: &newLatLng,
+	}
+	newDerFacilityExchangeInfo := esi.DerFacilityExchangeInfo{
+		Name:      "Dummy Facility",
+		PublicKey: publicKey,
+		Location:  &newLocation,
+	}
 
 	// Write the new config.
-	jsonBytes, err := json.MarshalIndent(newConfig, "", "  ")
+	jsonBytes, err := json.MarshalIndent(newDerFacilityExchangeInfo, "", "  ")
 	if err != nil {
 		return err
 	}

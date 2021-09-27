@@ -5,12 +5,13 @@ import (
 	"github.com/elijahjpassmore/nkn-esi/api/esi"
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
+	"strconv"
 	"strings"
 )
 
 // facilityMessageReceiver receives and returns any incoming facility messages.
 func facilityMessageReceiver() {
-	var formKey float64 // a simple number to increment form number.
+	var formKey int // a simple number to increment form number.
 
 	<-facilityClient.OnConnect.C
 	log.WithFields(log.Fields{
@@ -19,27 +20,6 @@ func facilityMessageReceiver() {
 	}).Info("Connection opened")
 
 	message := &esi.FacilityMessage{}
-
-	// TODO: User created? Pass in as argument?
-	// An example setting for form.
-	formSetting := esi.FormSetting{
-		Key:         "0",
-		Label:       "Do you wish to register?",
-		Caption:     "",
-		Placeholder: "Y",
-	}
-	// An example English language form.
-	enForm := esi.Form{
-		LanguageCode: "en",
-		Key:          fmt.Sprintf("%f", formKey),
-		Settings:     []*esi.FormSetting{&formSetting},
-	}
-	// An example English language registration form.
-	registrationForm := esi.DerFacilityRegistrationForm{
-		ProducerFacilityPublicKey: formatBinary(facilityClient.PubKey()),
-		CustomerFacilityPublicKey: "", // fill in customer key when sending
-		Form:                      &enForm,
-	}
 
 	for {
 		msg := <-facilityClient.OnMessage.C
@@ -63,11 +43,25 @@ func facilityMessageReceiver() {
 
 		case *esi.FacilityMessage_GetDerFacilityRegistrationForm:
 			// Set the basic info.
-			registrationForm.CustomerFacilityPublicKey = msg.Src
-			registrationForm.ProducerFacilityPublicKey = facilityInfo.GetPublicKey()
+			newFormSetting := esi.FormSetting{
+				Key:         "0",
+				Label:       "Do you wish to register?",
+				Caption:     "",
+				Placeholder: "Y",
+			}
+			newForm := esi.Form{
+				LanguageCode: "en",
+				Key:          strconv.Itoa(formKey),
+				Settings:     []*esi.FormSetting{&newFormSetting},
+			}
+			newRegistrationForm := esi.DerFacilityRegistrationForm{
+				ProducerFacilityPublicKey: facilityInfo.GetPublicKey(),
+				CustomerFacilityPublicKey: msg.Src,
+				Form:                      &newForm,
+			}
 
 			// Send the registration form.
-			err = esi.SendDerFacilityRegistrationForm(facilityClient, registrationForm)
+			err = esi.SendDerFacilityRegistrationForm(facilityClient, newRegistrationForm)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -90,7 +84,6 @@ func facilityMessageReceiver() {
 			}
 
 		case *esi.FacilityMessage_SubmitDerFacilityRegistrationForm:
-			// TODO: Fill in registration form.
 			log.WithFields(log.Fields{
 				"src": msg.Src,
 			}).Info("Received registration form data")
@@ -100,7 +93,7 @@ func facilityMessageReceiver() {
 			}
 			// If the user responded positively, then success.
 			response := strings.ToLower(x.SubmitDerFacilityRegistrationForm.Data.Data["0"])
-			if response == "y" || response == "yes"{
+			if response == "y" || response == "yes" {
 				registration.Success = true
 			} else {
 				registration.Success = false
@@ -118,13 +111,13 @@ func facilityMessageReceiver() {
 			}
 
 			log.WithFields(log.Fields{
-				"end": msg.Src,
+				"end":     msg.Src,
 				"success": registration.GetSuccess(),
 			}).Info("Sent completed registration form")
 
 		case *esi.FacilityMessage_CompleteDerFacilityRegistration:
 			log.WithFields(log.Fields{
-				"src": msg.Src,
+				"src":     msg.Src,
 				"success": x.CompleteDerFacilityRegistration.GetSuccess(),
 			}).Info("Received completed registration form")
 		}
