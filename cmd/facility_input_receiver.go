@@ -328,7 +328,24 @@ func facilityInputReceiver() {
 		Name: "get",
 		Help: "get characteristics and price map of facility",
 		Func: func(c *ishell.Context) {
-			fmt.Println("TODO")
+			shell.Print("Producer Public Key: ")
+			publicKey := c.ReadLine()
+
+			if !producerFacilities[publicKey] {
+				// TODO: better message, error?
+				shell.Println("no key")
+				return
+			}
+
+			newRoute := esi.DerRoute{
+				CustomerKey: facilityInfo.GetPublicKey(),
+				ProducerKey: publicKey,
+			}
+			newRequest := esi.DerResourceCharacteristicsRequest{
+				Route: &newRoute,
+			}
+
+			esi.GetResourceCharacteristics(facilityClient, newRequest)
 		},
 	})
 
