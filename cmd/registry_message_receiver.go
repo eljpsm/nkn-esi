@@ -43,8 +43,8 @@ func registryMessageReceiver() {
 					"publicKey": msg.Src,
 				}).Info("Saved facility to known facilities")
 
-				for _, v := range knownFacilities {
-					err = esi.SendKnownDerFacility(registryClient, msg.Src, *v)
+				for _, facility := range knownFacilities {
+					err = esi.SendKnownDerFacility(registryClient, msg.Src, *facility)
 					if err != nil {
 						log.Error(err.Error())
 					}
@@ -59,15 +59,15 @@ func registryMessageReceiver() {
 				"publicKey": msg.Src,
 			}).Info("Query for facility")
 
-			for _, v := range knownFacilities {
-				if strings.ToLower(v.Location.GetCountry()) == strings.ToLower(x.QueryDerFacilities.Location.GetCountry()) {
+			for _, facility := range knownFacilities {
+				if strings.ToLower(facility.Location.GetCountry()) == strings.ToLower(x.QueryDerFacilities.Location.GetCountry()) {
 
 					// If the facility querying the registry also fits the criteria, ignore it.
-					if v.FacilityPublicKey == msg.Src {
+					if facility.FacilityPublicKey == msg.Src {
 						continue
 					}
 
-					err = esi.SendKnownDerFacility(registryClient, msg.Src, *v)
+					err = esi.SendKnownDerFacility(registryClient, msg.Src, *facility)
 					if err != nil {
 						log.Error(err.Error())
 					}

@@ -35,7 +35,7 @@ func facilityMessageReceiver() {
 	}
 	// An example English language registration form.
 	registrationForm := esi.DerFacilityRegistrationForm{
-		ProviderFacilityPublicKey: formatBinary(facilityClient.PubKey()),
+		ProducerFacilityPublicKey: formatBinary(facilityClient.PubKey()),
 		CustomerFacilityPublicKey: "", // fill in customer key when sending
 		Form:                      &enForm,
 	}
@@ -63,7 +63,7 @@ func facilityMessageReceiver() {
 		case *esi.FacilityMessage_GetDerFacilityRegistrationForm:
 			// Set the basic info.
 			registrationForm.CustomerFacilityPublicKey = msg.Src
-			registrationForm.ProviderFacilityPublicKey = facilityInfo.GetFacilityPublicKey()
+			registrationForm.ProducerFacilityPublicKey = facilityInfo.GetFacilityPublicKey()
 
 			// Send the registration form.
 			err = esi.SendDerFacilityRegistrationForm(facilityClient, registrationForm)
@@ -83,9 +83,9 @@ func facilityMessageReceiver() {
 			}).Info("Received registration form")
 
 			// If the form is not already stored, store it.
-			_, present := receivedRegistrationForms[x.SendDerFacilityRegistrationForm.GetProviderFacilityPublicKey()]
+			_, present := receivedRegistrationForms[x.SendDerFacilityRegistrationForm.GetProducerFacilityPublicKey()]
 			if !present {
-				receivedRegistrationForms[x.SendDerFacilityRegistrationForm.GetProviderFacilityPublicKey()] = x.SendDerFacilityRegistrationForm
+				receivedRegistrationForms[x.SendDerFacilityRegistrationForm.GetProducerFacilityPublicKey()] = x.SendDerFacilityRegistrationForm
 			}
 
 		case *esi.FacilityMessage_SubmitDerFacilityRegistrationForm:
@@ -101,7 +101,8 @@ func facilityMessageReceiver() {
 			}
 			// If successful, add it as a consumer facility with an empty price map.
 			if registration.Success {
-				consumerFacilitiesPriceMaps[x.SubmitDerFacilityRegistrationForm.Route.GetBuyKey()] = &esi.PriceMap{}
+				consumerFacilitiesPriceMaps[x.SubmitDerFacilityRegistrationForm.Route.GetConsumerKey()] = &esi.PriceMap{}
+				consumerFacilitiesCharacteristics[x.SubmitDerFacilityRegistrationForm.Route.GetConsumerKey()] = &esi.DerCharacteristics{}
 			}
 
 			err = esi.CompleteDerFacilityRegistration(facilityClient, registration)

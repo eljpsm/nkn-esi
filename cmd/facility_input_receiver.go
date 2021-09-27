@@ -9,7 +9,6 @@ import (
 	"strconv"
 )
 
-
 // facilityInputReceiver receives and returns any facility inputs.
 func facilityInputReceiver() {
 	shell := ishell.New()
@@ -29,8 +28,8 @@ func facilityInputReceiver() {
 		Help: "print known facilities",
 		Func: func(c *ishell.Context) {
 			if len(knownFacilities) > 0 {
-				for _, v := range knownFacilities {
-					shell.Printf("\nName: %s\nCountry: %s\nPublic Key: %s\n", v.GetName(), v.Location.GetCountry(), noteMsgColorFunc(v.GetFacilityPublicKey()))
+				for _, facility := range knownFacilities {
+					shell.Printf("\nName: %s\nCountry: %s\nPublic Key: %s\n", facility.GetName(), facility.Location.GetCountry(), noteMsgColorFunc(facility.GetFacilityPublicKey()))
 				}
 				shell.Println()
 			}
@@ -99,7 +98,7 @@ func facilityInputReceiver() {
 		Func: func(c *ishell.Context) {
 			if len(receivedRegistrationForms) > 0 {
 				for _, v := range receivedRegistrationForms {
-					shell.Printf("\nProvider Public Key: %s\n", noteMsgColorFunc(v.GetProviderFacilityPublicKey()))
+					shell.Printf("\nProducer Public Key: %s\n", noteMsgColorFunc(v.GetProducerFacilityPublicKey()))
 				}
 				shell.Println()
 			}
@@ -113,18 +112,16 @@ func facilityInputReceiver() {
 			c.Print("Facility Public Key: ")
 			facilityPublicKey := c.ReadLine()
 
-			v, present := receivedRegistrationForms[facilityPublicKey]
+			form, present := receivedRegistrationForms[facilityPublicKey]
 			if present {
 				shell.Println() // gap from input
-				fmt.Println(v.GetCustomerFacilityPublicKey())
-				fmt.Println(v.GetProviderFacilityPublicKey())
 
 				// TODO: nonce
 				// Contains the results of key -> response.
 				results := make(map[string]string)
 				route := esi.DerRoute{
-					BuyKey:  v.GetCustomerFacilityPublicKey(),
-					SellKey: v.GetProviderFacilityPublicKey(),
+					ConsumerKey: form.GetCustomerFacilityPublicKey(),
+					ProducerKey: form.GetProducerFacilityPublicKey(),
 				}
 
 				formData := esi.FormData{
@@ -136,19 +133,19 @@ func facilityInputReceiver() {
 					Data:  &formData,
 				}
 
-				for _, v := range v.Form.Settings {
+				for _, setting := range form.Form.Settings {
 					// For all the settings, print the desired setting, get an input and then store it in the
 					// results.
-					shell.Printf("%s. %s [%s]: ", v.GetKey(), v.GetLabel(), v.GetPlaceholder())
+					shell.Printf("%s. %s [%s]: ", setting.GetKey(), setting.GetLabel(), setting.GetPlaceholder())
 					result := c.ReadLine()
 					// If input is not given, then use the placeholder value.
-					if v.GetPlaceholder() != "" {
+					if setting.GetPlaceholder() != "" {
 						if result == "" {
-							result = v.GetPlaceholder()
+							result = setting.GetPlaceholder()
 						}
 					}
 
-					results[v.Key] = result
+					results[setting.Key] = result
 				}
 
 				// Submit the registration form.
@@ -158,13 +155,13 @@ func facilityInputReceiver() {
 				}
 
 				// Remove form from the map.
-				delete(receivedRegistrationForms, v.GetProviderFacilityPublicKey())
+				delete(receivedRegistrationForms, form.GetProducerFacilityPublicKey())
 
 				log.WithFields(log.Fields{
-					"end": v.GetProviderFacilityPublicKey(),
+					"end": form.GetProducerFacilityPublicKey(),
 				}).Info("Sent registration form")
 
-				shell.Printf("\nForm has been submitted to %s\n", registrationFormData.Route.GetSellKey())
+				shell.Printf("\nForm has been submitted to %s\n", registrationFormData.Route.GetProducerKey())
 
 			} else {
 				shell.Printf("no form found with public key '%s`\n", facilityPublicKey)

@@ -42,7 +42,7 @@ func SubmitDerFacilityRegistrationForm(client *nkn.MultiClient, formData DerFaci
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(formData.Route.GetSellKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(formData.Route.GetProducerKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func CompleteDerFacilityRegistration(client *nkn.MultiClient, registration DerFa
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(registration.Route.GetBuyKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(registration.Route.GetConsumerKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -74,7 +74,7 @@ func ProposePriceMapOffer(client *nkn.MultiClient, request PriceMapOfferStatusRe
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(request.Route.GetBuyKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(request.Route.GetConsumerKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func GetPriceMapOfferFeedback(client *nkn.MultiClient, feedback PriceMapOfferFee
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(feedback.Route.GetSellKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(feedback.Route.GetProducerKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -104,7 +104,7 @@ func ProvidePriceMapOfferFeedback(client *nkn.MultiClient, feedback PriceMapOffe
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(feedback.Route.GetSellKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(feedback.Route.GetProducerKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func ProvidePrices(client *nkn.MultiClient, datum PriceDatum) error {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(datum.Route.GetSellKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(datum.Route.GetProducerKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -134,7 +134,7 @@ func ListPowerProfile(client *nkn.MultiClient, datum DatumRequest) error {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(datum.Route.GetSellKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(datum.Route.GetProducerKey()), data, nil)
 	if err != nil {
 		return err
 	}

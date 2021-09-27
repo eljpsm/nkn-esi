@@ -27,11 +27,11 @@ message DerRoute {
 
   // The identifier of the exchange the request is associated with.
   //string exchange_uid = 1;
-  string sell_key = 1;
+  string producer_key = 1;
 
   // The facility identifier the request is associated with.
   //string facility_uid = 2;
-  string buy_key = 2;
+  string consumer_key = 2;
   
   // A message signature.
   //
