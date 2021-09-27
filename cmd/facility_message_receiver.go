@@ -133,35 +133,51 @@ func facilityMessageReceiver() {
 				newCharacteristics := resourceCharacteristics
 				newCharacteristics.Route = &newRoute
 				esi.SendResourceCharacteristics(facilityClient, newCharacteristics)
+
+				log.WithFields(log.Fields{
+					"end":     msg.Src,
+				}).Info("Sent resource characteristics")
 			}
 
 		case *esi.FacilityMessage_SendResourceCharacteristics:
 			// Check to make sure that the source is a registered producer.
 			if producerFacilities[msg.Src] == true {
 				producerCharacteristics[msg.Src] = x.SendResourceCharacteristics
+
+				log.WithFields(log.Fields{
+					"src":     msg.Src,
+				}).Info("Received resource characteristics")
 			}
 
 		case *esi.FacilityMessage_GetPriceMap:
 			// Check to make sure that the source is a registered customer.
 			if customerFacilities[msg.Src] == true {
 				esi.SendPriceMap(facilityClient, x.GetPriceMap.Route.GetCustomerKey(), priceMap)
+
+				log.WithFields(log.Fields{
+					"end":     msg.Src,
+				}).Info("Sent price map")
 			}
 
 		case *esi.FacilityMessage_SendPriceMap:
 			// Check to make sure that the source is a registered producer.
 			if producerFacilities[msg.Src] == true {
 				producerPriceMaps[msg.Src] = x.SendPriceMap
+
+				log.WithFields(log.Fields{
+					"src":     msg.Src,
+				}).Info("Received price map")
 			}
 
 		case *esi.FacilityMessage_ProposePriceMapOffer:
 			if customerFacilities[msg.Src] == true {
-				// TODO: this is not actually correct, need to work on this
-				if x.ProposePriceMapOffer.PriceMap.Price.ApparentEnergyPrice.Units < autoPrice.AvoidBuyOverPrice.Units {
-					// TODO: autobuy
-					return
-				}
+				// TODO: autobuy
 				// TODO: what does ignore look like?
 				customerPriceMapOffers[msg.Src] = x.ProposePriceMapOffer
+
+				log.WithFields(log.Fields{
+					"src":     msg.Src,
+				}).Info("Received price map offer")
 			}
 		}
 	}

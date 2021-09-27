@@ -130,7 +130,7 @@ func ProposePriceMapOffer(client *nkn.MultiClient, offer PriceMapOffer) error {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(offer.Route.GetCustomerKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(offer.Route.GetProducerKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -145,7 +145,7 @@ func GetPriceMapOfferFeedback(client *nkn.MultiClient, feedback PriceMapOfferFee
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(feedback.Route.GetProducerKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(feedback.Route.GetCustomerKey()), data, nil)
 	if err != nil {
 		return err
 	}

@@ -582,5 +582,19 @@ func facilityInputReceiver() {
 		},
 	})
 
+	shell.AddCmd(&ishell.Cmd{
+		Name: "evaluate",
+		Help: "evaluate an offer and give feedback",
+		Func: func(c *ishell.Context) {
+			choices := []string{}
+			for k, _ := range customerPriceMapOffers {
+				choices = append(choices, k)
+			}
+			publicKey := c.MultiChoice(choices, "Select customer key to evaluate")
+			shell.Println(publicKey)
+			fmt.Printf("\n%s\n\n", customerPriceMapOffers[string(publicKey)])
+		},
+	})
+
 	shell.Run()
 }
