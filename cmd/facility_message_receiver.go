@@ -138,7 +138,10 @@ func facilityMessageReceiver() {
 				}
 				newCharacteristics := resourceCharacteristics
 				newCharacteristics.Route = &newRoute
-				esi.SendResourceCharacteristics(facilityClient, newCharacteristics)
+				err := esi.SendResourceCharacteristics(facilityClient, newCharacteristics)
+				if err != nil {
+					log.Error(err.Error())
+				}
 
 				log.WithFields(log.Fields{
 					"end":     msg.Src,
@@ -158,7 +161,10 @@ func facilityMessageReceiver() {
 		case *esi.FacilityMessage_GetPriceMap:
 			// Check to make sure that the source is a registered customer.
 			if customerFacilities[msg.Src] == true {
-				esi.SendPriceMap(facilityClient, x.GetPriceMap.Route.GetCustomerKey(), priceMap)
+				err = esi.SendPriceMap(facilityClient, x.GetPriceMap.Route.GetCustomerKey(), priceMap)
+				if err != nil {
+					log.Error(err.Error())
+				}
 
 				log.WithFields(log.Fields{
 					"end":     msg.Src,
@@ -178,9 +184,19 @@ func facilityMessageReceiver() {
 		case *esi.FacilityMessage_ProposePriceMapOffer:
 			// Check to make sure that the source is a registered customer.
 			if customerFacilities[msg.Src] == true {
-				// TODO: autobuy
-				// TODO: what does ignore look like?
-				customerPriceMapOffers[msg.Src] = x.ProposePriceMapOffer
+				if x.ProposePriceMapOffer.PriceMap.Price.ApparentEnergyPrice.Units < autoPrice.AlwaysBuyBelowPrice.Units {
+					// TODO: autobuy
+				} else {
+					// Generate a new UUID to store the offer.
+					//
+					// OfferID comes with Hi and Lo to set the upper and lower parts of the UUID respectively. In this
+					// demo, all UUIDs are generated just using the Google UUID library.
+					uuid, err := newUuid(x.ProposePriceMapOffer.OfferId.Hi, x.ProposePriceMapOffer.OfferId.Lo)
+					if err != nil {
+						log.Error(err.Error())
+					}
+					customerPriceMapOffers[uuid] = x.ProposePriceMapOffer
+				}
 
 				log.WithFields(log.Fields{
 					"src":     msg.Src,

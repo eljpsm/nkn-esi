@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/abiosoft/ishell v2.0.0+incompatible
 	github.com/fatih/color v1.13.0
+	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/golang/protobuf v1.5.2
 	github.com/nknorg/nkn-sdk-go v1.3.6
 	github.com/sirupsen/logrus v1.8.1

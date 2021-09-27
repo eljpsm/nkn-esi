@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/elijahjpassmore/nkn-esi/api/esi"
+	"github.com/gofrs/uuid"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
@@ -11,13 +12,14 @@ import (
 
 var (
 	// priceMapOffers are the currently stored price map offers.
-	priceMapOffers = make(map[string]*esi.PriceMapOffer)
+	priceMapOffers = make(map[uuid.UUID]*esi.PriceMapOffer)
 
 	// priceMapOfferFeedbacks are the currently stored price map offer feedbacks.
-	priceMapOfferFeedbacks = make(map[string]*esi.PriceMapOfferFeedback)
+	priceMapOfferFeedbacks = make(map[uuid.UUID]*esi.PriceMapOfferFeedback)
 
 	// priceMap is the currently stored price map.
 	priceMap = esi.PriceMap{}
+	// isPriceMapAccepted is a simple flag showing whether the price map has been accepted.
 	isPriceMapAccepted = false
 
 	// resourceCharacteristics is the currently stored DER characteristics.
@@ -29,7 +31,7 @@ var (
 	// customerFacilities is a map of all other facilities registered in a customer role.
 	customerFacilities = make(map[string]bool)
 	// customerPriceMapOffers is a map of the current price map offers by public key.
-	customerPriceMapOffers = make(map[string]*esi.PriceMapOffer)
+	customerPriceMapOffers = make(map[uuid.UUID]*esi.PriceMapOffer)
 	// producerFacilities is a map of all other facilities registered in a producer role.
 	producerFacilities = make(map[string]bool)
 	// producerPriceMaps are the price maps of the currently stored facilities engaged in a consumer role.

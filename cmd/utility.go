@@ -3,6 +3,7 @@ package cmd
 import (
 	"encoding/hex"
 	"errors"
+	"github.com/gofrs/uuid"
 	"github.com/nknorg/nkn-sdk-go"
 	"io/ioutil"
 	"os"
@@ -99,6 +100,19 @@ func validateCfgKeyPair(cfgPublic string, client *nkn.MultiClient) error {
 	return nil
 }
 
+// unixSeconds gets the current time in unix seconds.
 func unixSeconds() int64 {
 	return time.Now().UTC().UnixNano()
+}
+
+// newUuid generates a new UUID.
+//
+// Note that newUuid currently ignores hi and lo values.
+func newUuid(hi uint64, lo uint64) (uuid.UUID, error) {
+	newUuid, err := uuid.NewV4()
+	if err != nil {
+		return uuid.UUID{}, err
+	}
+
+	return newUuid, nil
 }

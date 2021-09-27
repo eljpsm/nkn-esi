@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/abiosoft/ishell"
 	"github.com/elijahjpassmore/nkn-esi/api/esi"
+	uuid2 "github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/duration"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -341,8 +342,14 @@ func facilityInputReceiver() {
 				Route: &newRoute,
 			}
 
-			esi.GetResourceCharacteristics(facilityClient, newCharacteristicsRequest)
-			esi.GetPriceMap(facilityClient, newPriceMapRequest)
+			err := esi.GetResourceCharacteristics(facilityClient, newCharacteristicsRequest)
+			if err != nil {
+				shell.Println(err.Error())
+			}
+			err = esi.GetPriceMap(facilityClient, newPriceMapRequest)
+			if err != nil {
+				shell.Println(err.Error())
+			}
 		},
 	})
 
@@ -389,21 +396,32 @@ func facilityInputReceiver() {
 				PriceMap: &createdPriceMap,
 			}
 
-			esi.ProposePriceMapOffer(facilityClient, newPriceMapOffer)
+			err = esi.ProposePriceMapOffer(facilityClient, newPriceMapOffer)
+			if err != nil {
+				shell.Println(err.Error())
+			}
 		},
 	})
 
 	facilityOffersShellCmd := &ishell.Cmd{
 		Name: "offers",
-		Help: "view pending offers",
+		Help: "manage pending offers",
 	}
 	shell.AddCmd(facilityOffersShellCmd)
 	facilityOffersShellCmd.AddCmd(&ishell.Cmd{
-		Name: "offers",
+		Name: "list",
 		Help: "view pending offers",
 		Func: func(c *ishell.Context) {
-			for _, v := range customerPriceMapOffers {
-				shell.Printf("\nCustomer Public Key: %s\nOffer: %s\n", noteMsgColorFunc(v.Route.GetProducerKey(), v.PriceMap))
+			for k, v := range customerPriceMapOffers {
+				shell.Printf("\n%s %s\n%s %s\n%s %s\n%s %s\n",
+					boldMsgColorFunc("Customer Public Key:"),
+					noteMsgColorFunc(v.Route.GetCustomerKey()),
+					boldMsgColorFunc("Producer Public Key:"),
+					noteMsgColorFunc(v.Route.GetProducerKey()),
+					boldMsgColorFunc("UUID:"),
+					k,
+					boldMsgColorFunc("Price Map:"),
+					v.PriceMap)
 			}
 			shell.Println()
 		},
@@ -418,28 +436,35 @@ func facilityInputReceiver() {
 		Name: "evaluate",
 		Help: "evaluate an offer and give feedback",
 		Func: func(c *ishell.Context) {
-			shell.Print("Customer Public Key: ")
-			publicKey := c.ReadLine()
+			shell.Print("Offer UUID: ")
+			uuid, err := uuid2.FromString(c.ReadLine())
+			if err != nil {
+				shell.Println(err.Error())
+				return
+			}
 
-			if customerPriceMapOffers[publicKey] == nil {
-				shell.Printf("no customer with public key: '%s'\n", publicKey)
+			if customerPriceMapOffers[uuid] == nil {
+				shell.Printf("no offer with the uuid: '%s'\n", uuid)
 				return
 			}
 
 			choice := c.MultiChoice([]string{
 				"YES",
 				"NO",
-			}, fmt.Sprintf("Do you accept this offer?\n\n%s\n", customerPriceMapOffers[publicKey]))
+			}, fmt.Sprintf("Do you accept this offer?\n\n%s\n", customerPriceMapOffers[uuid]))
 
 			newFeedback := esi.PriceMapOfferFeedback{
-				Route:   customerPriceMapOffers[publicKey].Route,
-				OfferId: customerPriceMapOffers[publicKey].OfferId,
+				Route:   customerPriceMapOffers[uuid].Route,
+				OfferId: customerPriceMapOffers[uuid].OfferId,
 			}
 
 			if choice == 0 {
 				shell.Println("\nOffer has been accepted.\n")
 				newFeedback.ObligationStatus = esi.PriceMapOfferFeedback_SATISFIED
-				esi.ProvidePriceMapOfferFeedback(facilityClient, newFeedback)
+				err := esi.ProvidePriceMapOfferFeedback(facilityClient, newFeedback)
+				if err != nil {
+					shell.Println(err.Error())
+				}
 			} else if choice == 1 {
 				// TODO: counteroffer
 			}
