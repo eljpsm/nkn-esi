@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"reflect"
+	"time"
 )
 
 // invalidKeyPairErr is raised when a key pair is invalid.
@@ -96,4 +97,8 @@ func validateCfgKeyPair(cfgPublic string, client *nkn.MultiClient) error {
 	}
 
 	return nil
+}
+
+func unixSeconds() int64 {
+	return time.Now().UTC().UnixNano()
 }

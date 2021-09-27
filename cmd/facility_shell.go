@@ -27,12 +27,19 @@ var (
 
 	// customerFacilities is a map of all other facilities registered in a customer role.
 	customerFacilities = make(map[string]bool)
+	// customerPriceMapOffers is a map of the current price map offers by public key.
+	customerPriceMapOffers = make(map[string]*esi.PriceMapOffer)
 	// producerFacilities is a map of all other facilities registered in a producer role.
 	producerFacilities = make(map[string]bool)
 	// producerPriceMaps are the price maps of the currently stored facilities engaged in a consumer role.
 	producerPriceMaps = make(map[string]*esi.PriceMap)
 	// producerCharacteristics are the characteristics of the currently stored facilities engaged in a consumer role.
 	producerCharacteristics = make(map[string]*esi.DerCharacteristics)
+)
+
+const (
+	uuidHigh = 127
+	uuidLow  = 0
 )
 
 // facilityLoop is the main shell of a Facility.

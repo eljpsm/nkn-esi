@@ -29,8 +29,8 @@ message DerFacilityRegistrationForm {
 
   // The UID of the DerFacilityExchange to get the registration form for.
   //string exchange_uid = 1;
-  string producer_facility_public_key = 1;
-  string customer_facility_public_key = 2;
+  string producer_key = 1;
+  string customer_key = 2;
   
   // The registration form.
   Form form = 3;

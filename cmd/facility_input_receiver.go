@@ -6,6 +6,7 @@ import (
 	"github.com/elijahjpassmore/nkn-esi/api/esi"
 	"github.com/golang/protobuf/ptypes/duration"
 	log "github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"strconv"
 )
 
@@ -98,7 +99,7 @@ func facilityInputReceiver() {
 		Func: func(c *ishell.Context) {
 			if len(receivedRegistrationForms) > 0 {
 				for _, v := range receivedRegistrationForms {
-					shell.Printf("\nProducer Public Key: %s\n", noteMsgColorFunc(v.GetProducerFacilityPublicKey()))
+					shell.Printf("\nProducer Public Key: %s\n", noteMsgColorFunc(v.GetProducerKey()))
 				}
 				shell.Println()
 			}
@@ -120,8 +121,8 @@ func facilityInputReceiver() {
 				// Contains the results of key -> response.
 				results := make(map[string]string)
 				route := esi.DerRoute{
-					CustomerKey: form.GetCustomerFacilityPublicKey(),
-					ProducerKey: form.GetProducerFacilityPublicKey(),
+					CustomerKey: form.GetCustomerKey(),
+					ProducerKey: form.GetProducerKey(),
 				}
 
 				formData := esi.FormData{
@@ -155,10 +156,10 @@ func facilityInputReceiver() {
 				}
 
 				// Remove form from the map.
-				delete(receivedRegistrationForms, form.GetProducerFacilityPublicKey())
+				delete(receivedRegistrationForms, form.GetProducerKey())
 
 				log.WithFields(log.Fields{
-					"end": form.GetProducerFacilityPublicKey(),
+					"end": form.GetProducerKey(),
 				}).Info("Sent registration form")
 
 				shell.Printf("\nForm has been submitted to %s\n", registrationFormData.Route.GetProducerKey())
@@ -407,6 +408,178 @@ func facilityInputReceiver() {
 
 			esi.GetResourceCharacteristics(facilityClient, newCharacteristicsRequest)
 			esi.GetPriceMap(facilityClient, newPriceMapRequest)
+		},
+	})
+	
+	shell.AddCmd(&ishell.Cmd{
+		Name: "propose",
+		Help: "propose a price map offer to a producer",
+		Func: func(c *ishell.Context) {
+			shell.Print("Producer Public Key: ")
+			publicKey := c.ReadLine()
+			if !producerFacilities[publicKey] {
+				// TODO: better message, error?
+				// TODO: find way to combine with creating a new price map (input)
+				shell.Println("no key")
+				return
+			}
+
+			// Create newPowerComponents.
+			shell.Print("Real Power: ")
+			realPowerString := c.ReadLine()
+			realPower, err := strconv.Atoi(realPowerString)
+			if err != nil {
+				shell.Println(err.Error())
+				return
+			}
+			shell.Print("Reactive Power: ")
+			reactivePowerString := c.ReadLine()
+			reactivePower, err := strconv.Atoi(reactivePowerString)
+			if err != nil {
+				shell.Println(err.Error())
+				return
+			}
+			newPowerComponents := esi.PowerComponents{
+				RealPower:     int64(realPower),
+				ReactivePower: int64(reactivePower),
+			}
+
+			// Create newDuration.
+			shell.Print("Expected Duration Seconds: ")
+			durationSecondsString := c.ReadLine()
+			durationSeconds, err := strconv.Atoi(durationSecondsString)
+			if err != nil {
+				shell.Println(err.Error())
+				return
+			}
+			shell.Print("Expected Duration Nanos: ")
+			durationNanosString := c.ReadLine()
+			durationNanos, err := strconv.Atoi(durationNanosString)
+			if err != nil {
+				shell.Println(err.Error())
+				return
+			}
+			newDuration := duration.Duration{
+				Seconds: int64(durationSeconds),
+				Nanos:   int32(durationNanos),
+			}
+
+			// Create newDurationRange.
+			shell.Print("Expected Minimum Duration Seconds: ")
+			expectedMinSecondsString := c.ReadLine()
+			expectedMinSeconds, err := strconv.Atoi(expectedMinSecondsString)
+			if err != nil {
+				shell.Println(err.Error())
+				return
+			}
+			shell.Print("Expected Minimum Duration Nanos: ")
+			expectedMinNanosString := c.ReadLine()
+			expectedMinNanos, err := strconv.Atoi(expectedMinNanosString)
+			if err != nil {
+				shell.Println(err.Error())
+				return
+			}
+			shell.Print("Expected Maximum Duration Seconds: ")
+			expectedMaxSecondsString := c.ReadLine()
+			expectedMaxSeconds, err := strconv.Atoi(expectedMaxSecondsString)
+			if err != nil {
+				shell.Println(err.Error())
+				return
+			}
+			shell.Print("Expected Maximum Duration Nanos: ")
+			expectedMaxNanosString := c.ReadLine()
+			expectedMaxNanos, err := strconv.Atoi(expectedMaxNanosString)
+			if err != nil {
+				shell.Println(err.Error())
+				return
+			}
+			newMinDuration := duration.Duration{
+				Seconds: int64(expectedMinSeconds),
+				Nanos:   int32(expectedMinNanos),
+			}
+			newMaxDuration := duration.Duration{
+				Seconds: int64(expectedMaxSeconds),
+				Nanos:   int32(expectedMaxNanos),
+			}
+			newDurationRange := esi.DurationRange{
+				Min: &newMinDuration,
+				Max: &newMaxDuration,
+			}
+
+			// Create newPriceComponents.
+			shell.Print("Currency Code: ")
+			currencyCode := c.ReadLine()
+			shell.Print("Units: ")
+			unitsString := c.ReadLine()
+			units, err := strconv.Atoi(unitsString)
+			if err != nil {
+				shell.Println(err.Error())
+				return
+			}
+			shell.Print("Nanos: ")
+			nanosString := c.ReadLine()
+			nanos, err := strconv.Atoi(nanosString)
+			if err != nil {
+				shell.Println(err.Error())
+				return
+			}
+			newMoney := esi.Money{
+				CurrencyCode: currencyCode,
+				Units:        int64(units),
+				Nanos:        int32(nanos),
+			}
+			newPriceComponents := esi.PriceComponents{
+				ApparentEnergyPrice: &newMoney,
+			}
+
+			newRoute := esi.DerRoute{
+				ProducerKey: publicKey,
+				CustomerKey: facilityInfo.GetPublicKey(),
+			}
+			newPriceMap := esi.PriceMap{
+				PowerComponents: &newPowerComponents,
+				Duration:        &newDuration,
+				ResponseTime:    &newDurationRange,
+				Price:           &newPriceComponents,
+			}
+
+			newUuid := esi.Uuid{
+				Hi: uuidHigh,
+				Lo: uuidLow,
+			}
+
+			newTimeStamp := timestamppb.Timestamp{
+				Seconds: unixSeconds(),
+				Nanos: 0,
+			}
+
+			newPriceMapOffer := esi.PriceMapOffer{
+				Route: &newRoute,
+				OfferId: &newUuid,
+				When: &newTimeStamp,
+				PriceMap: &newPriceMap,
+			}
+
+			esi.ProposePriceMapOffer(facilityClient, newPriceMapOffer)
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "offers",
+		Help: "view pending offers",
+		Func: func(c *ishell.Context) {
+			for _, v := range customerPriceMapOffers {
+				shell.Printf("\nCustomer Public Key: %s\nOffer: %s\n", noteMsgColorFunc(v.Route.GetProducerKey(), v.PriceMap))
+			}
+			shell.Println()
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "feedback",
+		Help: "get feedback on a price map offer",
+		Func: func(c *ishell.Context) {
+
 		},
 	})
 

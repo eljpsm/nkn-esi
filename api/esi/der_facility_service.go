@@ -27,7 +27,7 @@ func SendDerFacilityRegistrationForm(client *nkn.MultiClient, registrationForm D
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(registrationForm.GetCustomerFacilityPublicKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(registrationForm.GetCustomerKey()), data, nil)
 	if err != nil {
 		return err
 	}

@@ -55,8 +55,8 @@ func facilityMessageReceiver() {
 				Settings:     []*esi.FormSetting{&newFormSetting},
 			}
 			newRegistrationForm := esi.DerFacilityRegistrationForm{
-				ProducerFacilityPublicKey: facilityInfo.GetPublicKey(),
-				CustomerFacilityPublicKey: msg.Src,
+				ProducerKey: facilityInfo.GetPublicKey(),
+				CustomerKey: msg.Src,
 				Form:                      &newForm,
 			}
 
@@ -78,9 +78,9 @@ func facilityMessageReceiver() {
 			}).Info("Received registration form")
 
 			// If the form is not already stored, store it.
-			_, present := receivedRegistrationForms[x.SendDerFacilityRegistrationForm.GetProducerFacilityPublicKey()]
+			_, present := receivedRegistrationForms[x.SendDerFacilityRegistrationForm.GetProducerKey()]
 			if !present {
-				receivedRegistrationForms[x.SendDerFacilityRegistrationForm.GetProducerFacilityPublicKey()] = x.SendDerFacilityRegistrationForm
+				receivedRegistrationForms[x.SendDerFacilityRegistrationForm.GetProducerKey()] = x.SendDerFacilityRegistrationForm
 			}
 
 		case *esi.FacilityMessage_SubmitDerFacilityRegistrationForm:
@@ -151,6 +151,11 @@ func facilityMessageReceiver() {
 			// Check to make sure that the source is a registered producer.
 			if producerFacilities[msg.Src] == true {
 				producerPriceMaps[msg.Src] = x.SendPriceMap
+			}
+
+		case *esi.FacilityMessage_ProposePriceMapOffer:
+			if customerFacilities[msg.Src] == true {
+				customerPriceMapOffers[msg.Src] = x.ProposePriceMapOffer
 			}
 		}
 	}
