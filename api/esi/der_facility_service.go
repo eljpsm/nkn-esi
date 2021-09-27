@@ -59,7 +59,7 @@ func CompleteDerFacilityRegistration(client *nkn.MultiClient, registration DerFa
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(registration.Route.GetSellKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(registration.Route.GetBuyKey()), data, nil)
 	if err != nil {
 		return err
 	}

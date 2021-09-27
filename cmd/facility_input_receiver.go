@@ -18,6 +18,9 @@ var (
 
 	// priceMaps is the currently stored price map per negotiation.
 	priceMaps = make(map[string]*esi.PriceMap)
+
+	// receivedRegistrationForms is a list of registration forms the user can then fill out.
+	receivedRegistrationForms = make(map[string]*esi.DerFacilityRegistrationForm)
 )
 
 // facilityInputReceiver receives and returns any facility inputs.
@@ -123,64 +126,61 @@ func facilityInputReceiver() {
 			c.Print("Facility Public Key: ")
 			facilityPublicKey := c.ReadLine()
 
-			signed := false
-			for i, v := range receivedRegistrationForms {
-				if v.GetProviderFacilityPublicKey() == facilityPublicKey {
-					shell.Println() // gap from input
+			v, present := receivedRegistrationForms[facilityPublicKey]
+			if present {
+				shell.Println() // gap from input
+				fmt.Println(v.GetCustomerFacilityPublicKey())
+				fmt.Println(v.GetProviderFacilityPublicKey())
 
-					// TODO: nonce
-					// Contains the results of key -> response.
-					results := make(map[string]string)
-					route := esi.DerRoute{
-						BuyKey:  v.GetCustomerFacilityPublicKey(),
-						SellKey: v.GetProviderFacilityPublicKey(),
-					}
-
-					formData := esi.FormData{
-						Data: results,
-					}
-					// Contains the full form data.
-					registrationFormData := esi.DerFacilityRegistrationFormData{
-						Route: &route,
-						Data:  &formData,
-					}
-
-					for _, v := range v.Form.Settings {
-						// For all the settings, print the desired setting, get an input and then store it in the
-						// results.
-						shell.Printf("%s. %s [%s]: ", v.GetKey(), v.GetLabel(), v.GetPlaceholder())
-						result := c.ReadLine()
-
-						// If input is not given, then use the placeholder value.
-						if v.GetPlaceholder() != "" {
-							if result == "" {
-								result = v.GetPlaceholder()
-							}
-						}
-
-						results[v.Key] = result
-					}
-
-					// Submit the registration form.
-					err := esi.SubmitDerFacilityRegistrationForm(facilityClient, registrationFormData)
-					if err != nil {
-						log.Error(err.Error())
-					}
-					signed = true
-
-					// Remove form from list.
-					receivedRegistrationForms[i] = receivedRegistrationForms[len(receivedRegistrationForms)-1]
-					receivedRegistrationForms[len(receivedRegistrationForms)-1] = esi.DerFacilityRegistrationForm{}
-					receivedRegistrationForms = receivedRegistrationForms[:len(receivedRegistrationForms)-1]
-
-					log.WithFields(log.Fields{
-						"end": v.GetProviderFacilityPublicKey(),
-					}).Info("Sent registration form")
-
-					shell.Printf("\nForm has been submitted to %s\n", registrationFormData.Route.GetSellKey())
+				// TODO: nonce
+				// Contains the results of key -> response.
+				results := make(map[string]string)
+				route := esi.DerRoute{
+					BuyKey:  v.GetCustomerFacilityPublicKey(),
+					SellKey: v.GetProviderFacilityPublicKey(),
 				}
-			}
-			if !signed {
+
+				formData := esi.FormData{
+					Data: results,
+				}
+				// Contains the full form data.
+				registrationFormData := esi.DerFacilityRegistrationFormData{
+					Route: &route,
+					Data:  &formData,
+				}
+
+				for _, v := range v.Form.Settings {
+					// For all the settings, print the desired setting, get an input and then store it in the
+					// results.
+					shell.Printf("%s. %s [%s]: ", v.GetKey(), v.GetLabel(), v.GetPlaceholder())
+					result := c.ReadLine()
+
+					// If input is not given, then use the placeholder value.
+					if v.GetPlaceholder() != "" {
+						if result == "" {
+							result = v.GetPlaceholder()
+						}
+					}
+
+					results[v.Key] = result
+				}
+
+				// Submit the registration form.
+				err := esi.SubmitDerFacilityRegistrationForm(facilityClient, registrationFormData)
+				if err != nil {
+					log.Error(err.Error())
+				}
+
+				// Remove form from the map.
+				delete(receivedRegistrationForms, v.GetProviderFacilityPublicKey())
+
+				log.WithFields(log.Fields{
+					"end": v.GetProviderFacilityPublicKey(),
+				}).Info("Sent registration form")
+
+				shell.Printf("\nForm has been submitted to %s\n", registrationFormData.Route.GetSellKey())
+
+			} else {
 				shell.Printf("no form found with public key '%s`\n", facilityPublicKey)
 				return
 			}

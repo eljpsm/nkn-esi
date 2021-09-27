@@ -50,13 +50,9 @@ func facilityMessageReceiver() {
 		// Case documentation located at api/esi/deer_facility_service.go.
 		switch x := message.Chunk.(type) {
 		case *esi.FacilityMessage_SendKnownDerFacility:
-			isInKnownFacilities := false
-			for _, v := range knownFacilities {
-				if v.GetFacilityPublicKey() == x.SendKnownDerFacility.GetFacilityPublicKey() {
-					isInKnownFacilities = true
-				}
-			}
-			if isInKnownFacilities == false {
+			// If the facility is not already stored, store it.
+			_, present := knownFacilities[x.SendKnownDerFacility.GetFacilityPublicKey()]
+			if !present {
 				knownFacilities[x.SendKnownDerFacility.FacilityPublicKey] = x.SendKnownDerFacility
 			}
 
@@ -86,14 +82,10 @@ func facilityMessageReceiver() {
 				"src": msg.Src,
 			}).Info("Received registration form")
 
-			isInForms := false
-			for _, v := range receivedRegistrationForms {
-				if v.GetProviderFacilityPublicKey() == x.SendDerFacilityRegistrationForm.GetProviderFacilityPublicKey() {
-					isInForms = true
-				}
-			}
-			if isInForms == false {
-				receivedRegistrationForms = append(receivedRegistrationForms, *x.SendDerFacilityRegistrationForm)
+			// If the form is not already stored, store it.
+			_, present := receivedRegistrationForms[x.SendDerFacilityRegistrationForm.GetProviderFacilityPublicKey()]
+			if !present {
+				receivedRegistrationForms[x.SendDerFacilityRegistrationForm.GetProviderFacilityPublicKey()] = x.SendDerFacilityRegistrationForm
 			}
 
 		case *esi.FacilityMessage_SubmitDerFacilityRegistrationForm:
@@ -102,12 +94,9 @@ func facilityMessageReceiver() {
 				"src": msg.Src,
 			}).Info("Received registration form data")
 
-			route := esi.DerRoute{
-				BuyKey:  facilityInfo.GetFacilityPublicKey(),
-				SellKey: msg.Src,
-			}
 			registration := esi.DerFacilityRegistration{
-				Route: &route,
+				Route: x.SubmitDerFacilityRegistrationForm.Route,
+				Success: true,
 			}
 
 			err = esi.CompleteDerFacilityRegistration(facilityClient, registration)
@@ -117,22 +106,14 @@ func facilityMessageReceiver() {
 
 			log.WithFields(log.Fields{
 				"end": msg.Src,
+				"success": registration.GetSuccess(),
 			}).Info("Sent completed registration form")
-			log.WithFields(log.Fields{
-				"end":  msg.Src,
-				"buy":  x.SubmitDerFacilityRegistrationForm.Route.GetBuyKey(),
-				"sell": x.SubmitDerFacilityRegistrationForm.Route.GetSellKey(),
-			}).Info("Permission granted")
 
 		case *esi.FacilityMessage_CompleteDerFacilityRegistration:
 			log.WithFields(log.Fields{
 				"src": msg.Src,
+				"success": x.CompleteDerFacilityRegistration.GetSuccess(),
 			}).Info("Received completed registration form")
-			log.WithFields(log.Fields{
-				"end":  msg.Src,
-				"buy":  x.CompleteDerFacilityRegistration.Route.GetBuyKey(),
-				"sell": x.CompleteDerFacilityRegistration.Route.GetSellKey(),
-			}).Info("Granted permission")
 		}
 	}
 }

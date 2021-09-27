@@ -63,11 +63,13 @@ message RegistryMessage {
 message FacilityMessage {
 
   oneof chunk {
-    // DerFacilityExchangeInfo
     // Should add facilities to storage.
     DerFacilityExchangeInfo SendKnownDerFacility = 1;
+    // Return the registration form for this facility.
     DerFacilityRegistrationFormRequest GetDerFacilityRegistrationForm = 2;
+    // Store the registration form.
     DerFacilityRegistrationForm SendDerFacilityRegistrationForm = 3;
+    // Receive a completed registration form.
     DerFacilityRegistrationFormData SubmitDerFacilityRegistrationForm = 4;
     DerFacilityRegistration CompleteDerFacilityRegistration = 5;
     DerCharacteristics ProvideDerCharacteristics = 6;

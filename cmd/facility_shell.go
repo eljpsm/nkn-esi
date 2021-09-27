@@ -1,16 +1,12 @@
 package cmd
 
 import (
-	"github.com/elijahjpassmore/nkn-esi/api/esi"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 )
-
-// receivedRegistrationForms is a list of registration forms the user can then fill out.
-var receivedRegistrationForms = []esi.DerFacilityRegistrationForm{}
 
 // facilityLoop is the main shell of a Facility.
 func facilityShell() {
