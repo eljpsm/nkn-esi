@@ -68,13 +68,13 @@ func CompleteDerFacilityRegistration(client *nkn.MultiClient, registration DerFa
 // ProposePriceMapOffer propose a price map offer for the service to accept, reject, or propose a counter offer.
 // The exchange will invoke this method to make a price map offer to the Facility. THe Facility must respond with either
 // an acceptance/rejection of the offer or a counter offer in the form of a different price map proposal.
-func ProposePriceMapOffer(client *nkn.MultiClient, request PriceMapOfferStatusRequest) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProposePriceMapOffer{ProposePriceMapOffer: &request}})
+func ProposePriceMapOffer(client *nkn.MultiClient, offer PriceMapOffer) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProposePriceMapOffer{ProposePriceMapOffer: &offer}})
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(request.Route.GetConsumerKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(offer.Route.GetConsumerKey()), data, nil)
 	if err != nil {
 		return err
 	}
