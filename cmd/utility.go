@@ -75,7 +75,10 @@ func writeSecretKey(keyPath string) (string, error) {
 	}
 
 	// Convert the key to a hex and write it to the desired path.
-	ioutil.WriteFile(keyPath, []byte(formatBinary(newKey)), os.ModePerm)
+	err = ioutil.WriteFile(keyPath, []byte(formatBinary(newKey)), os.ModePerm)
+	if err != nil {
+		return "", err
+	}
 
 	// Return the public key.
 	return formatBinary(client.PubKey()), nil

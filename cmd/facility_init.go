@@ -41,7 +41,7 @@ func init() {
 // facilityInit is the function run by facilityInitCmd.
 func facilityInit(cmd *cobra.Command, args []string) error {
 	var err error
-	facilityPath := args[0]
+	facilityPath = args[0]
 
 	publicKey, err := writeSecretKey(facilityPath+secretKeySuffix)
 	if err != nil {
@@ -56,7 +56,10 @@ func facilityInit(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	ioutil.WriteFile(facilityPath+interfaceCfgSuffix, jsonBytes, os.ModePerm)
+	err = ioutil.WriteFile(facilityPath+interfaceCfgSuffix, jsonBytes, os.ModePerm)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

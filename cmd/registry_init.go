@@ -56,7 +56,10 @@ func registryInit(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	ioutil.WriteFile(registryPath+interfaceCfgSuffix, jsonBytes, os.ModePerm)
+	err = ioutil.WriteFile(registryPath+interfaceCfgSuffix, jsonBytes, os.ModePerm)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

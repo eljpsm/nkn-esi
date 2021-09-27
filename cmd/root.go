@@ -47,7 +47,7 @@ var (
 
 	// successMsgColor is the color associated with successful printing.
 	successMsgColor = color.New(color.FgGreen, color.Bold)
-	// successMsgColorFunc is the collor associated with successful printing in function form.
+	// successMsgColorFunc is the color associated with successful printing in function form.
 	successMsgColorFunc = successMsgColor.SprintFunc()
 
 	// noteMsgColor is the color associated with note printing.

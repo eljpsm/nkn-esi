@@ -5,14 +5,14 @@ import (
 	"github.com/nknorg/nkn-sdk-go"
 )
 
-// GetDerFacilityRegistrationForm returns the registration for a Facility to use.
+// GetDerFacilityRegistrationForm send a message to get a registration form from request.GetFacilityPublicKey().
 func GetDerFacilityRegistrationForm(client *nkn.MultiClient, request DerFacilityRegistrationFormRequest) error {
 	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_GetDerFacilityRegistrationForm{GetDerFacilityRegistrationForm: &request}})
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(request.FacilityPublicKey), data, nil)
+	_, err = client.Send(nkn.NewStringArray(request.GetFacilityPublicKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -20,7 +20,7 @@ func GetDerFacilityRegistrationForm(client *nkn.MultiClient, request DerFacility
 	return nil
 }
 
-// SendDerFacilityRegistrationForm sends the registration form to the customer.
+// SendDerFacilityRegistrationForm send a message to DerFacilityRegistrationForm to registrationForm.GetCustomerFacilityPublicKey().
 func SendDerFacilityRegistrationForm(client *nkn.MultiClient, registrationForm DerFacilityRegistrationForm) error {
 	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SendDerFacilityRegistrationForm{SendDerFacilityRegistrationForm: &registrationForm}})
 	if err != nil {
@@ -35,9 +35,7 @@ func SendDerFacilityRegistrationForm(client *nkn.MultiClient, registrationForm D
 	return nil
 }
 
-// SubmitDerFacilityRegistrationForm submits a registration form for a Facility.
-// When called, the data will be validated, and any problems will be expressed via standard error details.
-// When received, the receiving Facility will return with the function CompleteDerFacilityRegistration.
+// SubmitDerFacilityRegistrationForm sends a signed DerFacilityRegistrationFormData to formData.Route.GetSellKey().
 func SubmitDerFacilityRegistrationForm(client *nkn.MultiClient, formData DerFacilityRegistrationFormData) error {
 	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SubmitDerFacilityRegistrationForm{SubmitDerFacilityRegistrationForm: &formData}})
 	if err != nil {
@@ -52,7 +50,7 @@ func SubmitDerFacilityRegistrationForm(client *nkn.MultiClient, formData DerFaci
 	return nil
 }
 
-// CompleteDerFacilityRegistration completes the Facility registration process.
+// CompleteDerFacilityRegistration sends a message to registration.Route.GetBuyKey(), informing them of the registration status.
 func CompleteDerFacilityRegistration(client *nkn.MultiClient, registration DerFacilityRegistration) error {
 	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_CompleteDerFacilityRegistration{CompleteDerFacilityRegistration: &registration}})
 	if err != nil {

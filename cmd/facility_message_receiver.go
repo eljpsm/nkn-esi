@@ -94,6 +94,7 @@ func facilityMessageReceiver() {
 				"src": msg.Src,
 			}).Info("Received registration form data")
 
+			// INFO: In this case, automatically accept registration forms.
 			registration := esi.DerFacilityRegistration{
 				Route: x.SubmitDerFacilityRegistrationForm.Route,
 				Success: true,

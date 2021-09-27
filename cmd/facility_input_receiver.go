@@ -9,19 +9,6 @@ import (
 	"strconv"
 )
 
-var (
-	// priceMapOffers is the currently stored price map offers.
-	priceMapOffers = make(map[string]*esi.PriceMapOffer)
-
-	// priceMapOfferFeedbacks is the currently stored price map offer feedbacks.
-	priceMapOfferFeedbacks = make(map[string]*esi.PriceMapOfferFeedback)
-
-	// priceMaps is the currently stored price map per negotiation.
-	priceMaps = make(map[string]*esi.PriceMap)
-
-	// receivedRegistrationForms is a list of registration forms the user can then fill out.
-	receivedRegistrationForms = make(map[string]*esi.DerFacilityRegistrationForm)
-)
 
 // facilityInputReceiver receives and returns any facility inputs.
 func facilityInputReceiver() {
