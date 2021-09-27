@@ -16,7 +16,12 @@ func facilityInputReceiver() {
 	<-facilityClient.OnConnect.C
 	shell.Printf("Connection opened on facility '%s'\n", infoMsgColorFunc(facilityInfo.GetName()))
 
-	shell.AddCmd(&ishell.Cmd{
+	facilityInfoShellCmd := &ishell.Cmd{
+		Name: "info",
+		Help: "print facility information",
+	}
+	shell.AddCmd(facilityInfoShellCmd)
+	facilityInfoShellCmd.AddCmd(&ishell.Cmd{
 		Name: "public",
 		Help: "print public key",
 		Func: func(c *ishell.Context) {
@@ -24,7 +29,12 @@ func facilityInputReceiver() {
 		},
 	})
 
-	shell.AddCmd(&ishell.Cmd{
+	facilityRegistryShellCmd := &ishell.Cmd{
+		Name: "registry",
+		Help: "manage registry functionality",
+	}
+	shell.AddCmd(facilityRegistryShellCmd)
+	facilityRegistryShellCmd.AddCmd(&ishell.Cmd{
 		Name: "facilities",
 		Help: "print known facilities received from registry",
 		Func: func(c *ishell.Context) {
@@ -34,8 +44,7 @@ func facilityInputReceiver() {
 			shell.Println()
 		},
 	})
-
-	shell.AddCmd(&ishell.Cmd{
+	facilityRegistryShellCmd.AddCmd(&ishell.Cmd{
 		Name: "signup",
 		Help: "sign up to a registry",
 		Func: func(c *ishell.Context) {
@@ -47,8 +56,7 @@ func facilityInputReceiver() {
 			}
 		},
 	})
-
-	shell.AddCmd(&ishell.Cmd{
+	facilityRegistryShellCmd.AddCmd(&ishell.Cmd{
 		Name: "query",
 		Help: "query registry for facilities by location",
 		Func: func(c *ishell.Context) {
@@ -71,6 +79,42 @@ func facilityInputReceiver() {
 	})
 
 	shell.AddCmd(&ishell.Cmd{
+		Name: "peers",
+		Help: "show any registered customers or producers",
+		Func: func(c *ishell.Context) {
+			if len(customerFacilities) > 0 {
+				shell.Println("\nCUSTOMERS")
+				for k := range customerFacilities {
+					shell.Printf("Facility Public Key: %s\n", k)
+				}
+			}
+			if len(producerFacilities) > 0 {
+				shell.Println("\nPRODUCERS")
+				// TODO: add placeholders?
+				// TODO: better formatting
+				for k := range producerFacilities {
+					shell.Printf("Facility Public Key: %s\n", k)
+					if producerCharacteristics[k] != nil {
+						shell.Println(producerCharacteristics[k])
+
+					}
+					if producerPriceMaps[k] != nil {
+						shell.Println(producerPriceMaps[k])
+					}
+				}
+				shell.Println()
+			} else {
+				shell.Println()
+			}
+		},
+	})
+
+	facilityProducerShellCmd := &ishell.Cmd{
+		Name: "producer",
+		Help: "manage producer functionality",
+	}
+	facilityProducerShellCmd.AddCmd(facilityProducerShellCmd)
+	facilityProducerShellCmd.AddCmd(&ishell.Cmd{
 		Name: "request",
 		Help: "request registration form from facility",
 		Func: func(c *ishell.Context) {
@@ -90,8 +134,7 @@ func facilityInputReceiver() {
 			}
 		},
 	})
-
-	shell.AddCmd(&ishell.Cmd{
+	facilityProducerShellCmd.AddCmd(&ishell.Cmd{
 		Name: "forms",
 		Help: "print forms to be signed",
 		Func: func(c *ishell.Context) {
@@ -101,8 +144,7 @@ func facilityInputReceiver() {
 			shell.Println()
 		},
 	})
-
-	shell.AddCmd(&ishell.Cmd{
+	facilityProducerShellCmd.AddCmd(&ishell.Cmd{
 		Name: "register",
 		Help: "fill in a received registration form",
 		Func: func(c *ishell.Context) {
@@ -167,11 +209,23 @@ func facilityInputReceiver() {
 		},
 	})
 
-	shell.AddCmd(&ishell.Cmd{
+	facilityPriceMapShellCmd := &ishell.Cmd{
 		Name: "price-map",
-		Help: "create a price map",
+		Help: "manage local price maps",
+	}
+	shell.AddCmd(facilityPriceMapShellCmd)
+	facilityPriceMapShellCmd.AddCmd(&ishell.Cmd{
+		Name: "peek",
+		Help: "view local price map",
 		Func: func(c *ishell.Context) {
-
+			fmt.Println(isPriceMapAccepted)
+			fmt.Println(priceMap)
+		},
+	})
+	facilityPriceMapShellCmd.AddCmd(&ishell.Cmd{
+		Name: "create",
+		Help: "create a local price map",
+		Func: func(c *ishell.Context) {
 			// Create newPowerComponents.
 			shell.Print("Real Power: ")
 			realPowerString := c.ReadLine()
@@ -288,51 +342,25 @@ func facilityInputReceiver() {
 			}
 
 			priceMap = newPriceMap
+
 		},
 	})
 
-	shell.AddCmd(&ishell.Cmd{
-		Name: "peek",
-		Help: "view price map",
-		Func: func(c *ishell.Context) {
-			fmt.Println(priceMap)
-		},
-	})
 
-	shell.AddCmd(&ishell.Cmd{
-		Name: "peers",
-		Help: "show any registered customers or producers",
-		Func: func(c *ishell.Context) {
-			if len(customerFacilities) > 0 {
-				shell.Println("\nCUSTOMERS")
-				for k := range customerFacilities {
-					shell.Printf("Facility Public Key: %s\n", k)
-				}
-			}
-			if len(producerFacilities) > 0 {
-				shell.Println("\nPRODUCERS")
-				// TODO: add placeholders?
-				// TODO: better formatting
-				for k := range producerFacilities {
-					shell.Printf("Facility Public Key: %s\n", k)
-					if producerCharacteristics[k] != nil {
-						shell.Println(producerCharacteristics[k])
-
-					}
-					if producerPriceMaps[k] != nil {
-						shell.Println(producerPriceMaps[k])
-					}
-				}
-				shell.Println()
-			} else {
-				shell.Println()
-			}
-		},
-	})
-
-	// TODO: add show characteristics
-	shell.AddCmd(&ishell.Cmd{
+	facilityCharacteristicsShellCmd := &ishell.Cmd{
 		Name: "characteristics",
+		Help: "manage local characteristics",
+	}
+	shell.AddCmd(facilityCharacteristicsShellCmd)
+	facilityCharacteristicsShellCmd.AddCmd(&ishell.Cmd{
+		Name: "peek",
+		Help: "view local characteristics",
+		Func: func(c *ishell.Context) {
+			fmt.Println(resourceCharacteristics)
+		},
+	})
+	facilityCharacteristicsShellCmd.AddCmd(&ishell.Cmd{
+		Name: "create",
 		Help: "create facility characteristics",
 		Func: func(c *ishell.Context) {
 			shell.Print("Max Load Power: ")
@@ -378,6 +406,7 @@ func facilityInputReceiver() {
 		},
 	})
 
+
 	shell.AddCmd(&ishell.Cmd{
 		Name: "get",
 		Help: "get characteristics and price map of facility",
@@ -406,7 +435,12 @@ func facilityInputReceiver() {
 		},
 	})
 
-	shell.AddCmd(&ishell.Cmd{
+	facilityCustomerShellCmd := &ishell.Cmd{
+		Name: "customer",
+		Help: "manage customer functionality",
+	}
+	shell.AddCmd(facilityCustomerShellCmd)
+	facilityCustomerShellCmd.AddCmd(&ishell.Cmd{
 		Name: "propose",
 		Help: "propose a price map offer to a producer",
 		Func: func(c *ishell.Context) {
@@ -557,7 +591,12 @@ func facilityInputReceiver() {
 		},
 	})
 
-	shell.AddCmd(&ishell.Cmd{
+	facilityOffersShellCmd := &ishell.Cmd{
+		Name: "offers",
+		Help: "view pending offers",
+	}
+	shell.AddCmd(facilityOffersShellCmd)
+	facilityOffersShellCmd.AddCmd(&ishell.Cmd{
 		Name: "offers",
 		Help: "view pending offers",
 		Func: func(c *ishell.Context) {
@@ -567,15 +606,13 @@ func facilityInputReceiver() {
 			shell.Println()
 		},
 	})
-
-	shell.AddCmd(&ishell.Cmd{
+	facilityOffersShellCmd.AddCmd(&ishell.Cmd{
 		Name: "feedback",
 		Help: "get feedback on a price map offer",
 		Func: func(c *ishell.Context) {
 		},
 	})
-
-	shell.AddCmd(&ishell.Cmd{
+	facilityOffersShellCmd.AddCmd(&ishell.Cmd{
 		Name: "evaluate",
 		Help: "evaluate an offer and give feedback",
 		Func: func(c *ishell.Context) {
@@ -592,13 +629,19 @@ func facilityInputReceiver() {
 				"NO",
 			}, fmt.Sprintf("Do you accept this offer?\n\n%s\n", customerPriceMapOffers[publicKey]))
 
+			newFeedback := esi.PriceMapOfferFeedback{
+				Route: customerPriceMapOffers[publicKey].Route,
+				OfferId: customerPriceMapOffers[publicKey].OfferId,
+			}
+
 			if choice == 0 {
 				shell.Println("\nOffer has been accepted.\n")
-				// send accept
+				newFeedback.ObligationStatus = esi.PriceMapOfferFeedback_SATISFIED
+				esi.ProvidePriceMapOfferFeedback(facilityClient, newFeedback)
 			} else if choice == 1 {
 				shell.Println("\nOffer has been denied.\n")
-				// propose counter offer?
-				// if not, send feedback
+				newFeedback.ObligationStatus = esi.PriceMapOfferFeedback_DISPUTED
+				esi.ProvidePriceMapOfferFeedback(facilityClient, newFeedback)
 			}
 		},
 	})

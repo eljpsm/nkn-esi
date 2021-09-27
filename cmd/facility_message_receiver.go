@@ -179,6 +179,10 @@ func facilityMessageReceiver() {
 					"src":     msg.Src,
 				}).Info("Received price map offer")
 			}
+
+		case *esi.FacilityMessage_ProvidePriceMapOfferFeedback:
+			if producerFacilities[msg.Src] == true {
+			}
 		}
 	}
 }

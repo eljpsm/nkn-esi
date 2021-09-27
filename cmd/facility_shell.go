@@ -18,6 +18,7 @@ var (
 
 	// priceMap is the currently stored price map.
 	priceMap = esi.PriceMap{}
+	isPriceMapAccepted = false
 
 	// resourceCharacteristics is the currently stored DER characteristics.
 	resourceCharacteristics = esi.DerCharacteristics{}
