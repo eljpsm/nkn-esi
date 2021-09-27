@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package api.esi;
+
+option go_package = "github.com/elijahjpassmore/api/esi";
+
+import "api/esi/der_route.proto";
+import "api/esi/duration_range.proto";
+
+message DerPriceMapRequest {
+
+  DerRoute route = 1;
+
+  DurationRange response_time = 2;
+
+}

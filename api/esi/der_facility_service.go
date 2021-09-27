@@ -65,7 +65,7 @@ func CompleteDerFacilityRegistration(client *nkn.MultiClient, registration DerFa
 	return nil
 }
 
-func GetResourceCharacteristics(client *nkn.MultiClient, route DerRoute) error {
+func GetResourceCharacteristics(client *nkn.MultiClient) error {
 	return nil
 }
 

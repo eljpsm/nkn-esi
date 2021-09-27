@@ -26,6 +26,8 @@ import "api/esi/der_facility_registration_form_request.proto";
 import "api/esi/der_facility_registration_form_data.proto";
 import "api/esi/der_facility_registration.proto";
 import "api/esi/der_characteristics.proto";
+import "api/esi/der_resource_characteristics_request.proto";
+import "api/esi/der_price_map_request.proto";
 import "api/esi/price_map_characteristics.proto";
 import "api/esi/der_program_set.proto";
 import "api/esi/price_map_offer.proto";
@@ -35,12 +37,6 @@ import "api/esi/datum_request.proto";
 import "api/esi/price_datum.proto";
 import "api/esi/der_route.proto";
 import "api/esi/power_parameters.proto";
-
-// Mapping messages from Protocol Buffer structs to a type.
-
-message GetProviderCharacteristics {
-
-}
 
 // A message received by a Registry.
 message RegistryMessage {
@@ -70,19 +66,8 @@ message FacilityMessage {
     // Receive a completed registration form.
     DerFacilityRegistrationFormData SubmitDerFacilityRegistrationForm = 4;
     DerFacilityRegistration CompleteDerFacilityRegistration = 5;
-    DerCharacteristics ProvideDerCharacteristics = 6;
-    PriceMapCharacteristics ProvidePriceMaps = 7;
-    DerProgramSet ProvideSupportedDerPrograms = 8;
-    PriceMapOffer ProposePriceMapOffer = 9;
-    PriceMapOfferFeedback GetPriceMapOfferFeedback = 10;
-    PriceMapOfferStatus ProvidePriceMapOfferStatus = 11;
-    PriceMapOfferFeedback ProvidePriceMapOfferFeedback = 12;
-    DatumRequest ListPrices = 13;
-    PriceDatum ProvidePrices = 14;
-    DatumRequest ListPowerProfile = 15;
-    DerRoute GetPowerParameters = 16;
-    PowerParameters SetPowerParameters = 17;
-    DerRoute GetPriceParameters = 18;
+    DerResourceCharacteristicsRequest GetResourceCharacteristics = 6;
+    DerPriceMapRequest GetPriceMap = 7;
   }
 
 }
