@@ -316,11 +316,63 @@ func facilityInputReceiver() {
 				shell.Println("\nPRODUCERS")
 				for k, _ := range producerFacilities {
 					shell.Printf("Facility Public Key: %s\n", k)
+					// TODO: add placeholder? at the moment, no indication of characteristics
+					if producerCharacteristics[k] != nil {
+						shell.Println(producerCharacteristics[k])
+					}
 				}
 				shell.Println()
 			} else {
 				shell.Println()
 			}
+		},
+	})
+
+	// TODO: add show characteristics
+	shell.AddCmd(&ishell.Cmd{
+		Name: "characteristics",
+		Help: "create facility characteristics",
+		Func: func(c *ishell.Context) {
+			shell.Print("Max Load Power: ")
+			loadPowerMaxString := c.ReadLine()
+			loadPowerMax, err := strconv.Atoi(loadPowerMaxString)
+			if err != nil {
+				shell.Println(err.Error())
+				return
+			}
+			shell.Print("Load Power Factor: ")
+			loadPowerFactorString := c.ReadLine()
+			loadPowerFactor, err := strconv.Atoi(loadPowerFactorString)
+			if err != nil {
+				shell.Println(err.Error())
+				return
+			}
+			shell.Print("Max Supply Power: ")
+			supplyPowerMaxString := c.ReadLine()
+			supplyPowerMax, err := strconv.Atoi(supplyPowerMaxString)
+			if err != nil {
+				shell.Println(err.Error())
+				return
+			}
+			shell.Print("Supply Power Factor: ")
+			supplyPowerFactorString := c.ReadLine()
+			supplyPowerFactor, err := strconv.Atoi(supplyPowerFactorString)
+			if err != nil {
+				shell.Println(err.Error())
+				return
+			}
+			shell.Print("Storage Energy Capacity: ")
+			storageEnergyCapacityString := c.ReadLine()
+			storageEnergyCapacity, err := strconv.Atoi(storageEnergyCapacityString)
+			if err != nil {
+				shell.Println(err.Error())
+				return
+			}
+			resourceCharacteristics.LoadPowerMax = uint64(loadPowerMax)
+			resourceCharacteristics.LoadPowerFactor = float32(loadPowerFactor)
+			resourceCharacteristics.SupplyPowerMax = uint64(supplyPowerMax)
+			resourceCharacteristics.SupplyPowerFactor = float32(supplyPowerFactor)
+			resourceCharacteristics.StorageEnergyCapacity = uint64(storageEnergyCapacity)
 		},
 	})
 

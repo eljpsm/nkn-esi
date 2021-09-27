@@ -19,6 +19,9 @@ var (
 	// priceMap is the currently stored price map.
 	priceMap = esi.PriceMap{}
 
+	// resourceCharacteristics is the currently stored DER characteristics.
+	resourceCharacteristics = esi.DerCharacteristics{}
+
 	// receivedRegistrationForms are the currently stored registration forms.
 	receivedRegistrationForms = make(map[string]*esi.DerFacilityRegistrationForm)
 
@@ -26,10 +29,10 @@ var (
 	customerFacilities = make(map[string]bool)
 	// producerFacilities is a map of all other facilities registered in a producer role.
 	producerFacilities = make(map[string]bool)
-	// consumerFacilitiesPriceMaps are the price maps of the currently stored facilities engaged in a consumer role.
-	consumerFacilitiesPriceMaps = make(map[string]*esi.PriceMap)
-	// consumerFacilitiesCharacteristics are the characteristics of the currently stored facilities engaged in a consumer role.
-	consumerFacilitiesCharacteristics = make(map[string]*esi.DerCharacteristics)
+	// producerPriceMaps are the price maps of the currently stored facilities engaged in a consumer role.
+	producerPriceMaps = make(map[string]*esi.PriceMap)
+	// producerCharacteristics are the characteristics of the currently stored facilities engaged in a consumer role.
+	producerCharacteristics = make(map[string]*esi.DerCharacteristics)
 )
 
 // facilityLoop is the main shell of a Facility.

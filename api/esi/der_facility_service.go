@@ -79,6 +79,20 @@ func GetResourceCharacteristics(client *nkn.MultiClient, request DerResourceChar
 	return nil
 }
 
+func SendResourceCharacteristics(client *nkn.MultiClient, characteristics DerCharacteristics) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SendResourceCharacteristics{SendResourceCharacteristics: &characteristics}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(characteristics.Route.GetCustomerKey()), data, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ProposePriceMapOffer propose a price map offer for the service to accept, reject, or propose a counter offer.
 // The exchange will invoke this method to make a price map offer to the Facility. The Facility must respond with either
 // an acceptance/rejection of the offer or a counter offer in the form of a different price map proposal.

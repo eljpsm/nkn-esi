@@ -30,6 +30,7 @@ import "api/esi/der_resource_characteristics_request.proto";
 import "api/esi/der_price_map_request.proto";
 import "api/esi/price_map_characteristics.proto";
 import "api/esi/der_program_set.proto";
+import "api/esi/price_map.proto";
 import "api/esi/price_map_offer.proto";
 import "api/esi/price_map_offer_feedback.proto";
 import "api/esi/price_map_offer_status.proto";
@@ -67,20 +68,22 @@ message FacilityMessage {
     DerFacilityRegistrationFormData SubmitDerFacilityRegistrationForm = 4;
     DerFacilityRegistration CompleteDerFacilityRegistration = 5;
     DerResourceCharacteristicsRequest GetResourceCharacteristics = 6;
-    DerPriceMapRequest GetPriceMap = 7;
-    DerCharacteristics ProvideDerCharacteristics = 8;
-    PriceMapCharacteristics ProvidePriceMaps = 9;
-    DerProgramSet ProvideSupportedDerPrograms = 10;
-    PriceMapOffer ProposePriceMapOffer = 11;
-    PriceMapOfferFeedback GetPriceMapOfferFeedback = 12;
-    PriceMapOfferStatus ProvidePriceMapOfferStatus = 13;
-    PriceMapOfferFeedback ProvidePriceMapOfferFeedback = 14;
-    DatumRequest ListPrices = 15;
-    PriceDatum ProvidePrices = 16;
-    DatumRequest ListPowerProfile = 17;
-    DerRoute GetPowerParameters = 18;
-    PowerParameters SetPowerParameters = 19;
-    DerRoute GetPriceParameters = 20;
+    DerCharacteristics SendResourceCharacteristics = 7;
+    DerPriceMapRequest GetPriceMap = 8;
+    PriceMap SendPriceMap = 9;
+    DerCharacteristics ProvideDerCharacteristics = 10;
+    PriceMapCharacteristics ProvidePriceMaps = 11;
+    DerProgramSet ProvideSupportedDerPrograms = 12;
+    PriceMapOffer ProposePriceMapOffer = 13;
+    PriceMapOfferFeedback GetPriceMapOfferFeedback = 14;
+    PriceMapOfferStatus ProvidePriceMapOfferStatus = 15;
+    PriceMapOfferFeedback ProvidePriceMapOfferFeedback = 16;
+    DatumRequest ListPrices = 17;
+    PriceDatum ProvidePrices = 18;
+    DatumRequest ListPowerProfile = 19;
+    DerRoute GetPowerParameters = 20;
+    PowerParameters SetPowerParameters = 21;
+    DerRoute GetPriceParameters = 22;
   }
 
 }

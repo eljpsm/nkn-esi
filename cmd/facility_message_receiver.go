@@ -122,6 +122,24 @@ func facilityMessageReceiver() {
 				"src":     msg.Src,
 				"success": x.CompleteDerFacilityRegistration.GetSuccess(),
 			}).Info("Received completed registration form")
+
+		case *esi.FacilityMessage_GetResourceCharacteristics:
+			// Check to make sure that the source is a registered customer.
+			if customerFacilities[msg.Src] == true {
+				newRoute := esi.DerRoute{
+					CustomerKey: msg.Src,
+					ProducerKey: facilityInfo.GetPublicKey(),
+				}
+				newCharacteristics := resourceCharacteristics
+				newCharacteristics.Route = &newRoute
+				esi.SendResourceCharacteristics(facilityClient, newCharacteristics)
+			}
+
+		case *esi.FacilityMessage_SendResourceCharacteristics:
+			// Check to make sure that the source is a registered producer.
+			if producerFacilities[msg.Src] == true {
+				producerCharacteristics[msg.Src] = x.SendResourceCharacteristics
+			}
 		}
 	}
 }
