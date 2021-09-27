@@ -19,7 +19,7 @@ func facilityInputReceiver() {
 		Name: "public",
 		Help: "print public key",
 		Func: func(c *ishell.Context) {
-			fmt.Println(facilityInfo.GetFacilityPublicKey())
+			fmt.Println(facilityInfo.GetPublicKey())
 		},
 	})
 
@@ -29,7 +29,7 @@ func facilityInputReceiver() {
 		Func: func(c *ishell.Context) {
 			if len(knownFacilities) > 0 {
 				for _, facility := range knownFacilities {
-					shell.Printf("\nName: %s\nCountry: %s\nPublic Key: %s\n", facility.GetName(), facility.Location.GetCountry(), noteMsgColorFunc(facility.GetFacilityPublicKey()))
+					shell.Printf("\nName: %s\nCountry: %s\nPublic Key: %s\n", facility.GetName(), facility.Location.GetCountry(), noteMsgColorFunc(facility.GetPublicKey()))
 				}
 				shell.Println()
 			}
@@ -81,7 +81,7 @@ func facilityInputReceiver() {
 			languageCode := c.ReadLine()
 
 			request := esi.DerFacilityRegistrationFormRequest{
-				FacilityPublicKey: facilityPublicKey,
+				PublicKey: facilityPublicKey,
 				LanguageCode:      languageCode,
 			}
 
@@ -120,7 +120,7 @@ func facilityInputReceiver() {
 				// Contains the results of key -> response.
 				results := make(map[string]string)
 				route := esi.DerRoute{
-					ConsumerKey: form.GetCustomerFacilityPublicKey(),
+					CustomerKey: form.GetCustomerFacilityPublicKey(),
 					ProducerKey: form.GetProducerFacilityPublicKey(),
 				}
 

@@ -22,7 +22,7 @@ var (
 	// dummyDerRegistryInfo is a dummy DerRegistryInfo.
 	dummyDerRegistryInfo = esi.DerRegistryInfo{
 		Name:              "Dummy Registry",
-		RegistryPublicKey: "",
+		PublicKey: "",
 	}
 	// dummyLatLng is a dummy LatLng.
 	dummyLatLng = esi.LatLng{
@@ -46,7 +46,7 @@ var (
 	// dummyDerFacilityExchangeInfo is a dummy DerFacilityExchangeInfo.
 	dummyDerFacilityExchangeInfo = esi.DerFacilityExchangeInfo{
 		Name:              "Dummy Facility",
-		FacilityPublicKey: "",
+		PublicKey: "",
 		Location:          &dummyLocation,
 	}
 )

@@ -31,7 +31,7 @@ message DerRoute {
 
   // The facility identifier the request is associated with.
   //string facility_uid = 2;
-  string consumer_key = 2;
+  string customer_key = 2;
   
   // A message signature.
   //

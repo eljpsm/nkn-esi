@@ -38,9 +38,7 @@ import "api/esi/power_parameters.proto";
 
 // Mapping messages from Protocol Buffer structs to a type.
 
-// A special empty message which is to be interpreted as a simple request for facility candidates.
-// TODO: Not used at the moment, perhaps not needed?
-message DerRegistryRequestCandidates {
+message GetProviderCharacteristics {
 
 }
 

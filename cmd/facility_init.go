@@ -49,7 +49,7 @@ func facilityInit(cmd *cobra.Command, args []string) error {
 	}
 
 	newConfig := dummyDerFacilityExchangeInfo
-	newConfig.FacilityPublicKey = publicKey
+	newConfig.PublicKey = publicKey
 
 	// Write the new config.
 	jsonBytes, err := json.MarshalIndent(newConfig, "", "  ")

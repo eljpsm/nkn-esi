@@ -65,7 +65,7 @@ func facilityStart(cmd *cobra.Command, args []string) error {
 	}
 
 	// Validate the key pair.
-	err = validateCfgKeyPair(facilityInfo.FacilityPublicKey, facilityClient)
+	err = validateCfgKeyPair(facilityInfo.PublicKey, facilityClient)
 	if err != nil {
 		return err
 	}

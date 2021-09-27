@@ -67,7 +67,7 @@ func registryStart(cmd *cobra.Command, args []string) error {
 	}
 
 	// Validate the key pair.
-	err = validateCfgKeyPair(registryInfo.RegistryPublicKey, registryClient)
+	err = validateCfgKeyPair(registryInfo.PublicKey, registryClient)
 	if err != nil {
 		return err
 	}

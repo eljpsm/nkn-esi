@@ -1,6 +1,6 @@
 {
   "name": "Animal Facility",
-  "facility_public_key": "",
+  "public_key": "",
   "location": {
     "country": "NZ",
     "region": "Auckland",

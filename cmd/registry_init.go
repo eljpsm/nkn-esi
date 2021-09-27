@@ -49,7 +49,7 @@ func registryInit(cmd *cobra.Command, args []string) error {
 	}
 
 	newConfig := dummyDerRegistryInfo
-	newConfig.RegistryPublicKey = publicKey
+	newConfig.PublicKey = publicKey
 
 	// Write the new config.
 	jsonBytes, err := json.MarshalIndent(newConfig, "", "  ")

@@ -16,7 +16,7 @@ func registryMessageReceiver() {
 
 	<-registryClient.OnConnect.C
 	log.WithFields(log.Fields{
-		"publicKey": registryInfo.GetRegistryPublicKey(),
+		"publicKey": registryInfo.GetPublicKey(),
 		"name": registryInfo.GetName(),
 	}).Info("Connection opened")
 
@@ -38,7 +38,7 @@ func registryMessageReceiver() {
 		// Case documentation located at api/esi/der_facility_registry_service.go.
 		switch x := message.Chunk.(type) {
 		case *esi.RegistryMessage_SignupRegistry:
-			if _, ok := knownFacilities[x.SignupRegistry.FacilityPublicKey]; !ok {
+			if _, ok := knownFacilities[x.SignupRegistry.PublicKey]; !ok {
 				log.WithFields(log.Fields{
 					"publicKey": msg.Src,
 				}).Info("Saved facility to known facilities")
@@ -50,7 +50,7 @@ func registryMessageReceiver() {
 					}
 				}
 
-				knownFacilities[x.SignupRegistry.FacilityPublicKey] = x.SignupRegistry
+				knownFacilities[x.SignupRegistry.PublicKey] = x.SignupRegistry
 			}
 
 		case *esi.RegistryMessage_QueryDerFacilities:
@@ -63,7 +63,7 @@ func registryMessageReceiver() {
 				if strings.ToLower(facility.Location.GetCountry()) == strings.ToLower(x.QueryDerFacilities.Location.GetCountry()) {
 
 					// If the facility querying the registry also fits the criteria, ignore it.
-					if facility.FacilityPublicKey == msg.Src {
+					if facility.PublicKey == msg.Src {
 						continue
 					}
 
