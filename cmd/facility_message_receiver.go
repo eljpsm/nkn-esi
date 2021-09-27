@@ -101,8 +101,7 @@ func facilityMessageReceiver() {
 
 			// If successful, add it as a consumer facility with an empty price map.
 			if registration.Success {
-				consumerFacilitiesPriceMaps[x.SubmitDerFacilityRegistrationForm.Route.GetCustomerKey()] = &esi.PriceMap{}
-				consumerFacilitiesCharacteristics[x.SubmitDerFacilityRegistrationForm.Route.GetCustomerKey()] = &esi.DerCharacteristics{}
+				producerFacilities[msg.Src] = true
 			}
 
 			err = esi.CompleteDerFacilityRegistration(facilityClient, registration)
@@ -116,6 +115,9 @@ func facilityMessageReceiver() {
 			}).Info("Sent completed registration form")
 
 		case *esi.FacilityMessage_CompleteDerFacilityRegistration:
+			if x.CompleteDerFacilityRegistration.GetSuccess() == true {
+				customerFacilities[msg.Src] = true
+			}
 			log.WithFields(log.Fields{
 				"src":     msg.Src,
 				"success": x.CompleteDerFacilityRegistration.GetSuccess(),

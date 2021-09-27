@@ -303,6 +303,25 @@ func facilityInputReceiver() {
 	})
 
 	shell.AddCmd(&ishell.Cmd{
+		Name: "peers",
+		Help: "show any registered customers or producers",
+		Func: func(c *ishell.Context) {
+			if len(customerFacilities) > 0 {
+				shell.Println("\nCUSTOMERS")
+				for k, _ := range customerFacilities {
+					shell.Printf("Facility Public Key: %s\n", k)
+				}
+			}
+			if len(producerFacilities) > 0 {
+				shell.Println("\nPRODUCERS")
+				for k, _ := range producerFacilities {
+					shell.Printf("Facility Public Key: %s\n", k)
+				}
+			}
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
 		Name: "get",
 		Help: "get characteristics and price map of facility",
 		Func: func(c *ishell.Context) {

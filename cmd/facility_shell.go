@@ -22,6 +22,10 @@ var (
 	// receivedRegistrationForms are the currently stored registration forms.
 	receivedRegistrationForms = make(map[string]*esi.DerFacilityRegistrationForm)
 
+	// customerFacilities is a map of all other facilities registered in a customer role.
+	customerFacilities = make(map[string]bool)
+	// producerFacilities is a map of all other facilities registered in a producer role.
+	producerFacilities = make(map[string]bool)
 	// consumerFacilitiesPriceMaps are the price maps of the currently stored facilities engaged in a consumer role.
 	consumerFacilitiesPriceMaps = make(map[string]*esi.PriceMap)
 	// consumerFacilitiesCharacteristics are the characteristics of the currently stored facilities engaged in a consumer role.
