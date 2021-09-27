@@ -110,10 +110,10 @@ func facilityInputReceiver() {
 		Name: "register",
 		Help: "fill in a received registration form",
 		Func: func(c *ishell.Context) {
-			c.Print("Facility Public Key: ")
-			facilityPublicKey := c.ReadLine()
+			shell.Print("Facility Public Key: ")
+			publicKey := c.ReadLine()
 
-			form, present := receivedRegistrationForms[facilityPublicKey]
+			form, present := receivedRegistrationForms[publicKey]
 			if present {
 				shell.Println() // gap from input
 
@@ -165,7 +165,7 @@ func facilityInputReceiver() {
 				shell.Printf("\nForm has been submitted to %s\n", registrationFormData.Route.GetProducerKey())
 
 			} else {
-				shell.Printf("no form found with public key '%s`\n", facilityPublicKey)
+				shell.Printf("no form found with public key '%s`\n", publicKey)
 				return
 			}
 		},
@@ -586,13 +586,22 @@ func facilityInputReceiver() {
 		Name: "evaluate",
 		Help: "evaluate an offer and give feedback",
 		Func: func(c *ishell.Context) {
-			choices := []string{}
-			for k, _ := range customerPriceMapOffers {
-				choices = append(choices, k)
+			shell.Print("Customer Public Key: ")
+			publicKey := c.ReadLine()
+
+			choice := c.MultiChoice([]string{
+				"YES",
+				"NO",
+			}, fmt.Sprintf("Do you accept this offer?\n\n%s\n", customerPriceMapOffers[publicKey]))
+
+			if choice == 0 {
+				shell.Println("\nOffer has been accepted.\n")
+				// send accept
+			} else if choice == 1 {
+				shell.Println("\nOffer has been denied.\n")
+				// propose counter offer?
+				// if not, send feedback
 			}
-			publicKey := c.MultiChoice(choices, "Select customer key to evaluate")
-			shell.Println(publicKey)
-			fmt.Printf("\n%s\n\n", customerPriceMapOffers[string(publicKey)])
 		},
 	})
 
