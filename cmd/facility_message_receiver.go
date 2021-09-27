@@ -22,6 +22,7 @@ func facilityMessageReceiver() {
 	message := &esi.FacilityMessage{}
 
 	for {
+		// Unmarshal the protocol buffer.
 		msg := <-facilityClient.OnMessage.C
 		err := proto.Unmarshal(msg.Data, message)
 		if err != nil {
@@ -29,6 +30,8 @@ func facilityMessageReceiver() {
 		}
 
 		// Case documentation located at api/esi/deer_facility_service.go.
+		//
+		// Switch based upon the message type.
 		switch x := message.Chunk.(type) {
 		case *esi.FacilityMessage_SendKnownDerFacility:
 			// If the facility is not already stored, store it.
@@ -43,6 +46,9 @@ func facilityMessageReceiver() {
 
 		case *esi.FacilityMessage_GetDerFacilityRegistrationForm:
 			// Set the basic info.
+			//
+			// An example FormSetting - you can set whatever you want, and the producer will get a copy for you to then
+			// evaluate as you wish.
 			newFormSetting := esi.FormSetting{
 				Key:         "0",
 				Label:       "Do you wish to register?",
@@ -170,6 +176,7 @@ func facilityMessageReceiver() {
 			}
 
 		case *esi.FacilityMessage_ProposePriceMapOffer:
+			// Check to make sure that the source is a registered customer.
 			if customerFacilities[msg.Src] == true {
 				// TODO: autobuy
 				// TODO: what does ignore look like?

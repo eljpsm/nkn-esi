@@ -55,6 +55,11 @@ var (
 	// noteMsgColorFunc is the color associated with note printing in function form.
 	noteMsgColorFunc = noteMsgColor.SprintFunc()
 
+	// boldMsgColor is the color associated with bold printing.
+	boldMsgColor = color.New(color.Bold)
+	// boldMsgColorFunc is the color associated with bold printing in function form.
+	boldMsgColorFunc = boldMsgColor.SprintFunc()
+
 	// knownFacilities are the facilities known to the current registry or facility. In a real situation, this would be
 	// stored in a database.
 	knownFacilities = make(map[string]*esi.DerFacilityExchangeInfo)

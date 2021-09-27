@@ -25,7 +25,7 @@ func facilityInputReceiver() {
 		Name: "public",
 		Help: "print public key",
 		Func: func(c *ishell.Context) {
-			fmt.Println(facilityInfo.GetPublicKey())
+			shell.Printf("%s\n", infoMsgColorFunc(facilityInfo.GetPublicKey()))
 		},
 	})
 
@@ -35,11 +35,18 @@ func facilityInputReceiver() {
 	}
 	shell.AddCmd(facilityRegistryShellCmd)
 	facilityRegistryShellCmd.AddCmd(&ishell.Cmd{
-		Name: "facilities",
+		Name: "list",
 		Help: "print known facilities received from registry",
 		Func: func(c *ishell.Context) {
 			for _, facility := range knownFacilities {
-				shell.Printf("\nName: %s\nCountry: %s\nPublic Key: %s\n", facility.GetName(), facility.Location.GetCountry(), noteMsgColorFunc(facility.GetPublicKey()))
+				// Print any information - currently only name, country, and public key.
+				shell.Printf("\n%s %s\n%s %s\n%s %s\n",
+					boldMsgColorFunc("Name:"),
+					facility.GetName(),
+					boldMsgColorFunc("Country:"),
+					facility.Location.GetCountry(),
+					boldMsgColorFunc("Public Key:"),
+					noteMsgColorFunc(facility.GetPublicKey()))
 			}
 			shell.Println()
 		},
@@ -60,12 +67,14 @@ func facilityInputReceiver() {
 		Name: "query",
 		Help: "query registry for facilities by location",
 		Func: func(c *ishell.Context) {
-			// TODO: Ask for more than just country.
-			// TODO: Evaluate settings.
 			c.Print("Registry Public Key: ")
 			registryPublicKey := c.ReadLine()
 			c.Print("Country: ")
 			country := c.ReadLine()
+
+			// You can query based upon any setting that DerFacilityExchangeRequest takes.
+			//
+			// In this demo, you can select a COUNTRY to query based upon.
 			newLocation := esi.Location{
 				Country: country,
 			}
@@ -83,21 +92,25 @@ func facilityInputReceiver() {
 		Help: "show any registered customers or producers",
 		Func: func(c *ishell.Context) {
 			if len(customerFacilities) > 0 {
-				shell.Println("\nCUSTOMERS")
+				shell.Printf("\n%s\n", boldMsgColorFunc("CUSTOMERS"))
 				for k := range customerFacilities {
-					shell.Printf("Facility Public Key: %s\n", k)
+					shell.Printf("%s %s\n",
+						boldMsgColorFunc("Public Key:"),
+						noteMsgColorFunc(k))
 				}
 			}
 			if len(producerFacilities) > 0 {
-				shell.Println("\nPRODUCERS")
-				// TODO: add placeholders?
-				// TODO: better formatting
+				shell.Printf("\n%s\n", boldMsgColorFunc("PRODUCERS"))
 				for k := range producerFacilities {
-					shell.Printf("Facility Public Key: %s\n", k)
+					shell.Printf("%s %s\n",
+						boldMsgColorFunc("Public Key:"),
+						noteMsgColorFunc(k))
+
+					// TODO: pretty printing
 					if producerCharacteristics[k] != nil {
 						shell.Println(producerCharacteristics[k])
-
 					}
+					// TODO: pretty printing
 					if producerPriceMaps[k] != nil {
 						shell.Println(producerPriceMaps[k])
 					}
@@ -113,7 +126,7 @@ func facilityInputReceiver() {
 		Name: "producer",
 		Help: "manage producer functionality",
 	}
-	facilityProducerShellCmd.AddCmd(facilityProducerShellCmd)
+	shell.AddCmd(facilityProducerShellCmd)
 	facilityProducerShellCmd.AddCmd(&ishell.Cmd{
 		Name: "request",
 		Help: "request registration form from facility",
@@ -123,6 +136,9 @@ func facilityInputReceiver() {
 			c.Print("Language Code: ")
 			languageCode := c.ReadLine()
 
+			// When creating a request, you can specify a language code.
+			//
+			// In this demo, the only language code that is used (and sent) is "en" for English.
 			request := esi.DerFacilityRegistrationFormRequest{
 				PublicKey:    facilityPublicKey,
 				LanguageCode: languageCode,
@@ -139,7 +155,9 @@ func facilityInputReceiver() {
 		Help: "print forms to be signed",
 		Func: func(c *ishell.Context) {
 			for _, v := range receivedRegistrationForms {
-				shell.Printf("\nProducer Public Key: %s\n", noteMsgColorFunc(v.GetProducerKey()))
+				shell.Printf("\n%s %s\n",
+					noteMsgColorFunc("Public Key:"),
+					noteMsgColorFunc(v.GetProducerKey()))
 			}
 			shell.Println()
 		},
@@ -226,126 +244,15 @@ func facilityInputReceiver() {
 		Name: "create",
 		Help: "create a local price map",
 		Func: func(c *ishell.Context) {
-			// Create newPowerComponents.
-			shell.Print("Real Power: ")
-			realPowerString := c.ReadLine()
-			realPower, err := strconv.Atoi(realPowerString)
+			createdPriceMap, err := newPriceMap(shell, c)
 			if err != nil {
 				shell.Println(err.Error())
 				return
-			}
-			shell.Print("Reactive Power: ")
-			reactivePowerString := c.ReadLine()
-			reactivePower, err := strconv.Atoi(reactivePowerString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			newPowerComponents := esi.PowerComponents{
-				RealPower:     int64(realPower),
-				ReactivePower: int64(reactivePower),
 			}
 
-			// Create newDuration.
-			shell.Print("Expected Duration Seconds: ")
-			durationSecondsString := c.ReadLine()
-			durationSeconds, err := strconv.Atoi(durationSecondsString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			shell.Print("Expected Duration Nanos: ")
-			durationNanosString := c.ReadLine()
-			durationNanos, err := strconv.Atoi(durationNanosString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			newDuration := duration.Duration{
-				Seconds: int64(durationSeconds),
-				Nanos:   int32(durationNanos),
-			}
-
-			// Create newDurationRange.
-			shell.Print("Expected Minimum Duration Seconds: ")
-			expectedMinSecondsString := c.ReadLine()
-			expectedMinSeconds, err := strconv.Atoi(expectedMinSecondsString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			shell.Print("Expected Minimum Duration Nanos: ")
-			expectedMinNanosString := c.ReadLine()
-			expectedMinNanos, err := strconv.Atoi(expectedMinNanosString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			shell.Print("Expected Maximum Duration Seconds: ")
-			expectedMaxSecondsString := c.ReadLine()
-			expectedMaxSeconds, err := strconv.Atoi(expectedMaxSecondsString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			shell.Print("Expected Maximum Duration Nanos: ")
-			expectedMaxNanosString := c.ReadLine()
-			expectedMaxNanos, err := strconv.Atoi(expectedMaxNanosString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			newMinDuration := duration.Duration{
-				Seconds: int64(expectedMinSeconds),
-				Nanos:   int32(expectedMinNanos),
-			}
-			newMaxDuration := duration.Duration{
-				Seconds: int64(expectedMaxSeconds),
-				Nanos:   int32(expectedMaxNanos),
-			}
-			newDurationRange := esi.DurationRange{
-				Min: &newMinDuration,
-				Max: &newMaxDuration,
-			}
-
-			// Create newPriceComponents.
-			shell.Print("Currency Code: ")
-			currencyCode := c.ReadLine()
-			shell.Print("Units: ")
-			unitsString := c.ReadLine()
-			units, err := strconv.Atoi(unitsString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			shell.Print("Nanos: ")
-			nanosString := c.ReadLine()
-			nanos, err := strconv.Atoi(nanosString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			newMoney := esi.Money{
-				CurrencyCode: currencyCode,
-				Units:        int64(units),
-				Nanos:        int32(nanos),
-			}
-			newPriceComponents := esi.PriceComponents{
-				ApparentEnergyPrice: &newMoney,
-			}
-
-			newPriceMap := esi.PriceMap{
-				PowerComponents: &newPowerComponents,
-				Duration:        &newDuration,
-				ResponseTime:    &newDurationRange,
-				Price:           &newPriceComponents,
-			}
-
-			priceMap = newPriceMap
-
+			priceMap = createdPriceMap
 		},
 	})
-
 
 	facilityCharacteristicsShellCmd := &ishell.Cmd{
 		Name: "characteristics",
@@ -398,6 +305,8 @@ func facilityInputReceiver() {
 				shell.Println(err.Error())
 				return
 			}
+
+			// Set the local characteristics to user input.
 			resourceCharacteristics.LoadPowerMax = uint64(loadPowerMax)
 			resourceCharacteristics.LoadPowerFactor = float32(loadPowerFactor)
 			resourceCharacteristics.SupplyPowerMax = uint64(supplyPowerMax)
@@ -405,7 +314,6 @@ func facilityInputReceiver() {
 			resourceCharacteristics.StorageEnergyCapacity = uint64(storageEnergyCapacity)
 		},
 	})
-
 
 	shell.AddCmd(&ishell.Cmd{
 		Name: "get",
@@ -451,140 +359,28 @@ func facilityInputReceiver() {
 				return
 			}
 
-			// Create newPowerComponents.
-			shell.Print("Real Power: ")
-			realPowerString := c.ReadLine()
-			realPower, err := strconv.Atoi(realPowerString)
+			createdPriceMap, err := newPriceMap(shell, c)
 			if err != nil {
 				shell.Println(err.Error())
 				return
 			}
-			shell.Print("Reactive Power: ")
-			reactivePowerString := c.ReadLine()
-			reactivePower, err := strconv.Atoi(reactivePowerString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			newPowerComponents := esi.PowerComponents{
-				RealPower:     int64(realPower),
-				ReactivePower: int64(reactivePower),
-			}
-
-			// Create newDuration.
-			shell.Print("Expected Duration Seconds: ")
-			durationSecondsString := c.ReadLine()
-			durationSeconds, err := strconv.Atoi(durationSecondsString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			shell.Print("Expected Duration Nanos: ")
-			durationNanosString := c.ReadLine()
-			durationNanos, err := strconv.Atoi(durationNanosString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			newDuration := duration.Duration{
-				Seconds: int64(durationSeconds),
-				Nanos:   int32(durationNanos),
-			}
-
-			// Create newDurationRange.
-			shell.Print("Expected Minimum Duration Seconds: ")
-			expectedMinSecondsString := c.ReadLine()
-			expectedMinSeconds, err := strconv.Atoi(expectedMinSecondsString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			shell.Print("Expected Minimum Duration Nanos: ")
-			expectedMinNanosString := c.ReadLine()
-			expectedMinNanos, err := strconv.Atoi(expectedMinNanosString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			shell.Print("Expected Maximum Duration Seconds: ")
-			expectedMaxSecondsString := c.ReadLine()
-			expectedMaxSeconds, err := strconv.Atoi(expectedMaxSecondsString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			shell.Print("Expected Maximum Duration Nanos: ")
-			expectedMaxNanosString := c.ReadLine()
-			expectedMaxNanos, err := strconv.Atoi(expectedMaxNanosString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			newMinDuration := duration.Duration{
-				Seconds: int64(expectedMinSeconds),
-				Nanos:   int32(expectedMinNanos),
-			}
-			newMaxDuration := duration.Duration{
-				Seconds: int64(expectedMaxSeconds),
-				Nanos:   int32(expectedMaxNanos),
-			}
-			newDurationRange := esi.DurationRange{
-				Min: &newMinDuration,
-				Max: &newMaxDuration,
-			}
-
-			// Create newPriceComponents.
-			shell.Print("Currency Code: ")
-			currencyCode := c.ReadLine()
-			shell.Print("Units: ")
-			unitsString := c.ReadLine()
-			units, err := strconv.Atoi(unitsString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			shell.Print("Nanos: ")
-			nanosString := c.ReadLine()
-			nanos, err := strconv.Atoi(nanosString)
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
-			newMoney := esi.Money{
-				CurrencyCode: currencyCode,
-				Units:        int64(units),
-				Nanos:        int32(nanos),
-			}
-			newPriceComponents := esi.PriceComponents{
-				ApparentEnergyPrice: &newMoney,
-			}
-
 			newRoute := esi.DerRoute{
 				ProducerKey: publicKey,
 				CustomerKey: facilityInfo.GetPublicKey(),
 			}
-			newPriceMap := esi.PriceMap{
-				PowerComponents: &newPowerComponents,
-				Duration:        &newDuration,
-				ResponseTime:    &newDurationRange,
-				Price:           &newPriceComponents,
-			}
-
 			newUuid := esi.Uuid{
 				Hi: uuidHigh,
 				Lo: uuidLow,
 			}
-
 			newTimeStamp := timestamppb.Timestamp{
 				Seconds: unixSeconds(),
 				Nanos:   0,
 			}
-
 			newPriceMapOffer := esi.PriceMapOffer{
 				Route:    &newRoute,
 				OfferId:  &newUuid,
 				When:     &newTimeStamp,
-				PriceMap: &newPriceMap,
+				PriceMap: &createdPriceMap,
 			}
 
 			esi.ProposePriceMapOffer(facilityClient, newPriceMapOffer)
@@ -630,7 +426,7 @@ func facilityInputReceiver() {
 			}, fmt.Sprintf("Do you accept this offer?\n\n%s\n", customerPriceMapOffers[publicKey]))
 
 			newFeedback := esi.PriceMapOfferFeedback{
-				Route: customerPriceMapOffers[publicKey].Route,
+				Route:   customerPriceMapOffers[publicKey].Route,
 				OfferId: customerPriceMapOffers[publicKey].OfferId,
 			}
 
@@ -639,12 +435,122 @@ func facilityInputReceiver() {
 				newFeedback.ObligationStatus = esi.PriceMapOfferFeedback_SATISFIED
 				esi.ProvidePriceMapOfferFeedback(facilityClient, newFeedback)
 			} else if choice == 1 {
-				shell.Println("\nOffer has been denied.\n")
-				newFeedback.ObligationStatus = esi.PriceMapOfferFeedback_DISPUTED
-				esi.ProvidePriceMapOfferFeedback(facilityClient, newFeedback)
+				// TODO: counteroffer
 			}
 		},
 	})
 
 	shell.Run()
+}
+
+func newPriceMap(shell *ishell.Shell, c *ishell.Context) (esi.PriceMap, error) {
+	// Create newPowerComponents.
+	shell.Print("Real Power: ")
+	realPowerString := c.ReadLine()
+	realPower, err := strconv.Atoi(realPowerString)
+	if err != nil {
+		return esi.PriceMap{}, err
+	}
+	shell.Print("Reactive Power: ")
+	reactivePowerString := c.ReadLine()
+	reactivePower, err := strconv.Atoi(reactivePowerString)
+	if err != nil {
+		return esi.PriceMap{}, err
+	}
+	newPowerComponents := esi.PowerComponents{
+		RealPower:     int64(realPower),
+		ReactivePower: int64(reactivePower),
+	}
+
+	// Create newDuration.
+	shell.Print("Expected Duration Seconds: ")
+	durationSecondsString := c.ReadLine()
+	durationSeconds, err := strconv.Atoi(durationSecondsString)
+	if err != nil {
+		return esi.PriceMap{}, err
+	}
+	shell.Print("Expected Duration Nanos: ")
+	durationNanosString := c.ReadLine()
+	durationNanos, err := strconv.Atoi(durationNanosString)
+	if err != nil {
+		return esi.PriceMap{}, err
+	}
+	newDuration := duration.Duration{
+		Seconds: int64(durationSeconds),
+		Nanos:   int32(durationNanos),
+	}
+
+	// Create newDurationRange.
+	shell.Print("Expected Minimum Duration Seconds: ")
+	expectedMinSecondsString := c.ReadLine()
+	expectedMinSeconds, err := strconv.Atoi(expectedMinSecondsString)
+	if err != nil {
+		return esi.PriceMap{}, err
+	}
+	shell.Print("Expected Minimum Duration Nanos: ")
+	expectedMinNanosString := c.ReadLine()
+	expectedMinNanos, err := strconv.Atoi(expectedMinNanosString)
+	if err != nil {
+		return esi.PriceMap{}, err
+	}
+	shell.Print("Expected Maximum Duration Seconds: ")
+	expectedMaxSecondsString := c.ReadLine()
+	expectedMaxSeconds, err := strconv.Atoi(expectedMaxSecondsString)
+	if err != nil {
+		return esi.PriceMap{}, err
+	}
+	shell.Print("Expected Maximum Duration Nanos: ")
+	expectedMaxNanosString := c.ReadLine()
+	expectedMaxNanos, err := strconv.Atoi(expectedMaxNanosString)
+	if err != nil {
+		return esi.PriceMap{}, err
+	}
+	newMinDuration := duration.Duration{
+		Seconds: int64(expectedMinSeconds),
+		Nanos:   int32(expectedMinNanos),
+	}
+	newMaxDuration := duration.Duration{
+		Seconds: int64(expectedMaxSeconds),
+		Nanos:   int32(expectedMaxNanos),
+	}
+	newDurationRange := esi.DurationRange{
+		Min: &newMinDuration,
+		Max: &newMaxDuration,
+	}
+
+	// Create newPriceComponents.
+	shell.Print("Currency Code: ")
+	currencyCode := c.ReadLine()
+	shell.Print("Units: ")
+	unitsString := c.ReadLine()
+	units, err := strconv.Atoi(unitsString)
+	if err != nil {
+		return esi.PriceMap{}, err
+	}
+	shell.Print("Nanos: ")
+	nanosString := c.ReadLine()
+	nanos, err := strconv.Atoi(nanosString)
+	if err != nil {
+		return esi.PriceMap{}, err
+	}
+
+	// Create a new Price Map.
+	//
+	// Note that money currency is ignored in this demo.
+	newMoney := esi.Money{
+		CurrencyCode: currencyCode,
+		Units:        int64(units),
+		Nanos:        int32(nanos),
+	}
+	newPriceComponents := esi.PriceComponents{
+		ApparentEnergyPrice: &newMoney,
+	}
+	newPriceMap := esi.PriceMap{
+		PowerComponents: &newPowerComponents,
+		Duration:        &newDuration,
+		ResponseTime:    &newDurationRange,
+		Price:           &newPriceComponents,
+	}
+
+	return newPriceMap, nil
 }
