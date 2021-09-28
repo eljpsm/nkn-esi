@@ -692,7 +692,7 @@ func newPriceMap(shell *ishell.Shell, c *ishell.Context, optRealPower string, op
 
 	// Currency currently isn't evaluated, so just set it to USD.
 	currencyCode := "USD"
-	shell.Printf("Units [%s]: ", optUnits)
+	shell.Printf("Price [%s]: ", optUnits)
 	unitsString := c.ReadLine()
 	if unitsString == "" {
 		unitsString = optUnits
