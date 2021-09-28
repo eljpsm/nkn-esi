@@ -23,6 +23,7 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 import "api/esi/der_route.proto";
 import "api/esi/price_map.proto";
 import "api/esi/uuid.proto";
+import "api/esi/node_type.proto";
 
 // A response to an offer on a price map.
 //
@@ -57,12 +58,14 @@ message PriceMapOfferResponse {
   // Either the offer is accepted/rejected and considered "final", or a 
   // counter-offer is proposed and the offer is considered "pending" still.
   oneof accept_oneof {
-  
+
     // An accept/reject flag.
     bool accept = 4;
-    
+
     // The price map on offer.
     PriceMap counter_offer = 5;
+
   }
 
+  NodeType node = 6;
 }

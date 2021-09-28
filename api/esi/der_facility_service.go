@@ -125,12 +125,19 @@ func SendPriceMap(client *nkn.MultiClient, customerKey string, priceMap *PriceMa
 // The exchange will invoke this method to make a price map offer to the Facility. The Facility must respond with either
 // an acceptance/rejection of the offer or a counter offer in the form of a different price map proposal.
 func ProposePriceMapOffer(client *nkn.MultiClient, offer *PriceMapOffer) error {
+	var address string
 	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProposePriceMapOffer{ProposePriceMapOffer: offer}})
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(offer.Route.GetFacilityKey()), data, nil)
+	if offer.Node.Type == NodeType_FACILITY {
+		address = offer.Route.GetFacilityKey()
+	} else {
+		address = offer.Route.GetExchangeKey()
+	}
+
+	_, err = client.Send(nkn.NewStringArray(address), data, nil)
 	if err != nil {
 		return err
 	}
@@ -139,12 +146,19 @@ func ProposePriceMapOffer(client *nkn.MultiClient, offer *PriceMapOffer) error {
 }
 
 func SendPriceMapOfferResponse(client *nkn.MultiClient, response *PriceMapOfferResponse) error {
+	var address string
 	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SendPriceMapOfferResponse{SendPriceMapOfferResponse: response}})
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(response.Route.GetExchangeKey()), data, nil)
+	if response.Node.Type == NodeType_FACILITY {
+		address = response.Route.GetFacilityKey()
+	} else {
+		address = response.Route.GetExchangeKey()
+	}
+
+	_, err = client.Send(nkn.NewStringArray(address), data, nil)
 	if err != nil {
 		return err
 	}

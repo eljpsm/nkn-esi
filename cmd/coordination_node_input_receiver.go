@@ -73,8 +73,13 @@ func coordinationNodeInputReceiver() {
 		Help: "sign up to a registry",
 		Func: func(c *ishell.Context) {
 			c.Print("Registry Public Key: ")
+			publicKey := c.ReadLine()
+			if publicKey == coordinationNodeInfo.PublicKey {
+				shell.Println("you cannot signup to yourself")
+				return
+			}
 
-			err := esi.SignupRegistry(coordinationNodeClient, c.ReadLine(), &coordinationNodeInfo)
+			err := esi.SignupRegistry(coordinationNodeClient, publicKey, &coordinationNodeInfo)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -86,6 +91,10 @@ func coordinationNodeInputReceiver() {
 		Func: func(c *ishell.Context) {
 			c.Print("Registry Public Key: ")
 			registryPublicKey := c.ReadLine()
+			if registryPublicKey == coordinationNodeInfo.PublicKey {
+				shell.Println("you cannot query yourself")
+				return
+			}
 			c.Printf("Country [%s]: ", defaultCountry)
 			country := c.ReadLine()
 			if country == "" {
@@ -155,6 +164,10 @@ func coordinationNodeInputReceiver() {
 			}
 			c.Print("Public Key: ")
 			exchangePublicKey := c.ReadLine()
+			if exchangePublicKey == coordinationNodeInfo.PublicKey {
+				shell.Println("you cannot request your own form")
+				return
+			}
 			c.Printf("Language Code [%s]: ", defaultLanguage)
 			languageCode := c.ReadLine()
 			if languageCode == "" {
@@ -201,6 +214,10 @@ func coordinationNodeInputReceiver() {
 			}
 			shell.Print("Public Key: ")
 			publicKey := c.ReadLine()
+			if publicKey == coordinationNodeInfo.PublicKey {
+				shell.Println("you cannot register to yourself")
+				return
+			}
 
 			form, present := receivedRegistrationForms[publicKey]
 
@@ -363,6 +380,10 @@ func coordinationNodeInputReceiver() {
 		Func: func(c *ishell.Context) {
 			shell.Print("Public Key: ")
 			publicKey := c.ReadLine()
+			if publicKey == coordinationNodeInfo.PublicKey {
+				shell.Println("you cannot get your own details")
+				return
+			}
 
 			if !registeredFacilities[publicKey] {
 				shell.Printf("no facility with public key: '%s\n'", publicKey)
@@ -423,6 +444,10 @@ func coordinationNodeInputReceiver() {
 		Func: func(c *ishell.Context) {
 			shell.Print("Public Key: ")
 			publicKey := c.ReadLine()
+			if publicKey == coordinationNodeInfo.PublicKey {
+				shell.Println("you cannot propose yourself an offer")
+				return
+			}
 			if !registeredFacilities[publicKey] {
 				shell.Printf("no facility with public key: '%s'\n", publicKey)
 				return
@@ -458,7 +483,7 @@ func coordinationNodeInputReceiver() {
 				OfferId:  &newUuid,
 				When:     &newTimeStamp,
 				PriceMap: createdPriceMap,
-				Party: 1, // set the responsible party as the facility
+				Node:     &esi.NodeType{Type: esi.NodeType_FACILITY},
 			}
 
 			priceMapOffers[uuid] = &newPriceMapOffer
@@ -516,12 +541,12 @@ func coordinationNodeInputReceiver() {
 				return
 			}
 			// Check to see if the responding party is responsible.
-			if priceMapOffers[currentUuid].Route.GetExchangeKey() == coordinationNodeInfo.GetPublicKey() && priceMapOffers[currentUuid].Party == 1 {
+			if priceMapOffers[currentUuid].Route.GetExchangeKey() == coordinationNodeInfo.GetPublicKey() && priceMapOffers[currentUuid].Node.Type == esi.NodeType_FACILITY {
 				shell.Println("you are not the responsible party for this offer")
 				return
 			}
 			// Check to see tha the offer is actually available.
-			if priceMapOfferStatus[currentUuid].Status != 1 {
+			if priceMapOfferStatus[currentUuid].Status != esi.PriceMapOfferStatus_UNKNOWN {
 				shell.Println("offer is not available")
 				return
 			}
@@ -546,13 +571,10 @@ func coordinationNodeInputReceiver() {
 					log.Error(err.Error())
 				}
 
-				priceMap = *priceMapOffers[currentUuid].PriceMap
-				// Store the status ACCEPTED.
 				priceMapOfferStatus[currentUuid].Status = esi.PriceMapOfferStatus_ACCEPTED
+				priceMap = *priceMapOffers[currentUuid].PriceMap
 
-				log.WithFields(log.Fields{
-					"src": priceMapOffers[currentUuid].Route.GetExchangeKey(),
-				}).Info("Accepted price map")
+				log.Info("Accepted price map offer")
 				log.Info("Updated price map")
 
 			} else if choice == 1 {
@@ -582,11 +604,19 @@ func coordinationNodeInputReceiver() {
 				newUuid := esi.Uuid{
 					Uuid: uuid,
 				}
+
+				var party = esi.NodeType_NONE
+				if priceMapOffers[currentUuid].Node.Type == esi.NodeType_FACILITY {
+					party = esi.NodeType_EXCHANGE
+				} else {
+					party = esi.NodeType_FACILITY
+				}
 				offerResponse := esi.PriceMapOfferResponse{
 					Route:         priceMapOffers[currentUuid].Route,
 					PreviousOffer: priceMapOffers[currentUuid].OfferId,
 					OfferId:       &newUuid,
 					AcceptOneof:   &counterOffer,
+					Node:          &esi.NodeType{Type: party},
 				}
 
 				err = esi.SendPriceMapOfferResponse(coordinationNodeClient, &offerResponse)
@@ -594,22 +624,20 @@ func coordinationNodeInputReceiver() {
 					log.Error(err.Error())
 				}
 
+				log.WithFields(log.Fields{
+					"src": priceMapOffers[currentUuid].Route.GetExchangeKey(),
+				}).Info("Sent counter offer")
+
 				// Store the status REJECTED.
 				priceMapOfferStatus[currentUuid].Status = esi.PriceMapOfferStatus_REJECTED
 
-				var party = esi.PriceMapOffer_NONE
-				if priceMapOffers[currentUuid].Party == esi.PriceMapOffer_FACILITY {
-					party = esi.PriceMapOffer_EXCHANGE
-				} else {
-					party = esi.PriceMapOffer_FACILITY
-				}
 				// In the new offer, use the time specified by the previous offer.
 				newOffer := esi.PriceMapOffer{
-					Route: priceMapOffers[currentUuid].Route,
-					OfferId: &newUuid,
-					When: priceMapOffers[currentUuid].When,
+					Route:    priceMapOffers[currentUuid].Route,
+					OfferId:  &newUuid,
+					When:     priceMapOffers[currentUuid].When,
 					PriceMap: createdPriceMap,
-					Party: party,
+					Node:     &esi.NodeType{Type: party},
 				}
 
 				// Store the new offer.

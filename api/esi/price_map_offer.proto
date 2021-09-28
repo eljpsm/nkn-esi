@@ -24,6 +24,7 @@ import "google/protobuf/timestamp.proto";
 import "api/esi/der_route.proto";
 import "api/esi/price_map.proto";
 import "api/esi/uuid.proto";
+import "api/esi/node_type.proto";
 
 // An offer on a price map.
 message PriceMapOffer {
@@ -50,12 +51,5 @@ message PriceMapOffer {
   // The price map on offer.
   PriceMap price_map = 5;
 
-  enum Party {
-    NONE = 0;
-    FACILITY = 1;
-    EXCHANGE = 2;
-  }
-
-  Party party = 6;
-
+  NodeType node = 6;
 }

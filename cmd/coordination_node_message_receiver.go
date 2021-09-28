@@ -187,7 +187,8 @@ func coordinationNodeMessageReceiver() {
 
 		case *esi.FacilityMessage_ProposePriceMapOffer:
 			// Check to make sure that the source is the registered exchange.
-			if registeredExchange == msg.Src {
+			if registeredExchange == msg.Src || registeredFacilities[msg.Src] == true {
+				log.Info("RECEIVED PROPOSE OFFER")
 				if x.ProposePriceMapOffer.PriceMap.Price.ApparentEnergyPrice.Units < autoPrice.AlwaysBuyBelowPrice.Units {
 					// If the offer is below our auto accept, just accept the offer.
 					//
@@ -249,17 +250,17 @@ func coordinationNodeMessageReceiver() {
 				}).Info("Counter offer received")
 
 				// Store the previous offer as REJECTED.
-				priceMapOfferStatus[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].Status = 3
+				priceMapOfferStatus[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].Status = esi.PriceMapOfferStatus_REJECTED
 
 				// Set the responsible party.
 				//
 				// In this case, it's just assumed that the responsible party is the opposite of whoever it was before.
-				var party = esi.PriceMapOffer_NONE
-				if priceMapOffers[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].Party == esi.PriceMapOffer_FACILITY {
-					party = esi.PriceMapOffer_EXCHANGE
-				} else {
-					party = esi.PriceMapOffer_FACILITY
-				}
+				// var party = esi.NodeType_NONE
+				// if priceMapOffers[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].Node.Type == esi.NodeType_FACILITY {
+				// 	party = esi.NodeType_EXCHANGE
+				// } else {
+				// 	party = esi.NodeType_FACILITY
+				// }
 
 				// In the new offer, use the time specified by the previous offer.
 				newOffer := esi.PriceMapOffer{
@@ -267,7 +268,8 @@ func coordinationNodeMessageReceiver() {
 					OfferId:  x.SendPriceMapOfferResponse.OfferId,
 					When:     priceMapOffers[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].When,
 					PriceMap: x.SendPriceMapOfferResponse.GetCounterOffer(),
-					Party:    party,
+					//Node:     &esi.NodeType{Type: party},
+					Node: x.SendPriceMapOfferResponse.Node,
 				}
 				// Store the new offer.
 				priceMapOffers[x.SendPriceMapOfferResponse.OfferId.Uuid] = &newOffer
@@ -288,13 +290,7 @@ func coordinationNodeMessageReceiver() {
 						log.Error(err.Error())
 					}
 
-					// Store the status of the offer.
-					status = esi.PriceMapOfferStatus{
-						Route:   x.SendPriceMapOfferResponse.Route,
-						OfferId: x.SendPriceMapOfferResponse.OfferId,
-						Status:  esi.PriceMapOfferStatus_ACCEPTED,
-					}
-					priceMapOfferStatus[x.SendPriceMapOfferResponse.OfferId.Uuid] = &status
+					priceMapOfferStatus[x.SendPriceMapOfferResponse.OfferId.Uuid].Status = esi.PriceMapOfferStatus_ACCEPTED
 
 					log.WithFields(log.Fields{
 						"src":  msg.Src,
