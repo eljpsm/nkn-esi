@@ -10,35 +10,35 @@ import (
 	"strconv"
 )
 
-// facilityInputReceiver receives and returns any facility inputs.
-func facilityInputReceiver() {
+// coordinationNodeInputReceiver receives and returns any facility inputs.
+func coordinationNodeInputReceiver() {
 	shell := ishell.New()
-	<-facilityClient.OnConnect.C
-	shell.Printf("Connection opened on facility '%s'\n", infoMsgColorFunc(facilityInfo.GetName()))
+	<-coordinationNodeClient.OnConnect.C
+	shell.Printf("Connection opened on coordination node '%s'\n", infoMsgColorFunc(coordinationNodeInfo.GetName()))
 
-	facilityInfoShellCmd := &ishell.Cmd{
+	coordinationNodeInfoShellCmd := &ishell.Cmd{
 		Name: "info",
-		Help: "print facility information",
+		Help: "print coordination node information",
 	}
-	shell.AddCmd(facilityInfoShellCmd)
-	facilityInfoShellCmd.AddCmd(&ishell.Cmd{
+	shell.AddCmd(coordinationNodeInfoShellCmd)
+	coordinationNodeInfoShellCmd.AddCmd(&ishell.Cmd{
 		Name: "public",
-		Help: "print public key",
+		Help: "print local public key of coordination node",
 		Func: func(c *ishell.Context) {
-			shell.Printf("%s\n", infoMsgColorFunc(facilityInfo.GetPublicKey()))
+			shell.Printf("%s\n", infoMsgColorFunc(coordinationNodeInfo.GetPublicKey()))
 		},
 	})
 
-	facilityRegistryShellCmd := &ishell.Cmd{
+	coordinationNodeRegistryShellCmd := &ishell.Cmd{
 		Name: "registry",
 		Help: "manage registry functionality",
 	}
-	shell.AddCmd(facilityRegistryShellCmd)
-	facilityRegistryShellCmd.AddCmd(&ishell.Cmd{
+	shell.AddCmd(coordinationNodeRegistryShellCmd)
+	coordinationNodeRegistryShellCmd.AddCmd(&ishell.Cmd{
 		Name: "list",
-		Help: "print known facilities received from registry",
+		Help: "print known coordination nodes received from registry",
 		Func: func(c *ishell.Context) {
-			for _, facility := range knownFacilities {
+			for _, facility := range knownCoordinationNodes {
 				// Print any information - currently only name, country, and public key.
 				shell.Printf("\n%s %s\n%s %s\n%s %s\n",
 					boldMsgColorFunc("Name:"),
@@ -51,21 +51,21 @@ func facilityInputReceiver() {
 			shell.Println()
 		},
 	})
-	facilityRegistryShellCmd.AddCmd(&ishell.Cmd{
+	coordinationNodeRegistryShellCmd.AddCmd(&ishell.Cmd{
 		Name: "signup",
 		Help: "sign up to a registry",
 		Func: func(c *ishell.Context) {
 			c.Print("Registry Public Key: ")
 
-			err := esi.SignupRegistry(facilityClient, c.ReadLine(), &facilityInfo)
+			err := esi.SignupRegistry(coordinationNodeClient, c.ReadLine(), &coordinationNodeInfo)
 			if err != nil {
 				log.Error(err.Error())
 			}
 		},
 	})
-	facilityRegistryShellCmd.AddCmd(&ishell.Cmd{
+	coordinationNodeRegistryShellCmd.AddCmd(&ishell.Cmd{
 		Name: "query",
-		Help: "query registry for facilities by location",
+		Help: "query registry for coordination nodes by location",
 		Func: func(c *ishell.Context) {
 			c.Print("Registry Public Key: ")
 			registryPublicKey := c.ReadLine()
@@ -80,7 +80,7 @@ func facilityInputReceiver() {
 			}
 
 			request := esi.DerFacilityExchangeRequest{Location: &newLocation}
-			err := esi.QueryDerFacilities(facilityClient, registryPublicKey, &request)
+			err := esi.QueryDerFacilities(coordinationNodeClient, registryPublicKey, &request)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -89,17 +89,19 @@ func facilityInputReceiver() {
 
 	shell.AddCmd(&ishell.Cmd{
 		Name: "peers",
-		Help: "show any registered customers or producers",
+		Help: "show any registered facilities or exchanges",
 		Func: func(c *ishell.Context) {
-			if customerFacility != "" {
-				shell.Printf("\n%s\n", boldMsgColorFunc("CUSTOMER"))
+			if registeredExchange != "" {
+				// Print the exchange.
+				shell.Printf("\n%s\n", boldMsgColorFunc("EXCHANGE"))
 				shell.Printf("%s %s\n",
 					boldMsgColorFunc("Public Key:"),
-					noteMsgColorFunc(customerFacility))
+					noteMsgColorFunc(registeredExchange))
 			}
-			if len(producerFacilities) > 0 {
+			if len(registeredFacilities) > 0 {
+				// Print the facilities.
 				shell.Printf("\n%s\n", boldMsgColorFunc("PRODUCERS"))
-				for k := range producerFacilities {
+				for k := range registeredFacilities {
 					shell.Printf("%s %s\n",
 						boldMsgColorFunc("Public Key:"),
 						noteMsgColorFunc(k))
@@ -120,21 +122,22 @@ func facilityInputReceiver() {
 		},
 	})
 
-	facilityProducerShellCmd := &ishell.Cmd{
-		Name: "producer",
-		Help: "manage producer functionality",
+	coordinationNodeFacilityShellCmd := &ishell.Cmd{
+		Name: "facility",
+		Help: "manage coordination node facility functionality",
 	}
-	shell.AddCmd(facilityProducerShellCmd)
-	facilityProducerShellCmd.AddCmd(&ishell.Cmd{
+	shell.AddCmd(coordinationNodeFacilityShellCmd)
+	coordinationNodeFacilityShellCmd.AddCmd(&ishell.Cmd{
 		Name: "request",
-		Help: "request registration form from facility",
+		Help: "request registration form from a coordination node behaving as an exchange",
 		Func: func(c *ishell.Context) {
-			if customerFacility != "" {
+			if registeredExchange != "" {
 				shell.Println("customer has already been set")
 				return
 			}
-			c.Print("Facility Public Key: ")
+			c.Print("Public Key: ")
 			facilityPublicKey := c.ReadLine()
+			// TODO: default
 			c.Print("Language Code: ")
 			languageCode := c.ReadLine()
 
@@ -146,17 +149,17 @@ func facilityInputReceiver() {
 				LanguageCode: languageCode,
 			}
 
-			err := esi.GetDerFacilityRegistrationForm(facilityClient, &request)
+			err := esi.GetDerFacilityRegistrationForm(coordinationNodeClient, &request)
 			if err != nil {
 				log.Error(err.Error())
 			}
 		},
 	})
-	facilityProducerShellCmd.AddCmd(&ishell.Cmd{
+	coordinationNodeFacilityShellCmd.AddCmd(&ishell.Cmd{
 		Name: "forms",
 		Help: "print forms to be signed",
 		Func: func(c *ishell.Context) {
-			if customerFacility != "" {
+			if registeredExchange != "" {
 				shell.Println("customer has already been set")
 				return
 			}
@@ -168,18 +171,20 @@ func facilityInputReceiver() {
 			shell.Println()
 		},
 	})
-	facilityProducerShellCmd.AddCmd(&ishell.Cmd{
+	coordinationNodeFacilityShellCmd.AddCmd(&ishell.Cmd{
 		Name: "register",
 		Help: "fill in a received registration form",
 		Func: func(c *ishell.Context) {
-			if customerFacility != "" {
+			if registeredExchange != "" {
 				shell.Println("customer has already been set")
 				return
 			}
-			shell.Print("Facility Public Key: ")
+			shell.Print("Public Key: ")
 			publicKey := c.ReadLine()
 
 			form, present := receivedRegistrationForms[publicKey]
+
+			// TODO: needed? check
 			if present {
 				shell.Println() // gap from input
 
@@ -219,7 +224,7 @@ func facilityInputReceiver() {
 				}
 
 				// Submit the registration form.
-				err := esi.SubmitDerFacilityRegistrationForm(facilityClient, &registrationFormData)
+				err := esi.SubmitDerFacilityRegistrationForm(coordinationNodeClient, &registrationFormData)
 				if err != nil {
 					log.Error(err.Error())
 				}
@@ -240,19 +245,19 @@ func facilityInputReceiver() {
 		},
 	})
 
-	facilityPriceMapShellCmd := &ishell.Cmd{
+	coordinationNodePriceMapShellCmd := &ishell.Cmd{
 		Name: "price-map",
 		Help: "manage local price maps",
 	}
-	shell.AddCmd(facilityPriceMapShellCmd)
-	facilityPriceMapShellCmd.AddCmd(&ishell.Cmd{
-		Name: "peek",
-		Help: "view local price map",
+	shell.AddCmd(coordinationNodePriceMapShellCmd)
+	coordinationNodePriceMapShellCmd.AddCmd(&ishell.Cmd{
+		Name: "view",
+		Help: "print local price map",
 		Func: func(c *ishell.Context) {
 			fmt.Println(&priceMap)
 		},
 	})
-	facilityPriceMapShellCmd.AddCmd(&ishell.Cmd{
+	coordinationNodePriceMapShellCmd.AddCmd(&ishell.Cmd{
 		Name: "create",
 		Help: "create a local price map",
 		Func: func(c *ishell.Context) {
@@ -267,21 +272,21 @@ func facilityInputReceiver() {
 		},
 	})
 
-	facilityCharacteristicsShellCmd := &ishell.Cmd{
+	coordinationNodeCharacteristicsShellCmd := &ishell.Cmd{
 		Name: "characteristics",
 		Help: "manage local characteristics",
 	}
-	shell.AddCmd(facilityCharacteristicsShellCmd)
-	facilityCharacteristicsShellCmd.AddCmd(&ishell.Cmd{
-		Name: "peek",
-		Help: "view local characteristics",
+	shell.AddCmd(coordinationNodeCharacteristicsShellCmd)
+	coordinationNodeCharacteristicsShellCmd.AddCmd(&ishell.Cmd{
+		Name: "view",
+		Help: "print local characteristics",
 		Func: func(c *ishell.Context) {
 			fmt.Println(&resourceCharacteristics)
 		},
 	})
-	facilityCharacteristicsShellCmd.AddCmd(&ishell.Cmd{
+	coordinationNodeCharacteristicsShellCmd.AddCmd(&ishell.Cmd{
 		Name: "create",
-		Help: "create facility characteristics",
+		Help: "create coordination node facility characteristics",
 		Func: func(c *ishell.Context) {
 			shell.Print("Max Load Power: ")
 			loadPowerMaxString := c.ReadLine()
@@ -330,18 +335,18 @@ func facilityInputReceiver() {
 
 	shell.AddCmd(&ishell.Cmd{
 		Name: "get",
-		Help: "get characteristics and price map of facility",
+		Help: "get characteristics and price map of coordination node behaving as a facility",
 		Func: func(c *ishell.Context) {
-			shell.Print("Producer Public Key: ")
+			shell.Print("Public Key: ")
 			publicKey := c.ReadLine()
 
-			if !producerFacilities[publicKey] {
-				shell.Printf("no producer with public key: '%s\n'", publicKey)
+			if !registeredFacilities[publicKey] {
+				shell.Printf("no facility with public key: '%s\n'", publicKey)
 				return
 			}
 
 			newRoute := esi.DerRoute{
-				CustomerKey: facilityInfo.GetPublicKey(),
+				CustomerKey: coordinationNodeInfo.GetPublicKey(),
 				ProducerKey: publicKey,
 			}
 			newCharacteristicsRequest := esi.DerResourceCharacteristicsRequest{
@@ -351,30 +356,30 @@ func facilityInputReceiver() {
 				Route: &newRoute,
 			}
 
-			err := esi.GetResourceCharacteristics(facilityClient, &newCharacteristicsRequest)
+			err := esi.GetResourceCharacteristics(coordinationNodeClient, &newCharacteristicsRequest)
 			if err != nil {
 				log.Error(err.Error())
 			}
-			err = esi.GetPriceMap(facilityClient, &newPriceMapRequest)
+			err = esi.GetPriceMap(coordinationNodeClient, &newPriceMapRequest)
 			if err != nil {
 				log.Error(err.Error())
 			}
 		},
 	})
 
-	facilityCustomerShellCmd := &ishell.Cmd{
-		Name: "customer",
-		Help: "manage customer functionality",
+	coordinationNodeExchangeShellCmd := &ishell.Cmd{
+		Name: "exchange",
+		Help: "manage coordination node exchange functionality",
 	}
-	shell.AddCmd(facilityCustomerShellCmd)
-	facilityCustomerShellCmd.AddCmd(&ishell.Cmd{
+	shell.AddCmd(coordinationNodeExchangeShellCmd)
+	coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
 		Name: "propose",
-		Help: "propose a price map offer to a producer",
+		Help: "propose a price map offer to a coordination node behaving as facility",
 		Func: func(c *ishell.Context) {
-			shell.Print("Producer Public Key: ")
+			shell.Print("Public Key: ")
 			publicKey := c.ReadLine()
-			if !producerFacilities[publicKey] {
-				shell.Printf("no producer with public key: '%s'\n", publicKey)
+			if !registeredFacilities[publicKey] {
+				shell.Printf("no facility with public key: '%s'\n", publicKey)
 				return
 			}
 
@@ -385,7 +390,7 @@ func facilityInputReceiver() {
 			}
 			newRoute := esi.DerRoute{
 				ProducerKey: publicKey,
-				CustomerKey: facilityInfo.GetPublicKey(),
+				CustomerKey: coordinationNodeInfo.GetPublicKey(),
 			}
 			uuid, err := newUuid()
 			if err != nil {
@@ -406,27 +411,30 @@ func facilityInputReceiver() {
 				PriceMap: createdPriceMap,
 			}
 
-			err = esi.ProposePriceMapOffer(facilityClient, &newPriceMapOffer)
+			err = esi.ProposePriceMapOffer(coordinationNodeClient, &newPriceMapOffer)
 			if err != nil {
 				log.Error(err.Error())
 			}
 		},
 	})
 
-	facilityOffersShellCmd := &ishell.Cmd{
+	coordinationNodeOffersShellCmd := &ishell.Cmd{
 		Name: "offers",
 		Help: "manage pending offers",
 	}
-	shell.AddCmd(facilityOffersShellCmd)
-	facilityOffersShellCmd.AddCmd(&ishell.Cmd{
+	shell.AddCmd(coordinationNodeOffersShellCmd)
+	coordinationNodeOffersShellCmd.AddCmd(&ishell.Cmd{
 		Name: "list",
 		Help: "view pending offers",
 		Func: func(c *ishell.Context) {
 			for k, v := range priceMapOffers {
+				// You have access to a lot of information.
+				//
+				// In this example, only key information is provided.
 				shell.Printf("\n%s %s\n%s %s\n%s %s\n%s %s\n",
-					boldMsgColorFunc("Customer Public Key:"),
+					boldMsgColorFunc("Exchange Public Key:"),
 					noteMsgColorFunc(v.Route.GetCustomerKey()),
-					boldMsgColorFunc("Producer Public Key:"),
+					boldMsgColorFunc("Facility Public Key:"),
 					noteMsgColorFunc(v.Route.GetProducerKey()),
 					boldMsgColorFunc("UUID:"),
 					k,
@@ -436,13 +444,13 @@ func facilityInputReceiver() {
 			shell.Println()
 		},
 	})
-	facilityOffersShellCmd.AddCmd(&ishell.Cmd{
-		Name: "feedback",
-		Help: "get feedback on a price map offer",
+	coordinationNodeOffersShellCmd.AddCmd(&ishell.Cmd{
+		Name: "status",
+		Help: "get the status of a price map offer by UUID",
 		Func: func(c *ishell.Context) {
 		},
 	})
-	facilityOffersShellCmd.AddCmd(&ishell.Cmd{
+	coordinationNodeOffersShellCmd.AddCmd(&ishell.Cmd{
 		Name: "evaluate",
 		Help: "evaluate an offer and give a response",
 		Func: func(c *ishell.Context) {
@@ -470,7 +478,7 @@ func facilityInputReceiver() {
 					OfferId:     priceMapOffers[currentUuid].OfferId,
 					AcceptOneof: &accept,
 				}
-				err := esi.SendPriceMapOfferResponse(facilityClient, &response)
+				err := esi.SendPriceMapOfferResponse(coordinationNodeClient, &response)
 				if err != nil {
 					log.Error(err.Error())
 				}
@@ -506,15 +514,10 @@ func facilityInputReceiver() {
 					AcceptOneof: &counterOffer,
 				}
 
-				err = esi.SendPriceMapOfferResponse(facilityClient, &offerResponse)
+				err = esi.SendPriceMapOfferResponse(coordinationNodeClient, &offerResponse)
 				if err != nil {
 					log.Error(err.Error())
 				}
-
-				// Delete the offer from memory.
-				//
-				// In reality, you might want to keep previous offers - but in this demo, there's no reason to.
-				delete(priceMapOffers, currentUuid)
 			}
 		},
 	})

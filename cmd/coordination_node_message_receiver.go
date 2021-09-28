@@ -10,40 +10,40 @@ import (
 	"strings"
 )
 
-// facilityMessageReceiver receives and returns any incoming facility messages.
-func facilityMessageReceiver() {
+// coordinationNodeMessageReceiver receives and returns any incoming coordination node messages.
+func coordinationNodeMessageReceiver() {
 	var formKey int // a simple number to increment form number.
 
-	<-facilityClient.OnConnect.C
+	<-coordinationNodeClient.OnConnect.C
 	log.WithFields(log.Fields{
-		"publicKey": facilityInfo.GetPublicKey(),
-		"name":      facilityInfo.GetName(),
+		"publicKey": coordinationNodeInfo.GetPublicKey(),
+		"name":      coordinationNodeInfo.GetName(),
 	}).Info("Connection opened")
 
 	message := &esi.FacilityMessage{}
 
 	for {
 		// Unmarshal the protocol buffer.
-		msg := <-facilityClient.OnMessage.C
+		msg := <-coordinationNodeClient.OnMessage.C
 		err := proto.Unmarshal(msg.Data, message)
 		if err != nil {
 			log.Error(err.Error())
 		}
 
-		// Case documentation located at api/esi/deer_facility_service.go.
+		// Case documentation located at api/esi/der_facility_service.go.
 		//
 		// Switch based upon the message type.
 		switch x := message.Chunk.(type) {
 		case *esi.FacilityMessage_SendKnownDerFacility:
-			// If the facility is not already stored, store it.
-			_, present := knownFacilities[x.SendKnownDerFacility.GetPublicKey()]
+			// If the node is not already stored, store it.
+			_, present := knownCoordinationNodes[x.SendKnownDerFacility.GetPublicKey()]
 			if !present {
-				knownFacilities[x.SendKnownDerFacility.PublicKey] = x.SendKnownDerFacility
+				knownCoordinationNodes[x.SendKnownDerFacility.PublicKey] = x.SendKnownDerFacility
 			}
 
 			log.WithFields(log.Fields{
 				"src": msg.Src,
-			}).Info(fmt.Sprintf("Saved facility %s", x.SendKnownDerFacility.GetPublicKey()))
+			}).Info(fmt.Sprintf("Saved coordination node %s", x.SendKnownDerFacility.GetPublicKey()))
 
 		case *esi.FacilityMessage_GetDerFacilityRegistrationForm:
 			// Set the basic info.
@@ -62,13 +62,13 @@ func facilityMessageReceiver() {
 				Settings:     []*esi.FormSetting{&newFormSetting},
 			}
 			newRegistrationForm := esi.DerFacilityRegistrationForm{
-				ProducerKey: facilityInfo.GetPublicKey(),
+				ProducerKey: coordinationNodeInfo.GetPublicKey(),
 				CustomerKey: msg.Src,
 				Form:        &newForm,
 			}
 
 			// Send the registration form.
-			err = esi.SendDerFacilityRegistrationForm(facilityClient, &newRegistrationForm)
+			err = esi.SendDerFacilityRegistrationForm(coordinationNodeClient, &newRegistrationForm)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -108,10 +108,10 @@ func facilityMessageReceiver() {
 
 			// If successful, add it as a consumer facility with an empty price map.
 			if registration.Success {
-				producerFacilities[msg.Src] = true
+				registeredFacilities[msg.Src] = true
 			}
 
-			err = esi.CompleteDerFacilityRegistration(facilityClient, &registration)
+			err = esi.CompleteDerFacilityRegistration(coordinationNodeClient, &registration)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -123,7 +123,7 @@ func facilityMessageReceiver() {
 
 		case *esi.FacilityMessage_CompleteDerFacilityRegistration:
 			if x.CompleteDerFacilityRegistration.GetSuccess() == true {
-				customerFacility = msg.Src
+				registeredExchange = msg.Src
 			}
 			log.WithFields(log.Fields{
 				"src":     msg.Src,
@@ -132,15 +132,15 @@ func facilityMessageReceiver() {
 
 		case *esi.FacilityMessage_GetResourceCharacteristics:
 			// Check to make sure that the source is a registered customer.
-			if customerFacility != "" {
+			if registeredExchange != "" {
 				newRoute := esi.DerRoute{
 					CustomerKey: msg.Src,
-					ProducerKey: facilityInfo.GetPublicKey(),
+					ProducerKey: coordinationNodeInfo.GetPublicKey(),
 				}
 				// TODO: fix
 				newCharacteristics := resourceCharacteristics
 				newCharacteristics.Route = &newRoute
-				err := esi.SendResourceCharacteristics(facilityClient, &newCharacteristics)
+				err := esi.SendResourceCharacteristics(coordinationNodeClient, &newCharacteristics)
 				if err != nil {
 					log.Error(err.Error())
 				}
@@ -152,7 +152,7 @@ func facilityMessageReceiver() {
 
 		case *esi.FacilityMessage_SendResourceCharacteristics:
 			// Check to make sure that the source is a registered producer.
-			if producerFacilities[msg.Src] == true {
+			if registeredFacilities[msg.Src] == true {
 				producerCharacteristics[msg.Src] = x.SendResourceCharacteristics
 
 				log.WithFields(log.Fields{
@@ -162,8 +162,8 @@ func facilityMessageReceiver() {
 
 		case *esi.FacilityMessage_GetPriceMap:
 			// Check to make sure that the source is a registered customer.
-			if customerFacility == msg.Src {
-				err = esi.SendPriceMap(facilityClient, x.GetPriceMap.Route.GetCustomerKey(), &priceMap)
+			if registeredExchange == msg.Src {
+				err = esi.SendPriceMap(coordinationNodeClient, x.GetPriceMap.Route.GetCustomerKey(), &priceMap)
 				if err != nil {
 					log.Error(err.Error())
 				}
@@ -175,7 +175,7 @@ func facilityMessageReceiver() {
 
 		case *esi.FacilityMessage_SendPriceMap:
 			// Check to make sure that the source is a registered producer.
-			if producerFacilities[msg.Src] == true {
+			if registeredFacilities[msg.Src] == true {
 				producerPriceMaps[msg.Src] = x.SendPriceMap
 
 				log.WithFields(log.Fields{
@@ -185,7 +185,7 @@ func facilityMessageReceiver() {
 
 		case *esi.FacilityMessage_ProposePriceMapOffer:
 			// Check to make sure that the source is a registered customer.
-			if customerFacility == msg.Src {
+			if registeredExchange == msg.Src {
 				if x.ProposePriceMapOffer.PriceMap.Price.ApparentEnergyPrice.Units < autoPrice.AlwaysBuyBelowPrice.Units {
 					// If the offer is below our auto accept, just accept the offer.
 					//
@@ -193,7 +193,7 @@ func facilityMessageReceiver() {
 					// scenarios. In this demo, if the price is not lower than our auto accept, then it just goes to
 					// evaluation.
 					response := acceptOffer(x.ProposePriceMapOffer.Route, x.ProposePriceMapOffer.OfferId)
-					err = esi.SendPriceMapOfferResponse(facilityClient, response)
+					err = esi.SendPriceMapOfferResponse(coordinationNodeClient, response)
 					if err != nil {
 						log.Error(err.Error())
 					}
@@ -232,7 +232,7 @@ func facilityMessageReceiver() {
 				if y.CounterOffer.Price.ApparentEnergyPrice.Units < autoPrice.AlwaysBuyBelowPrice.Units {
 					// If it falls below the auto accept, then accept it.
 					response := acceptOffer(x.SendPriceMapOfferResponse.Route, x.SendPriceMapOfferResponse.OfferId)
-					err = esi.SendPriceMapOfferResponse(facilityClient, response)
+					err = esi.SendPriceMapOfferResponse(coordinationNodeClient, response)
 					if err != nil {
 						log.Error(err.Error())
 					}
@@ -265,7 +265,7 @@ func facilityMessageReceiver() {
 			}
 
 		case *esi.FacilityMessage_ProvidePriceMapOfferFeedback:
-			if producerFacilities[msg.Src] == true {
+			if registeredFacilities[msg.Src] == true {
 			}
 		}
 	}

@@ -17,14 +17,14 @@ var (
 
 	// receivedRegistrationForms are the currently stored registration forms.
 	receivedRegistrationForms = make(map[string]*esi.DerFacilityRegistrationForm)
-	// customerFacility is the public key of the engaged customer facility.
+	// registeredExchange is the public key of the engaged customer facility.
 	//
 	// As opposed to producers, there should only ever be one customer at any given time.
-	customerFacility = ""
+	registeredExchange = ""
+	// registeredFacilities is a map of all other facilities registered in a producer role.
+	registeredFacilities = make(map[string]bool)
 	// priceMapOffers is a map of the current price map offers by uuid.
 	priceMapOffers = make(map[string]*esi.PriceMapOffer)
-	// producerFacilities is a map of all other facilities registered in a producer role.
-	producerFacilities = make(map[string]bool)
 	// producerPriceMaps are the price maps of the currently stored facilities engaged in a consumer role.
 	producerPriceMaps = make(map[string]*esi.PriceMap)
 	// producerCharacteristics are the characteristics of the currently stored facilities engaged in a consumer role.
@@ -47,9 +47,9 @@ var (
 	}
 )
 
-// facilityLoop is the main shell of a Facility.
-func facilityShell() {
-	logName := strings.TrimSuffix(facilityPath, filepath.Ext(facilityPath)) + logSuffix
+// coordinationNodeShell is the main shell of a coordination node.
+func coordinationNodeShell() {
+	logName := strings.TrimSuffix(coordinationNodePath, filepath.Ext(coordinationNodePath)) + logSuffix
 	logFile, _ := os.OpenFile(logName, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
 	log.SetOutput(logFile)
@@ -57,9 +57,9 @@ func facilityShell() {
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
-	go facilityMessageReceiver()
+	go coordinationNodeMessageReceiver()
 	wg.Add(2)
-	go facilityInputReceiver()
+	go coordinationNodeInputReceiver()
 
 	wg.Wait()
 }

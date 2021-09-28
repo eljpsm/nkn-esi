@@ -60,9 +60,9 @@ var (
 	// boldMsgColorFunc is the color associated with bold printing in function form.
 	boldMsgColorFunc = boldMsgColor.SprintFunc()
 
-	// knownFacilities are the facilities known to the current registry or facility. In a real situation, this would be
+	// knownCoordinationNodes are the facilities known to the current registry or facility. In a real situation, this would be
 	// stored in a database.
-	knownFacilities = make(map[string]*esi.DerFacilityExchangeInfo)
+	knownCoordinationNodes = make(map[string]*esi.DerFacilityExchangeInfo)
 )
 
 const (

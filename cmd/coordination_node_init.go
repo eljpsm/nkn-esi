@@ -25,26 +25,26 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// facilityInitCmd represents the facilityInitCmd command
-var facilityInitCmd = &cobra.Command{
+// coordinationNodeInitCmd represents the coordinationNodeInitCmd command
+var coordinationNodeInitCmd = &cobra.Command{
 	Use:   "init <name>",
-	Short: "Quickly create a new facility configuration and key pair",
-	Long:  `Quickly create a new facility configuration and key pair.`,
+	Short: "Quickly create a new coordination node configuration and key pair",
+	Long:  `Quickly create a new coordination node configuration and key pair.`,
 	Args:  cobra.ExactArgs(1),
-	RunE:  facilityInit,
+	RunE:  coordinationNodeInit,
 }
 
-// init initializes facility_init.go.
+// init initializes coordination_node_init.go.
 func init() {
-	facilityCmd.AddCommand(facilityInitCmd)
+	coordinationNodeCmd.AddCommand(coordinationNodeInitCmd)
 }
 
-// facilityInit is the function run by facilityInitCmd.
-func facilityInit(cmd *cobra.Command, args []string) error {
+// coordinationNodeInit is the function run by coordinationNodeInitCmd.
+func coordinationNodeInit(cmd *cobra.Command, args []string) error {
 	var err error
-	facilityPath = args[0]
+	coordinationNodePath = args[0]
 
-	publicKey, err := writeSecretKey(facilityPath + secretKeySuffix)
+	publicKey, err := writeSecretKey(coordinationNodePath + secretKeySuffix)
 	if err != nil {
 		return err
 	}
@@ -67,7 +67,7 @@ func facilityInit(cmd *cobra.Command, args []string) error {
 		Latlng: &newLatLng,
 	}
 	newDerFacilityExchangeInfo := esi.DerFacilityExchangeInfo{
-		Name:      "Dummy Facility",
+		Name:      "Dummy Coordination Node",
 		PublicKey: publicKey,
 		Location:  &newLocation,
 	}
@@ -77,7 +77,7 @@ func facilityInit(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(facilityPath+interfaceCfgSuffix, jsonBytes, os.ModePerm)
+	err = ioutil.WriteFile(coordinationNodePath+interfaceCfgSuffix, jsonBytes, os.ModePerm)
 	if err != nil {
 		return err
 	}
