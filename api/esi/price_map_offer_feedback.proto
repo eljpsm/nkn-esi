@@ -33,10 +33,12 @@ message PriceMapOfferFeedback {
   Uuid offer_id = 2;
   
   // Enumeration of possible obligation status values.
+  // None is empty because protocol buffer transit reads 0 as nil.
   enum ObligationStatus {
-    UNKNOWN = 0;
-  	SATISFIED = 1;
-  	DISPUTED = 2;
+    NONE = 0;
+    UNKNOWN = 1;
+  	SATISFIED = 2;
+  	DISPUTED = 3;
   }
 
   // The offer status.

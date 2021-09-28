@@ -39,13 +39,15 @@ message PriceMapOfferStatus {
   
   // The globally unique ID of the offer this status is for.
   Uuid offer_id = 2;
-  
+
+  // None is empty because protocol buffer transit reads 0 as nil.
   enum Status {
-  	UNKNOWN = 0;
-  	ACCEPTED = 1;
-  	REJECTED = 2;
-  	EXECUTING = 3;
-  	COMPLETED = 4;
+    NONE = 0;
+  	UNKNOWN = 1;
+  	ACCEPTED = 2;
+  	REJECTED = 3;
+  	EXECUTING = 4;
+  	COMPLETED = 5;
   }
 
   // The offer status.

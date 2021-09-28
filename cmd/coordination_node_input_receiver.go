@@ -445,6 +445,10 @@ func coordinationNodeInputReceiver() {
 			newUuid := esi.Uuid{
 				Uuid: uuid,
 			}
+			// Always assume that the offer should be carried out immediately.
+			//
+			// There could be scenarios in which you need to send offers at some other interval, in which case you
+			// could use this field.
 			newTimeStamp := timestamppb.Timestamp{
 				Seconds: unixSeconds(),
 				Nanos:   0,
@@ -454,6 +458,7 @@ func coordinationNodeInputReceiver() {
 				OfferId:  &newUuid,
 				When:     &newTimeStamp,
 				PriceMap: createdPriceMap,
+				Party: 1, // set the responsible party as the facility
 			}
 
 			priceMapOffers[uuid] = &newPriceMapOffer
@@ -461,7 +466,7 @@ func coordinationNodeInputReceiver() {
 			status := esi.PriceMapOfferStatus{
 				Route:   &newRoute,
 				OfferId: &newUuid,
-				Status:  0, // store unknown status
+				Status:  1, // store unknown status
 			}
 			priceMapOfferStatus[uuid] = &status
 
@@ -485,6 +490,7 @@ func coordinationNodeInputReceiver() {
 				// You have access to a lot of information.
 				//
 				// In this example, only key information is provided.
+				fmt.Println(priceMapOfferStatus[v.OfferId.Uuid])
 				shell.Printf("\n%s %s\n%s %s\n%s %s\n%s %s\n%s %s\n",
 					boldMsgColorFunc("Exchange Public Key:"),
 					noteMsgColorFunc(v.Route.GetExchangeKey()),
@@ -506,6 +512,10 @@ func coordinationNodeInputReceiver() {
 		Func: func(c *ishell.Context) {
 			shell.Print("Offer UUID: ")
 			currentUuid := c.ReadLine()
+			if priceMapOffers[currentUuid].Route.GetExchangeKey() == coordinationNodeInfo.GetPublicKey() && priceMapOffers[currentUuid].Party == 1 {
+				shell.Println("you are not the responsible party for this offer")
+				return
+			}
 
 			if priceMapOffers[currentUuid] == nil {
 				shell.Printf("no offer with the uuid: '%s'\n", currentUuid)
@@ -535,7 +545,7 @@ func coordinationNodeInputReceiver() {
 
 				priceMap = *priceMapOffers[currentUuid].PriceMap
 				// Store the status ACCEPTED.
-				priceMapOfferStatus[currentUuid].Status = 1
+				priceMapOfferStatus[currentUuid].Status = 2
 
 				log.WithFields(log.Fields{
 					"src": priceMapOffers[currentUuid].Route.GetExchangeKey(),
@@ -582,7 +592,16 @@ func coordinationNodeInputReceiver() {
 				}
 
 				// Store the status REJECTED.
-				priceMapOfferStatus[currentUuid].Status = 2
+				priceMapOfferStatus[currentUuid].Status = 3
+
+				// In the new offer, use the time specified by the previous offer.
+				newOffer := esi.PriceMapOffer{
+					Route: priceMapOffers[currentUuid].Route,
+					OfferId: &newUuid,
+					When: priceMapOffers[currentUuid].When,
+				}
+				// Store the new offer.
+				priceMapOffers[uuid] = &newOffer
 			}
 		},
 	})

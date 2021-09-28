@@ -45,9 +45,17 @@ message PriceMapOffer {
   Uuid offer_id = 2;
 
   // When the offer should be executed.
-  google.protobuf.Timestamp when = 3;
+  google.protobuf.Timestamp when = 4;
 
   // The price map on offer.
-  PriceMap price_map = 4;
+  PriceMap price_map = 5;
+
+  enum Party {
+    NONE = 0;
+    FACILITY = 1;
+    EXCHANGE = 2;
+  }
+
+  Party party = 6;
 
 }

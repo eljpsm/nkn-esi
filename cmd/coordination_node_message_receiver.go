@@ -5,7 +5,6 @@ import (
 	"github.com/elijahjpassmore/nkn-esi/api/esi"
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"strconv"
 	"strings"
 )
@@ -211,7 +210,7 @@ func coordinationNodeMessageReceiver() {
 					status := esi.PriceMapOfferStatus{
 						Route:   x.ProposePriceMapOffer.Route,
 						OfferId: x.ProposePriceMapOffer.OfferId,
-						Status:  1, // store accepted status
+						Status:  2, // store accepted status
 					}
 					priceMapOfferStatus[x.ProposePriceMapOffer.OfferId.Uuid] = &status
 				} else {
@@ -225,7 +224,7 @@ func coordinationNodeMessageReceiver() {
 					status := esi.PriceMapOfferStatus{
 						Route:   x.ProposePriceMapOffer.Route,
 						OfferId: x.ProposePriceMapOffer.OfferId,
-						Status:  0, // store unknown status
+						Status:  1, // store unknown status
 					}
 					priceMapOfferStatus[x.ProposePriceMapOffer.OfferId.Uuid] = &status
 				}
@@ -237,15 +236,30 @@ func coordinationNodeMessageReceiver() {
 			case *esi.PriceMapOfferResponse_Accept:
 				if y.Accept {
 					// If the offer has been accepted, log the acceptance.
-
 					log.WithFields(log.Fields{
 						"src": msg.Src,
 					}).Info("Price map accepted")
 
 					// Store the status ACCEPTED.
-					priceMapOfferStatus[x.SendPriceMapOfferResponse.OfferId.Uuid].Status = 1
+					priceMapOfferStatus[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].Status = 2
 				}
 			case *esi.PriceMapOfferResponse_CounterOffer:
+				log.WithFields(log.Fields{
+					"src": msg.Src,
+				}).Info("Counter offer received")
+
+				// Store the previous offer as REJECTED.
+				priceMapOfferStatus[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].Status = 3
+
+				// In the new offer, use the time specified by the previous offer.
+				newOffer := esi.PriceMapOffer{
+					Route:   x.SendPriceMapOfferResponse.Route,
+					OfferId: x.SendPriceMapOfferResponse.OfferId,
+					When:    priceMapOffers[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].When,
+				}
+				// Store the new offer.
+				priceMapOffers[x.SendPriceMapOfferResponse.OfferId.Uuid] = &newOffer
+
 				if y.CounterOffer.Price.ApparentEnergyPrice.Units < autoPrice.AlwaysBuyBelowPrice.Units {
 					// If it falls below the auto accept, then accept it.
 					response := acceptOffer(x.SendPriceMapOfferResponse.Route, x.SendPriceMapOfferResponse.OfferId)
@@ -254,49 +268,13 @@ func coordinationNodeMessageReceiver() {
 						log.Error(err.Error())
 					}
 
+					// Store the new offer as ACCEPTED.
+					priceMapOfferStatus[x.SendPriceMapOfferResponse.OfferId.Uuid].Status = 2
+
 					log.WithFields(log.Fields{
 						"src":  msg.Src,
 						"auto": autoPrice.AlwaysBuyBelowPrice.Units,
 					}).Info("Accepted price map due to auto buy")
-
-					// Store the status ACCEPTED.
-					priceMapOfferStatus[x.SendPriceMapOfferResponse.OfferId.Uuid].Status = 1
-				} else {
-					// Store the status REJECTED.
-					priceMapOfferStatus[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].Status = 2
-
-					// Create a new offer and store it for evaluation.
-					uuid, err := newUuid()
-					if err != nil {
-						log.Error(err.Error())
-						return
-					}
-					newUuid := esi.Uuid{
-						Uuid: uuid,
-					}
-					newTimeStamp := timestamppb.Timestamp{
-						Nanos:   0,
-						Seconds: unixSeconds(),
-					}
-					newOffer := esi.PriceMapOffer{
-						Route:    x.SendPriceMapOfferResponse.Route,
-						OfferId:  &newUuid,
-						When:     &newTimeStamp,
-						PriceMap: x.SendPriceMapOfferResponse.GetCounterOffer(),
-					}
-					priceMapOffers[x.SendPriceMapOfferResponse.OfferId.Uuid] = &newOffer
-
-					// Store the status of the offer.
-					status := esi.PriceMapOfferStatus{
-						Route:   x.SendPriceMapOfferResponse.Route,
-						OfferId: &newUuid,
-						Status:  0, // store unknown status
-					}
-					priceMapOfferStatus[x.SendPriceMapOfferResponse.OfferId.Uuid] = &status
-
-					log.WithFields(log.Fields{
-						"src": msg.Src,
-					}).Info("Counter offer received")
 				}
 			}
 
