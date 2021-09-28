@@ -11,7 +11,12 @@ import (
 	"strconv"
 )
 
-const(
+const (
+	// defaultLanguage is the default language to look for in a registration form.
+	defaultLanguage = "en"
+	// defaultCountry is the default country to look for in a query.
+	defaultCountry = "DC"
+
 	// defaultRealPower is the default value used for real power when creating a price map.
 	defaultRealPower = "10"
 	// defaultReactivePower is the default value used for reactive power when creating a price map.
@@ -81,8 +86,11 @@ func coordinationNodeInputReceiver() {
 		Func: func(c *ishell.Context) {
 			c.Print("Registry Public Key: ")
 			registryPublicKey := c.ReadLine()
-			c.Print("Country: ")
+			c.Printf("Country [%s]: ", defaultCountry)
 			country := c.ReadLine()
+			if country == "" {
+				country = defaultCountry
+			}
 
 			// You can query based upon any setting that DerFacilityExchangeRequest takes.
 			//
@@ -147,9 +155,11 @@ func coordinationNodeInputReceiver() {
 			}
 			c.Print("Public Key: ")
 			exchangePublicKey := c.ReadLine()
-			// TODO: default
-			c.Print("Language Code: ")
+			c.Printf("Language Code [%s]: ", defaultLanguage)
 			languageCode := c.ReadLine()
+			if languageCode == "" {
+				languageCode = defaultLanguage
+			}
 
 			// When creating a request, you can specify a language code.
 			//
@@ -271,7 +281,7 @@ func coordinationNodeInputReceiver() {
 		Name: "create",
 		Help: "create a local price map",
 		Func: func(c *ishell.Context) {
-			createdPriceMap, err := newPriceMap(shell, c)
+			createdPriceMap, err := newPriceMap(shell, c, defaultRealPower, defaultReactivePower, defaultUnits)
 			if err != nil {
 				shell.Println(err.Error())
 				return
@@ -418,7 +428,7 @@ func coordinationNodeInputReceiver() {
 				return
 			}
 
-			createdPriceMap, err := newPriceMap(shell, c)
+			createdPriceMap, err := newPriceMap(shell, c, defaultRealPower, defaultReactivePower, defaultUnits)
 			if err != nil {
 				shell.Println(err.Error())
 				return
@@ -537,7 +547,13 @@ func coordinationNodeInputReceiver() {
 				//
 				// In reality, this process may be more sophisticated - but for this demo, you will keep sending
 				// counter offers until one is accepted.
-				createdPriceMap, err := newPriceMap(shell, c)
+				shell.Println()
+				createdPriceMap, err := newPriceMap(
+					shell,
+					c,
+					strconv.FormatInt(priceMapOffers[currentUuid].PriceMap.PowerComponents.RealPower, 10),
+					strconv.FormatInt(priceMapOffers[currentUuid].PriceMap.PowerComponents.ReactivePower, 10),
+					strconv.FormatInt(priceMapOffers[currentUuid].PriceMap.Price.ApparentEnergyPrice.Units, 10))
 				if err != nil {
 					shell.Println(err.Error())
 					return
@@ -575,22 +591,22 @@ func coordinationNodeInputReceiver() {
 }
 
 // newPriceMap creates and returns a new price map.
-func newPriceMap(shell *ishell.Shell, c *ishell.Context) (*esi.PriceMap, error) {
+func newPriceMap(shell *ishell.Shell, c *ishell.Context, optRealPower string, optReactivePower string, optUnits string) (*esi.PriceMap, error) {
 	// Create newPowerComponents.
-	shell.Printf("Real Power [%s]: ", defaultRealPower)
+	shell.Printf("Real Power [%s]: ", optRealPower)
 	realPowerString := c.ReadLine()
 	if realPowerString == "" {
-		realPowerString = defaultRealPower
+		realPowerString = optRealPower
 	}
 	realPower, err := strconv.Atoi(realPowerString)
 	if err != nil {
 		return &esi.PriceMap{}, err
 	}
 
-	shell.Printf("Reactive Power [%s]: ", defaultReactivePower)
+	shell.Printf("Reactive Power [%s]: ", optReactivePower)
 	reactivePowerString := c.ReadLine()
 	if reactivePowerString == "" {
-		reactivePowerString = defaultReactivePower
+		reactivePowerString = optReactivePower
 	}
 	reactivePower, err := strconv.Atoi(reactivePowerString)
 	if err != nil {
@@ -637,10 +653,10 @@ func newPriceMap(shell *ishell.Shell, c *ishell.Context) (*esi.PriceMap, error) 
 
 	// Currency currently isn't evaluated, so just set it to USD.
 	currencyCode := "USD"
-	shell.Printf("Units [%s]: ", defaultUnits)
+	shell.Printf("Units [%s]: ", optUnits)
 	unitsString := c.ReadLine()
 	if unitsString == "" {
-		unitsString = defaultUnits
+		unitsString = optUnits
 	}
 	units, err := strconv.Atoi(unitsString)
 	if err != nil {
