@@ -25,10 +25,10 @@ var (
 	registeredFacilities = make(map[string]bool)
 	// priceMapOffers is a map of the current price map offers by uuid.
 	priceMapOffers = make(map[string]*esi.PriceMapOffer)
-	// producerPriceMaps are the price maps of the currently stored facilities engaged in a consumer role.
-	producerPriceMaps = make(map[string]*esi.PriceMap)
-	// producerCharacteristics are the characteristics of the currently stored facilities engaged in a consumer role.
-	producerCharacteristics = make(map[string]*esi.DerCharacteristics)
+	// facilityPriceMaps are the price maps of the currently stored facilities engaged in a consumer role.
+	facilityPriceMaps = make(map[string]*esi.PriceMap)
+	// facilityCharacteristics are the characteristics of the currently stored facilities engaged in a consumer role.
+	facilityCharacteristics = make(map[string]*esi.DerCharacteristics)
 
 	// auto accept details
 	autoMoney = esi.Money{

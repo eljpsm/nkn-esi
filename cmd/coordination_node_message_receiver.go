@@ -156,7 +156,7 @@ func coordinationNodeMessageReceiver() {
 		case *esi.FacilityMessage_SendResourceCharacteristics:
 			// Check to make sure that the source is a registered facility.
 			if registeredFacilities[msg.Src] == true {
-				producerCharacteristics[msg.Src] = x.SendResourceCharacteristics
+				facilityCharacteristics[msg.Src] = x.SendResourceCharacteristics
 
 				log.WithFields(log.Fields{
 					"src": msg.Src,
@@ -179,7 +179,7 @@ func coordinationNodeMessageReceiver() {
 		case *esi.FacilityMessage_SendPriceMap:
 			// Check to make sure that the source is a registered facility.
 			if registeredFacilities[msg.Src] == true {
-				producerPriceMaps[msg.Src] = x.SendPriceMap
+				facilityPriceMaps[msg.Src] = x.SendPriceMap
 
 				log.WithFields(log.Fields{
 					"src": msg.Src,

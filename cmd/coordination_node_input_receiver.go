@@ -107,12 +107,12 @@ func coordinationNodeInputReceiver() {
 						noteMsgColorFunc(k))
 
 					// TODO: pretty printing
-					if producerCharacteristics[k] != nil {
-						shell.Println(producerCharacteristics[k])
+					if facilityCharacteristics[k] != nil {
+						shell.Println(facilityCharacteristics[k])
 					}
 					// TODO: pretty printing
-					if producerPriceMaps[k] != nil {
-						shell.Println(producerPriceMaps[k])
+					if facilityPriceMaps[k] != nil {
+						shell.Println(facilityPriceMaps[k])
 					}
 				}
 				shell.Println()
@@ -333,7 +333,11 @@ func coordinationNodeInputReceiver() {
 		},
 	})
 
-	shell.AddCmd(&ishell.Cmd{
+	coordinationNodeExchangeShellCmd := &ishell.Cmd{
+		Name: "exchange",
+		Help: "manage coordination node exchange functionality",
+	}
+	coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
 		Name: "get",
 		Help: "get characteristics and price map of coordination node behaving as a facility",
 		Func: func(c *ishell.Context) {
@@ -366,11 +370,32 @@ func coordinationNodeInputReceiver() {
 			}
 		},
 	})
-
-	coordinationNodeExchangeShellCmd := &ishell.Cmd{
-		Name: "exchange",
-		Help: "manage coordination node exchange functionality",
-	}
+	coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
+		Name: "price-maps",
+		Help: "print facility price maps",
+		Func: func(c *ishell.Context) {
+			for k, v := range facilityPriceMaps {
+				shell.Printf("\n%s %s\n%s %s\n\n",
+					boldMsgColorFunc("Public Key:"),
+					noteMsgColorFunc(k),
+					boldMsgColorFunc("Price Map:"),
+					v)
+			}
+		},
+	})
+	coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
+		Name: "characteristics",
+		Help: "print facility characteristics",
+		Func: func(c *ishell.Context) {
+			for k, v := range facilityCharacteristics {
+				shell.Printf("\n%s %s\n%s %s\n\n",
+					boldMsgColorFunc("Public Key:"),
+					noteMsgColorFunc(k),
+					boldMsgColorFunc("Characteristics:"),
+					v)
+			}
+		},
+	})
 	shell.AddCmd(coordinationNodeExchangeShellCmd)
 	coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
 		Name: "propose",
