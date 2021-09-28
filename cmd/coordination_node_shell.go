@@ -19,9 +19,9 @@ var (
 	receivedRegistrationForms = make(map[string]*esi.DerFacilityRegistrationForm)
 	// registeredExchange is the public key of the engaged customer facility.
 	//
-	// As opposed to producers, there should only ever be one customer at any given time.
+	// As opposed to facilities, there should only ever be one customer at any given time.
 	registeredExchange = ""
-	// registeredFacilities is a map of all other facilities registered in a producer role.
+	// registeredFacilities is a map of all other facilities registered in a facility role.
 	registeredFacilities = make(map[string]bool)
 	// priceMapOffers is a map of the current price map offers by uuid.
 	priceMapOffers = make(map[string]*esi.PriceMapOffer)

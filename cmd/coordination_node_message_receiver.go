@@ -48,7 +48,7 @@ func coordinationNodeMessageReceiver() {
 		case *esi.FacilityMessage_GetDerFacilityRegistrationForm:
 			// Set the basic info.
 			//
-			// An example FormSetting - you can set whatever you want, and the producer will get a copy for you to then
+			// An example FormSetting - you can set whatever you want, and the facility will get a copy for you to then
 			// evaluate as you wish.
 			newFormSetting := esi.FormSetting{
 				Key:         "0",
