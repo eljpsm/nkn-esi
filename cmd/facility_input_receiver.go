@@ -162,7 +162,7 @@ func facilityInputReceiver() {
 			}
 			for _, v := range receivedRegistrationForms {
 				shell.Printf("\n%s %s\n",
-					noteMsgColorFunc("Public Key:"),
+					boldMsgColorFunc("Public Key:"),
 					noteMsgColorFunc(v.GetProducerKey()))
 			}
 			shell.Println()
@@ -447,17 +447,17 @@ func facilityInputReceiver() {
 		Help: "evaluate an offer and give a response",
 		Func: func(c *ishell.Context) {
 			shell.Print("Offer UUID: ")
-			uuid := c.ReadLine()
+			currentUuid := c.ReadLine()
 
-			if priceMapOffers[uuid] == nil {
-				shell.Printf("no offer with the uuid: '%s'\n", uuid)
+			if priceMapOffers[currentUuid] == nil {
+				shell.Printf("no offer with the uuid: '%s'\n", currentUuid)
 				return
 			}
 
 			choice := c.MultiChoice([]string{
 				"YES",
 				"NO",
-			}, fmt.Sprintf("Do you accept this offer?\n\n%s\n", priceMapOffers[uuid]))
+			}, fmt.Sprintf("Do you accept this offer?\n\n%s\n", priceMapOffers[currentUuid]))
 
 			if choice == 0 {
 				// Accept the offer.
@@ -466,8 +466,8 @@ func facilityInputReceiver() {
 					Accept: true,
 				}
 				response := esi.PriceMapOfferResponse{
-					Route:       priceMapOffers[uuid].Route,
-					OfferId:     priceMapOffers[uuid].OfferId,
+					Route:       priceMapOffers[currentUuid].Route,
+					OfferId:     priceMapOffers[currentUuid].OfferId,
 					AcceptOneof: &accept,
 				}
 				err := esi.SendPriceMapOfferResponse(facilityClient, &response)
@@ -476,7 +476,7 @@ func facilityInputReceiver() {
 				}
 
 				log.WithFields(log.Fields{
-					"src": priceMapOffers[uuid].Route.GetCustomerKey(),
+					"src": priceMapOffers[currentUuid].Route.GetCustomerKey(),
 				}).Info("Accepted price map")
 
 			} else if choice == 1 {
@@ -501,7 +501,7 @@ func facilityInputReceiver() {
 					Uuid: uuid,
 				}
 				offerResponse := esi.PriceMapOfferResponse{
-					Route: priceMapOffers[uuid].Route,
+					Route: priceMapOffers[currentUuid].Route,
 					OfferId: &newUuid,
 					AcceptOneof: &counterOffer,
 				}
@@ -514,7 +514,7 @@ func facilityInputReceiver() {
 				// Delete the offer from memory.
 				//
 				// In reality, you might want to keep previous offers - but in this demo, there's no reason to.
-				delete(priceMapOffers, uuid)
+				delete(priceMapOffers, currentUuid)
 			}
 		},
 	})
