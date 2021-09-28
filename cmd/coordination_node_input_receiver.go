@@ -466,7 +466,7 @@ func coordinationNodeInputReceiver() {
 			status := esi.PriceMapOfferStatus{
 				Route:   &newRoute,
 				OfferId: &newUuid,
-				Status:  1, // store unknown status
+				Status:  esi.PriceMapOfferStatus_UNKNOWN,
 			}
 			priceMapOfferStatus[uuid] = &status
 
@@ -548,7 +548,7 @@ func coordinationNodeInputReceiver() {
 
 				priceMap = *priceMapOffers[currentUuid].PriceMap
 				// Store the status ACCEPTED.
-				priceMapOfferStatus[currentUuid].Status = 2
+				priceMapOfferStatus[currentUuid].Status = esi.PriceMapOfferStatus_ACCEPTED
 
 				log.WithFields(log.Fields{
 					"src": priceMapOffers[currentUuid].Route.GetExchangeKey(),
@@ -595,7 +595,7 @@ func coordinationNodeInputReceiver() {
 				}
 
 				// Store the status REJECTED.
-				priceMapOfferStatus[currentUuid].Status = 3
+				priceMapOfferStatus[currentUuid].Status = esi.PriceMapOfferStatus_REJECTED
 
 				var party = esi.PriceMapOffer_NONE
 				if priceMapOffers[currentUuid].Party == esi.PriceMapOffer_FACILITY {
@@ -619,7 +619,7 @@ func coordinationNodeInputReceiver() {
 				status := esi.PriceMapOfferStatus{
 					Route:   priceMapOffers[uuid].Route,
 					OfferId: priceMapOffers[uuid].OfferId,
-					Status:  1, // store unknown status
+					Status:  esi.PriceMapOfferStatus_UNKNOWN,
 				}
 				priceMapOfferStatus[uuid] = &status
 			}

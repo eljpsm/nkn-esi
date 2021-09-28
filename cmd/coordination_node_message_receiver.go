@@ -210,7 +210,7 @@ func coordinationNodeMessageReceiver() {
 					status := esi.PriceMapOfferStatus{
 						Route:   x.ProposePriceMapOffer.Route,
 						OfferId: x.ProposePriceMapOffer.OfferId,
-						Status:  2, // store accepted status
+						Status:  esi.PriceMapOfferStatus_ACCEPTED,
 					}
 					priceMapOfferStatus[x.ProposePriceMapOffer.OfferId.Uuid] = &status
 				} else {
@@ -224,7 +224,7 @@ func coordinationNodeMessageReceiver() {
 					status := esi.PriceMapOfferStatus{
 						Route:   x.ProposePriceMapOffer.Route,
 						OfferId: x.ProposePriceMapOffer.OfferId,
-						Status:  1, // store unknown status
+						Status:  esi.PriceMapOfferStatus_UNKNOWN,
 					}
 					priceMapOfferStatus[x.ProposePriceMapOffer.OfferId.Uuid] = &status
 				}
@@ -241,7 +241,7 @@ func coordinationNodeMessageReceiver() {
 					}).Info("Price map accepted")
 
 					// Store the status ACCEPTED.
-					priceMapOfferStatus[x.SendPriceMapOfferResponse.OfferId.Uuid].Status = 2
+					priceMapOfferStatus[x.SendPriceMapOfferResponse.OfferId.Uuid].Status = esi.PriceMapOfferStatus_ACCEPTED
 				}
 			case *esi.PriceMapOfferResponse_CounterOffer:
 				log.WithFields(log.Fields{
@@ -263,11 +263,11 @@ func coordinationNodeMessageReceiver() {
 
 				// In the new offer, use the time specified by the previous offer.
 				newOffer := esi.PriceMapOffer{
-					Route:   x.SendPriceMapOfferResponse.Route,
-					OfferId: x.SendPriceMapOfferResponse.OfferId,
-					When:    priceMapOffers[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].When,
+					Route:    x.SendPriceMapOfferResponse.Route,
+					OfferId:  x.SendPriceMapOfferResponse.OfferId,
+					When:     priceMapOffers[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].When,
 					PriceMap: x.SendPriceMapOfferResponse.GetCounterOffer(),
-					Party: party,
+					Party:    party,
 				}
 				// Store the new offer.
 				priceMapOffers[x.SendPriceMapOfferResponse.OfferId.Uuid] = &newOffer
@@ -276,7 +276,7 @@ func coordinationNodeMessageReceiver() {
 				status := esi.PriceMapOfferStatus{
 					Route:   x.SendPriceMapOfferResponse.Route,
 					OfferId: x.SendPriceMapOfferResponse.OfferId,
-					Status:  1, // store unknown status
+					Status:  esi.PriceMapOfferStatus_UNKNOWN,
 				}
 				priceMapOfferStatus[x.SendPriceMapOfferResponse.OfferId.Uuid] = &status
 
@@ -292,7 +292,7 @@ func coordinationNodeMessageReceiver() {
 					status = esi.PriceMapOfferStatus{
 						Route:   x.SendPriceMapOfferResponse.Route,
 						OfferId: x.SendPriceMapOfferResponse.OfferId,
-						Status:  2, // store accepted status
+						Status:  esi.PriceMapOfferStatus_ACCEPTED,
 					}
 					priceMapOfferStatus[x.SendPriceMapOfferResponse.OfferId.Uuid] = &status
 
