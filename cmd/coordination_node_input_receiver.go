@@ -490,7 +490,6 @@ func coordinationNodeInputReceiver() {
 				// You have access to a lot of information.
 				//
 				// In this example, only key information is provided.
-				fmt.Println(priceMapOfferStatus[v.OfferId.Uuid])
 				shell.Printf("\n%s %s\n%s %s\n%s %s\n%s %s\n%s %s\n",
 					boldMsgColorFunc("Exchange Public Key:"),
 					noteMsgColorFunc(v.Route.GetExchangeKey()),
@@ -512,16 +511,20 @@ func coordinationNodeInputReceiver() {
 		Func: func(c *ishell.Context) {
 			shell.Print("Offer UUID: ")
 			currentUuid := c.ReadLine()
-			if priceMapOffers[currentUuid].Route.GetExchangeKey() == coordinationNodeInfo.GetPublicKey() && priceMapOffers[currentUuid].Party == 1 {
-				shell.Println("you are not the responsible party for this offer")
-				return
-			}
-
 			if priceMapOffers[currentUuid] == nil {
 				shell.Printf("no offer with the uuid: '%s'\n", currentUuid)
 				return
 			}
-
+			// Check to see if the responding party is responsible.
+			if priceMapOffers[currentUuid].Route.GetExchangeKey() == coordinationNodeInfo.GetPublicKey() && priceMapOffers[currentUuid].Party == 1 {
+				shell.Println("you are not the responsible party for this offer")
+				return
+			}
+			// Check to see tha the offer is actually available.
+			if priceMapOfferStatus[currentUuid].Status != 1 {
+				shell.Println("offer is not available")
+				return
+			}
 			choice := c.MultiChoice([]string{
 				"YES",
 				"NO",
@@ -594,14 +597,31 @@ func coordinationNodeInputReceiver() {
 				// Store the status REJECTED.
 				priceMapOfferStatus[currentUuid].Status = 3
 
+				var party = esi.PriceMapOffer_NONE
+				if priceMapOffers[currentUuid].Party == esi.PriceMapOffer_FACILITY {
+					party = esi.PriceMapOffer_EXCHANGE
+				} else {
+					party = esi.PriceMapOffer_FACILITY
+				}
 				// In the new offer, use the time specified by the previous offer.
 				newOffer := esi.PriceMapOffer{
 					Route: priceMapOffers[currentUuid].Route,
 					OfferId: &newUuid,
 					When: priceMapOffers[currentUuid].When,
+					PriceMap: createdPriceMap,
+					Party: party,
 				}
+
 				// Store the new offer.
 				priceMapOffers[uuid] = &newOffer
+
+				// Store the status of the offer.
+				status := esi.PriceMapOfferStatus{
+					Route:   priceMapOffers[uuid].Route,
+					OfferId: priceMapOffers[uuid].OfferId,
+					Status:  1, // store unknown status
+				}
+				priceMapOfferStatus[uuid] = &status
 			}
 		},
 	})

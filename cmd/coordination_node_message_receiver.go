@@ -241,7 +241,7 @@ func coordinationNodeMessageReceiver() {
 					}).Info("Price map accepted")
 
 					// Store the status ACCEPTED.
-					priceMapOfferStatus[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].Status = 2
+					priceMapOfferStatus[x.SendPriceMapOfferResponse.OfferId.Uuid].Status = 2
 				}
 			case *esi.PriceMapOfferResponse_CounterOffer:
 				log.WithFields(log.Fields{
@@ -251,14 +251,34 @@ func coordinationNodeMessageReceiver() {
 				// Store the previous offer as REJECTED.
 				priceMapOfferStatus[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].Status = 3
 
+				// Set the responsible party.
+				//
+				// In this case, it's just assumed that the responsible party is the opposite of whoever it was before.
+				var party = esi.PriceMapOffer_NONE
+				if priceMapOffers[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].Party == esi.PriceMapOffer_FACILITY {
+					party = esi.PriceMapOffer_EXCHANGE
+				} else {
+					party = esi.PriceMapOffer_FACILITY
+				}
+
 				// In the new offer, use the time specified by the previous offer.
 				newOffer := esi.PriceMapOffer{
 					Route:   x.SendPriceMapOfferResponse.Route,
 					OfferId: x.SendPriceMapOfferResponse.OfferId,
 					When:    priceMapOffers[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].When,
+					PriceMap: x.SendPriceMapOfferResponse.GetCounterOffer(),
+					Party: party,
 				}
 				// Store the new offer.
 				priceMapOffers[x.SendPriceMapOfferResponse.OfferId.Uuid] = &newOffer
+
+				// Store the status of the offer.
+				status := esi.PriceMapOfferStatus{
+					Route:   x.SendPriceMapOfferResponse.Route,
+					OfferId: x.SendPriceMapOfferResponse.OfferId,
+					Status:  1, // store unknown status
+				}
+				priceMapOfferStatus[x.SendPriceMapOfferResponse.OfferId.Uuid] = &status
 
 				if y.CounterOffer.Price.ApparentEnergyPrice.Units < autoPrice.AlwaysBuyBelowPrice.Units {
 					// If it falls below the auto accept, then accept it.
@@ -268,8 +288,13 @@ func coordinationNodeMessageReceiver() {
 						log.Error(err.Error())
 					}
 
-					// Store the new offer as ACCEPTED.
-					priceMapOfferStatus[x.SendPriceMapOfferResponse.OfferId.Uuid].Status = 2
+					// Store the status of the offer.
+					status = esi.PriceMapOfferStatus{
+						Route:   x.SendPriceMapOfferResponse.Route,
+						OfferId: x.SendPriceMapOfferResponse.OfferId,
+						Status:  2, // store accepted status
+					}
+					priceMapOfferStatus[x.SendPriceMapOfferResponse.OfferId.Uuid] = &status
 
 					log.WithFields(log.Fields{
 						"src":  msg.Src,
