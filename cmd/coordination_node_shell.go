@@ -15,7 +15,7 @@ var (
 	// resourceCharacteristics is the currently stored DER characteristics.
 	resourceCharacteristics = esi.DerCharacteristics{}
 
-	// receivedRegistrationForms are the currently stored registration forms.
+	// receivedRegistrationForms is a map of the currently stored registration forms.
 	receivedRegistrationForms = make(map[string]*esi.DerFacilityRegistrationForm)
 	// registeredExchange is the public key of the engaged customer facility.
 	//
@@ -25,9 +25,11 @@ var (
 	registeredFacilities = make(map[string]bool)
 	// priceMapOffers is a map of the current price map offers by uuid.
 	priceMapOffers = make(map[string]*esi.PriceMapOffer)
-	// facilityPriceMaps are the price maps of the currently stored facilities engaged in a consumer role.
+	// priceMapOfferStatus is a map of the status of stored price maps.
+	priceMapOfferStatus = make(map[string]*esi.PriceMapOfferStatus)
+	// facilityPriceMaps are the price maps of the currently stored facilities engaged in an exchange role.
 	facilityPriceMaps = make(map[string]*esi.PriceMap)
-	// facilityCharacteristics are the characteristics of the currently stored facilities engaged in a consumer role.
+	// facilityCharacteristics are the characteristics of the currently stored facilities engaged in a facility role.
 	facilityCharacteristics = make(map[string]*esi.DerCharacteristics)
 
 	// auto accept details

@@ -48,18 +48,21 @@ message PriceMapOfferResponse {
   // `price_map` properties defined in price_map.proto must be included.
   DerRoute route = 1;
 
+  // The previous offer ID. If there is none, then this is nil.
+  Uuid previous_offer = 2;
+
   // The globally unique ID of this offer.
-  Uuid offer_id = 2;
+  Uuid offer_id = 3;
 
   // Either the offer is accepted/rejected and considered "final", or a 
   // counter-offer is proposed and the offer is considered "pending" still.
   oneof accept_oneof {
   
     // An accept/reject flag.
-    bool accept = 3;
+    bool accept = 4;
     
     // The price map on offer.
-    PriceMap counter_offer = 4;
+    PriceMap counter_offer = 5;
   }
 
 }

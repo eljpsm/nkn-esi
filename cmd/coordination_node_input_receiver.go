@@ -4,10 +4,22 @@ import (
 	"fmt"
 	"github.com/abiosoft/ishell"
 	"github.com/elijahjpassmore/nkn-esi/api/esi"
+	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/duration"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"strconv"
+)
+
+const(
+	// defaultRealPower is the default value used for real power when creating a price map.
+	defaultRealPower = "10"
+	// defaultReactivePower is the default value used for reactive power when creating a price map.
+	defaultReactivePower = "10"
+	// defaultUnits  is the default value used for units when creating a price map.
+	defaultUnits = "100"
+	// defaultSeconds is the default value used for time measurement when creating a price map.
+	defaultSeconds = 1
 )
 
 // coordinationNodeInputReceiver receives and returns any facility inputs.
@@ -106,13 +118,11 @@ func coordinationNodeInputReceiver() {
 						boldMsgColorFunc("Public Key:"),
 						noteMsgColorFunc(k))
 
-					// TODO: pretty printing
 					if facilityCharacteristics[k] != nil {
-						shell.Println(facilityCharacteristics[k])
+						shell.Println(proto.MarshalTextString(facilityCharacteristics[k]))
 					}
-					// TODO: pretty printing
 					if facilityPriceMaps[k] != nil {
-						shell.Println(facilityPriceMaps[k])
+						shell.Println(proto.MarshalTextString(facilityPriceMaps[k]))
 					}
 				}
 				shell.Println()
@@ -164,7 +174,7 @@ func coordinationNodeInputReceiver() {
 				return
 			}
 			for _, v := range receivedRegistrationForms {
-				shell.Printf("\n%s %s\n",
+				shell.Printf("%s %s",
 					boldMsgColorFunc("Exchange Public Key:"),
 					noteMsgColorFunc(v.Route.GetExchangeKey()))
 			}
@@ -254,7 +264,7 @@ func coordinationNodeInputReceiver() {
 		Name: "view",
 		Help: "print local price map",
 		Func: func(c *ishell.Context) {
-			fmt.Println(&priceMap)
+			fmt.Println(proto.MarshalTextString(&priceMap))
 		},
 	})
 	coordinationNodePriceMapShellCmd.AddCmd(&ishell.Cmd{
@@ -436,6 +446,15 @@ func coordinationNodeInputReceiver() {
 				PriceMap: createdPriceMap,
 			}
 
+			priceMapOffers[uuid] = &newPriceMapOffer
+			// Store the status of the offer.
+			status := esi.PriceMapOfferStatus{
+				Route:   &newRoute,
+				OfferId: &newUuid,
+				Status:  0, // store unknown status
+			}
+			priceMapOfferStatus[uuid] = &status
+
 			err = esi.ProposePriceMapOffer(coordinationNodeClient, &newPriceMapOffer)
 			if err != nil {
 				log.Error(err.Error())
@@ -450,13 +469,13 @@ func coordinationNodeInputReceiver() {
 	shell.AddCmd(coordinationNodeOffersShellCmd)
 	coordinationNodeOffersShellCmd.AddCmd(&ishell.Cmd{
 		Name: "list",
-		Help: "view pending offers",
+		Help: "view all offers",
 		Func: func(c *ishell.Context) {
 			for k, v := range priceMapOffers {
 				// You have access to a lot of information.
 				//
 				// In this example, only key information is provided.
-				shell.Printf("\n%s %s\n%s %s\n%s %s\n%s %s\n",
+				shell.Printf("\n%s %s\n%s %s\n%s %s\n%s %s\n%s %s\n",
 					boldMsgColorFunc("Exchange Public Key:"),
 					noteMsgColorFunc(v.Route.GetExchangeKey()),
 					boldMsgColorFunc("Facility Public Key:"),
@@ -464,15 +483,11 @@ func coordinationNodeInputReceiver() {
 					boldMsgColorFunc("UUID:"),
 					k,
 					boldMsgColorFunc("Price Map:"),
-					v.PriceMap)
+					proto.MarshalTextString(v.PriceMap),
+					boldMsgColorFunc("Status:"),
+					infoMsgColorFunc(priceMapOfferStatus[v.OfferId.Uuid].Status))
 			}
 			shell.Println()
-		},
-	})
-	coordinationNodeOffersShellCmd.AddCmd(&ishell.Cmd{
-		Name: "status",
-		Help: "get the status of a price map offer by UUID",
-		Func: func(c *ishell.Context) {
 		},
 	})
 	coordinationNodeOffersShellCmd.AddCmd(&ishell.Cmd{
@@ -490,7 +505,7 @@ func coordinationNodeInputReceiver() {
 			choice := c.MultiChoice([]string{
 				"YES",
 				"NO",
-			}, fmt.Sprintf("Do you accept this offer?\n\n%s\n", priceMapOffers[currentUuid]))
+			}, fmt.Sprintf("Do you accept this offer?\n\n%s\n", proto.MarshalTextString(priceMapOffers[currentUuid])))
 
 			if choice == 0 {
 				// Accept the offer.
@@ -508,9 +523,14 @@ func coordinationNodeInputReceiver() {
 					log.Error(err.Error())
 				}
 
+				priceMap = *priceMapOffers[currentUuid].PriceMap
+				// Store the status ACCEPTED.
+				priceMapOfferStatus[currentUuid].Status = 1
+
 				log.WithFields(log.Fields{
 					"src": priceMapOffers[currentUuid].Route.GetExchangeKey(),
 				}).Info("Accepted price map")
+				log.Info("Updated price map")
 
 			} else if choice == 1 {
 				// Create a new counter offer.
@@ -534,15 +554,19 @@ func coordinationNodeInputReceiver() {
 					Uuid: uuid,
 				}
 				offerResponse := esi.PriceMapOfferResponse{
-					Route:       priceMapOffers[currentUuid].Route,
-					OfferId:     &newUuid,
-					AcceptOneof: &counterOffer,
+					Route:         priceMapOffers[currentUuid].Route,
+					PreviousOffer: priceMapOffers[currentUuid].OfferId,
+					OfferId:       &newUuid,
+					AcceptOneof:   &counterOffer,
 				}
 
 				err = esi.SendPriceMapOfferResponse(coordinationNodeClient, &offerResponse)
 				if err != nil {
 					log.Error(err.Error())
 				}
+
+				// Store the status REJECTED.
+				priceMapOfferStatus[currentUuid].Status = 2
 			}
 		},
 	})
@@ -550,65 +574,51 @@ func coordinationNodeInputReceiver() {
 	shell.Run()
 }
 
+// newPriceMap creates and returns a new price map.
 func newPriceMap(shell *ishell.Shell, c *ishell.Context) (*esi.PriceMap, error) {
 	// Create newPowerComponents.
-	shell.Print("Real Power: ")
+	shell.Printf("Real Power [%s]: ", defaultRealPower)
 	realPowerString := c.ReadLine()
+	if realPowerString == "" {
+		realPowerString = defaultRealPower
+	}
 	realPower, err := strconv.Atoi(realPowerString)
 	if err != nil {
 		return &esi.PriceMap{}, err
 	}
-	shell.Print("Reactive Power: ")
+
+	shell.Printf("Reactive Power [%s]: ", defaultReactivePower)
 	reactivePowerString := c.ReadLine()
+	if reactivePowerString == "" {
+		reactivePowerString = defaultReactivePower
+	}
 	reactivePower, err := strconv.Atoi(reactivePowerString)
 	if err != nil {
 		return &esi.PriceMap{}, err
 	}
+
 	newPowerComponents := esi.PowerComponents{
 		RealPower:     int64(realPower),
 		ReactivePower: int64(reactivePower),
 	}
 
 	// Create newDuration.
-	shell.Print("Expected Duration Seconds: ")
-	durationSecondsString := c.ReadLine()
-	durationSeconds, err := strconv.Atoi(durationSecondsString)
-	if err != nil {
-		return &esi.PriceMap{}, err
-	}
-	shell.Print("Expected Duration Nanos: ")
-	durationNanosString := c.ReadLine()
-	durationNanos, err := strconv.Atoi(durationNanosString)
-	if err != nil {
-		return &esi.PriceMap{}, err
-	}
+	//
+	// In this demo, all price maps are immediately completed for simplicity.
+	durationSeconds := 0
+	durationNanos := 0
 	newDuration := duration.Duration{
 		Seconds: int64(durationSeconds),
 		Nanos:   int32(durationNanos),
 	}
 
 	// Create newDurationRange.
-	shell.Print("Expected Minimum Duration Seconds: ")
-	expectedMinSecondsString := c.ReadLine()
-	expectedMinSeconds, err := strconv.Atoi(expectedMinSecondsString)
-	if err != nil {
-		return &esi.PriceMap{}, err
-	}
-	shell.Print("Expected Minimum Duration Nanos: ")
-	expectedMinNanosString := c.ReadLine()
-	expectedMinNanos, err := strconv.Atoi(expectedMinNanosString)
-	if err != nil {
-		return &esi.PriceMap{}, err
-	}
-	shell.Print("Expected Maximum Duration Seconds: ")
-	expectedMaxSecondsString := c.ReadLine()
-	expectedMaxSeconds, err := strconv.Atoi(expectedMaxSecondsString)
-	if err != nil {
-		return &esi.PriceMap{}, err
-	}
-	shell.Print("Expected Maximum Duration Nanos: ")
-	expectedMaxNanosString := c.ReadLine()
-	expectedMaxNanos, err := strconv.Atoi(expectedMaxNanosString)
+	//
+	// In this demo, the response time is assumed to be immediate.
+	expectedMinSeconds := defaultSeconds
+	expectedMinNanos := defaultSeconds
+	expectedMaxSeconds := defaultSeconds
+	expectedMaxNanos := defaultSeconds
 	if err != nil {
 		return &esi.PriceMap{}, err
 	}
@@ -625,21 +635,19 @@ func newPriceMap(shell *ishell.Shell, c *ishell.Context) (*esi.PriceMap, error) 
 		Max: &newMaxDuration,
 	}
 
-	// Create newPriceComponents.
-	shell.Print("Currency Code: ")
-	currencyCode := c.ReadLine()
-	shell.Print("Units: ")
+	// Currency currently isn't evaluated, so just set it to USD.
+	currencyCode := "USD"
+	shell.Printf("Units [%s]: ", defaultUnits)
 	unitsString := c.ReadLine()
+	if unitsString == "" {
+		unitsString = defaultUnits
+	}
 	units, err := strconv.Atoi(unitsString)
 	if err != nil {
 		return &esi.PriceMap{}, err
 	}
-	shell.Print("Nanos: ")
-	nanosString := c.ReadLine()
-	nanos, err := strconv.Atoi(nanosString)
-	if err != nil {
-		return &esi.PriceMap{}, err
-	}
+	// Don't worry about setting nanos.
+	nanos := 0
 
 	// Create a new Price Map.
 	//

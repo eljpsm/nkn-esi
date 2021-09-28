@@ -206,14 +206,28 @@ func coordinationNodeMessageReceiver() {
 						"auto": autoPrice.AlwaysBuyBelowPrice.Units,
 					}).Info("Accepted price map due to auto buy")
 
-					// Delete the offer from memory.
-					delete(priceMapOffers, x.ProposePriceMapOffer.OfferId.Uuid)
+					priceMapOffers[x.ProposePriceMapOffer.OfferId.Uuid] = x.ProposePriceMapOffer
+					// Store the status of the offer.
+					status := esi.PriceMapOfferStatus{
+						Route:   x.ProposePriceMapOffer.Route,
+						OfferId: x.ProposePriceMapOffer.OfferId,
+						Status:  1, // store accepted status
+					}
+					priceMapOfferStatus[x.ProposePriceMapOffer.OfferId.Uuid] = &status
 				} else {
 					priceMapOffers[x.ProposePriceMapOffer.OfferId.Uuid] = x.ProposePriceMapOffer
 
 					log.WithFields(log.Fields{
 						"src": msg.Src,
 					}).Info("Received price map offer")
+
+					// Store the status of the offer.
+					status := esi.PriceMapOfferStatus{
+						Route:   x.ProposePriceMapOffer.Route,
+						OfferId: x.ProposePriceMapOffer.OfferId,
+						Status:  0, // store unknown status
+					}
+					priceMapOfferStatus[x.ProposePriceMapOffer.OfferId.Uuid] = &status
 				}
 			}
 
@@ -228,8 +242,8 @@ func coordinationNodeMessageReceiver() {
 						"src": msg.Src,
 					}).Info("Price map accepted")
 
-					// Delete the offer from memory.
-					delete(priceMapOffers, x.SendPriceMapOfferResponse.OfferId.Uuid)
+					// Store the status ACCEPTED.
+					priceMapOfferStatus[x.SendPriceMapOfferResponse.OfferId.Uuid].Status = 1
 				}
 			case *esi.PriceMapOfferResponse_CounterOffer:
 				if y.CounterOffer.Price.ApparentEnergyPrice.Units < autoPrice.AlwaysBuyBelowPrice.Units {
@@ -245,21 +259,40 @@ func coordinationNodeMessageReceiver() {
 						"auto": autoPrice.AlwaysBuyBelowPrice.Units,
 					}).Info("Accepted price map due to auto buy")
 
-					// Delete the offer from memory.
-					delete(priceMapOffers, x.SendPriceMapOfferResponse.OfferId.Uuid)
+					// Store the status ACCEPTED.
+					priceMapOfferStatus[x.SendPriceMapOfferResponse.OfferId.Uuid].Status = 1
 				} else {
+					// Store the status REJECTED.
+					priceMapOfferStatus[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].Status = 2
+
 					// Create a new offer and store it for evaluation.
+					uuid, err := newUuid()
+					if err != nil {
+						log.Error(err.Error())
+						return
+					}
+					newUuid := esi.Uuid{
+						Uuid: uuid,
+					}
 					newTimeStamp := timestamppb.Timestamp{
 						Nanos:   0,
 						Seconds: unixSeconds(),
 					}
 					newOffer := esi.PriceMapOffer{
 						Route:    x.SendPriceMapOfferResponse.Route,
-						OfferId:  x.SendPriceMapOfferResponse.OfferId,
+						OfferId:  &newUuid,
 						When:     &newTimeStamp,
 						PriceMap: x.SendPriceMapOfferResponse.GetCounterOffer(),
 					}
 					priceMapOffers[x.SendPriceMapOfferResponse.OfferId.Uuid] = &newOffer
+
+					// Store the status of the offer.
+					status := esi.PriceMapOfferStatus{
+						Route:   x.SendPriceMapOfferResponse.Route,
+						OfferId: &newUuid,
+						Status:  0, // store unknown status
+					}
+					priceMapOfferStatus[x.SendPriceMapOfferResponse.OfferId.Uuid] = &status
 
 					log.WithFields(log.Fields{
 						"src": msg.Src,
