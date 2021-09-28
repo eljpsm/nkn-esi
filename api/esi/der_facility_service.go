@@ -138,6 +138,20 @@ func ProposePriceMapOffer(client *nkn.MultiClient, offer PriceMapOffer) error {
 	return nil
 }
 
+func SendPriceMapOfferResponse(client *nkn.MultiClient, response PriceMapOfferResponse) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SendPriceMapOfferResponse{SendPriceMapOfferResponse: &response}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(response.Route.GetCustomerKey()), data, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // GetPriceMapOfferFeedback returns the status of a price map offer.
 func GetPriceMapOfferFeedback(client *nkn.MultiClient, feedback PriceMapOfferFeedback) error {
 	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_GetPriceMapOfferFeedback{GetPriceMapOfferFeedback: &feedback}})
@@ -170,30 +184,30 @@ func ProvidePriceMapOfferFeedback(client *nkn.MultiClient, feedback PriceMapOffe
 
 // ProvidePrices provides pricing data to the Facility.
 func ProvidePrices(client *nkn.MultiClient, datum PriceDatum) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProvidePrices{ProvidePrices: &datum}})
-	if err != nil {
-		return err
-	}
+	// data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProvidePrices{ProvidePrices: &datum}})
+	// if err != nil {
+	// 	return err
+	// }
 
-	_, err = client.Send(nkn.NewStringArray(datum.Route.GetProducerKey()), data, nil)
-	if err != nil {
-		return err
-	}
+	// _, err = client.Send(nkn.NewStringArray(datum.Route.GetProducerKey()), data, nil)
+	// if err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
 
 // ListPowerProfile returns a list of power profile datum over a time range.
 func ListPowerProfile(client *nkn.MultiClient, datum DatumRequest) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ListPowerProfile{ListPowerProfile: &datum}})
-	if err != nil {
-		return err
-	}
+	// data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ListPowerProfile{ListPowerProfile: &datum}})
+	// if err != nil {
+	// 	return err
+	// }
 
-	_, err = client.Send(nkn.NewStringArray(datum.Route.GetProducerKey()), data, nil)
-	if err != nil {
-		return err
-	}
+	// _, err = client.Send(nkn.NewStringArray(datum.Route.GetProducerKey()), data, nil)
+	// if err != nil {
+	// 	return err
+	// }
 
 	return nil
 }

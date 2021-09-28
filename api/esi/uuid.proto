@@ -20,13 +20,10 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
-// A UUID value encoded as 2 64-bit integers.
+// A UUID.
 message Uuid {
 
-  // The upper 64 bits of the UUID (bits 127-64).
-  fixed64 hi = 1;
-
-  // The lower 64 bits of the UUID (bits 63-0).
-  fixed64 lo = 2;
+  // A canonical RFC-4122 string representation.
+  string uuid = 1;
 
 }

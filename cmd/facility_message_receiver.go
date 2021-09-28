@@ -63,7 +63,7 @@ func facilityMessageReceiver() {
 			newRegistrationForm := esi.DerFacilityRegistrationForm{
 				ProducerKey: facilityInfo.GetPublicKey(),
 				CustomerKey: msg.Src,
-				Form:                      &newForm,
+				Form:        &newForm,
 			}
 
 			// Send the registration form.
@@ -122,7 +122,7 @@ func facilityMessageReceiver() {
 
 		case *esi.FacilityMessage_CompleteDerFacilityRegistration:
 			if x.CompleteDerFacilityRegistration.GetSuccess() == true {
-				customerFacilities[msg.Src] = true
+				customerFacility = msg.Src
 			}
 			log.WithFields(log.Fields{
 				"src":     msg.Src,
@@ -131,7 +131,7 @@ func facilityMessageReceiver() {
 
 		case *esi.FacilityMessage_GetResourceCharacteristics:
 			// Check to make sure that the source is a registered customer.
-			if customerFacilities[msg.Src] == true {
+			if customerFacility != "" {
 				newRoute := esi.DerRoute{
 					CustomerKey: msg.Src,
 					ProducerKey: facilityInfo.GetPublicKey(),
@@ -144,7 +144,7 @@ func facilityMessageReceiver() {
 				}
 
 				log.WithFields(log.Fields{
-					"end":     msg.Src,
+					"end": msg.Src,
 				}).Info("Sent resource characteristics")
 			}
 
@@ -154,20 +154,20 @@ func facilityMessageReceiver() {
 				producerCharacteristics[msg.Src] = x.SendResourceCharacteristics
 
 				log.WithFields(log.Fields{
-					"src":     msg.Src,
+					"src": msg.Src,
 				}).Info("Received resource characteristics")
 			}
 
 		case *esi.FacilityMessage_GetPriceMap:
 			// Check to make sure that the source is a registered customer.
-			if customerFacilities[msg.Src] == true {
+			if customerFacility == msg.Src {
 				err = esi.SendPriceMap(facilityClient, x.GetPriceMap.Route.GetCustomerKey(), priceMap)
 				if err != nil {
 					log.Error(err.Error())
 				}
 
 				log.WithFields(log.Fields{
-					"end":     msg.Src,
+					"end": msg.Src,
 				}).Info("Sent price map")
 			}
 
@@ -177,29 +177,42 @@ func facilityMessageReceiver() {
 				producerPriceMaps[msg.Src] = x.SendPriceMap
 
 				log.WithFields(log.Fields{
-					"src":     msg.Src,
+					"src": msg.Src,
 				}).Info("Received price map")
 			}
 
 		case *esi.FacilityMessage_ProposePriceMapOffer:
 			// Check to make sure that the source is a registered customer.
-			if customerFacilities[msg.Src] == true {
+			if customerFacility == msg.Src {
 				if x.ProposePriceMapOffer.PriceMap.Price.ApparentEnergyPrice.Units < autoPrice.AlwaysBuyBelowPrice.Units {
-					// TODO: autobuy
-				} else {
-					// Generate a new UUID to store the offer.
+					// If the offer is below our auto accept, just accept the offer.
 					//
-					// OfferID comes with Hi and Lo to set the upper and lower parts of the UUID respectively. In this
-					// demo, all UUIDs are generated just using the Google UUID library.
-					uuid, err := newUuid(x.ProposePriceMapOffer.OfferId.Hi, x.ProposePriceMapOffer.OfferId.Lo)
+					// There is also a value for "AvoidBuyOverPrice", which could be used in a similar way in other
+					// scenarios. In this demo, if the price is not lower than our auto accept, then it just goes to
+					// evaluation.
+					accept := esi.PriceMapOfferResponse_Accept{
+						Accept: true,
+					}
+					response := esi.PriceMapOfferResponse{
+						Route:       x.ProposePriceMapOffer.Route,
+						OfferId:     x.ProposePriceMapOffer.OfferId,
+						AcceptOneof: &accept,
+					}
+					err = esi.SendPriceMapOfferResponse(facilityClient, response)
 					if err != nil {
 						log.Error(err.Error())
 					}
-					customerPriceMapOffers[uuid] = x.ProposePriceMapOffer
+
+					log.WithFields(log.Fields{
+						"src": msg.Src,
+						"auto": autoPrice.AlwaysBuyBelowPrice.Units,
+					}).Info("Accepted price map due to auto buy")
+				} else {
+					priceMapOffers[x.ProposePriceMapOffer.OfferId.Uuid] = x.ProposePriceMapOffer
 				}
 
 				log.WithFields(log.Fields{
-					"src":     msg.Src,
+					"src": msg.Src,
 				}).Info("Received price map offer")
 			}
 

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/abiosoft/ishell"
 	"github.com/elijahjpassmore/nkn-esi/api/esi"
-	uuid2 "github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/duration"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -92,13 +91,11 @@ func facilityInputReceiver() {
 		Name: "peers",
 		Help: "show any registered customers or producers",
 		Func: func(c *ishell.Context) {
-			if len(customerFacilities) > 0 {
-				shell.Printf("\n%s\n", boldMsgColorFunc("CUSTOMERS"))
-				for k := range customerFacilities {
-					shell.Printf("%s %s\n",
-						boldMsgColorFunc("Public Key:"),
-						noteMsgColorFunc(k))
-				}
+			if customerFacility != "" {
+				shell.Printf("\n%s\n", boldMsgColorFunc("CUSTOMER"))
+				shell.Printf("%s %s\n",
+					boldMsgColorFunc("Public Key:"),
+					noteMsgColorFunc(customerFacility))
 			}
 			if len(producerFacilities) > 0 {
 				shell.Printf("\n%s\n", boldMsgColorFunc("PRODUCERS"))
@@ -132,6 +129,10 @@ func facilityInputReceiver() {
 		Name: "request",
 		Help: "request registration form from facility",
 		Func: func(c *ishell.Context) {
+			if customerFacility != "" {
+				shell.Println("customer has already been set")
+				return
+			}
 			c.Print("Facility Public Key: ")
 			facilityPublicKey := c.ReadLine()
 			c.Print("Language Code: ")
@@ -155,6 +156,10 @@ func facilityInputReceiver() {
 		Name: "forms",
 		Help: "print forms to be signed",
 		Func: func(c *ishell.Context) {
+			if customerFacility != "" {
+				shell.Println("customer has already been set")
+				return
+			}
 			for _, v := range receivedRegistrationForms {
 				shell.Printf("\n%s %s\n",
 					noteMsgColorFunc("Public Key:"),
@@ -167,6 +172,10 @@ func facilityInputReceiver() {
 		Name: "register",
 		Help: "fill in a received registration form",
 		Func: func(c *ishell.Context) {
+			if customerFacility != "" {
+				shell.Println("customer has already been set")
+				return
+			}
 			shell.Print("Facility Public Key: ")
 			publicKey := c.ReadLine()
 
@@ -199,7 +208,7 @@ func facilityInputReceiver() {
 					// If input is not given, then use the placeholder value.
 					//
 					// This placeholder value given by DerFacilityRegistrationFormData is useful for any number of
-					// situations in which user input could be either option or unnecessary.
+					// situations in which user input could be either optional or unnecessary.
 					if setting.GetPlaceholder() != "" {
 						if result == "" {
 							result = setting.GetPlaceholder()
@@ -240,7 +249,6 @@ func facilityInputReceiver() {
 		Name: "peek",
 		Help: "view local price map",
 		Func: func(c *ishell.Context) {
-			fmt.Println(isPriceMapAccepted)
 			fmt.Println(priceMap)
 		},
 	})
@@ -378,12 +386,13 @@ func facilityInputReceiver() {
 				ProducerKey: publicKey,
 				CustomerKey: facilityInfo.GetPublicKey(),
 			}
-			// Each new offer can take a unique UUID for storage.
-			//
-			// In this demo, public keys are used instead - but depending on use case, this could be more useful.
+			uuid, err := newUuid()
+			if err != nil {
+				shell.Println(err.Error())
+				return
+			}
 			newUuid := esi.Uuid{
-				Hi: uuidHigh,
-				Lo: uuidLow,
+				Uuid: uuid,
 			}
 			newTimeStamp := timestamppb.Timestamp{
 				Seconds: unixSeconds(),
@@ -412,7 +421,7 @@ func facilityInputReceiver() {
 		Name: "list",
 		Help: "view pending offers",
 		Func: func(c *ishell.Context) {
-			for k, v := range customerPriceMapOffers {
+			for k, v := range priceMapOffers {
 				shell.Printf("\n%s %s\n%s %s\n%s %s\n%s %s\n",
 					boldMsgColorFunc("Customer Public Key:"),
 					noteMsgColorFunc(v.Route.GetCustomerKey()),
@@ -434,16 +443,12 @@ func facilityInputReceiver() {
 	})
 	facilityOffersShellCmd.AddCmd(&ishell.Cmd{
 		Name: "evaluate",
-		Help: "evaluate an offer and give feedback",
+		Help: "evaluate an offer and give a response",
 		Func: func(c *ishell.Context) {
 			shell.Print("Offer UUID: ")
-			uuid, err := uuid2.FromString(c.ReadLine())
-			if err != nil {
-				shell.Println(err.Error())
-				return
-			}
+			uuid := c.ReadLine()
 
-			if customerPriceMapOffers[uuid] == nil {
+			if priceMapOffers[uuid] == nil {
 				shell.Printf("no offer with the uuid: '%s'\n", uuid)
 				return
 			}
@@ -451,20 +456,28 @@ func facilityInputReceiver() {
 			choice := c.MultiChoice([]string{
 				"YES",
 				"NO",
-			}, fmt.Sprintf("Do you accept this offer?\n\n%s\n", customerPriceMapOffers[uuid]))
-
-			newFeedback := esi.PriceMapOfferFeedback{
-				Route:   customerPriceMapOffers[uuid].Route,
-				OfferId: customerPriceMapOffers[uuid].OfferId,
-			}
+			}, fmt.Sprintf("Do you accept this offer?\n\n%s\n", priceMapOffers[uuid]))
 
 			if choice == 0 {
+				// Accept the offer.
 				shell.Println("\nOffer has been accepted.\n")
-				newFeedback.ObligationStatus = esi.PriceMapOfferFeedback_SATISFIED
-				err := esi.ProvidePriceMapOfferFeedback(facilityClient, newFeedback)
-				if err != nil {
-					shell.Println(err.Error())
+				accept := esi.PriceMapOfferResponse_Accept{
+					Accept: true,
 				}
+				response := esi.PriceMapOfferResponse{
+					Route:       priceMapOffers[uuid].Route,
+					OfferId:     priceMapOffers[uuid].OfferId,
+					AcceptOneof: &accept,
+				}
+				err := esi.SendPriceMapOfferResponse(facilityClient, response)
+				if err != nil {
+					log.Error(err.Error())
+				}
+
+				log.WithFields(log.Fields{
+					"src": priceMapOffers[uuid].Route.GetCustomerKey(),
+				}).Info("Accepted price map")
+
 			} else if choice == 1 {
 				// TODO: counteroffer
 			}
