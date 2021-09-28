@@ -54,12 +54,12 @@ func registryMessageReceiver() {
 			}
 
 		case *esi.RegistryMessage_QueryDerFacilities:
-			// TODO: Look at more than just country.
 			log.WithFields(log.Fields{
 				"src": msg.Src,
 			}).Info("Query for coordination node")
 
 			for _, coordinationNode := range knownCoordinationNodes {
+				// Currently only considers country, but could include other details.
 				if strings.ToLower(coordinationNode.Location.GetCountry()) == strings.ToLower(x.QueryDerFacilities.Location.GetCountry()) {
 
 					// If the facility querying the registry also fits the criteria, ignore it.

@@ -182,13 +182,13 @@ func GetPriceMapOfferFeedback(client *nkn.MultiClient, feedback *PriceMapOfferFe
 }
 
 // ProvidePriceMapOfferFeedback provides feedback on a price map offer, after the offer event is over.
-func ProvidePriceMapOfferFeedback(client *nkn.MultiClient, feedback *PriceMapOfferFeedback) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProvidePriceMapOfferFeedback{ProvidePriceMapOfferFeedback: feedback}})
+func ProvidePriceMapOfferFeedback(client *nkn.MultiClient, response *PriceMapOfferFeedbackResponse) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProvidePriceMapOfferFeedback{ProvidePriceMapOfferFeedback: response}})
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(feedback.Route.GetFacilityKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(response.Route.GetFacilityKey()), data, nil)
 	if err != nil {
 		return err
 	}

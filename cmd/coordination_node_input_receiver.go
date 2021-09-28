@@ -221,11 +221,9 @@ func coordinationNodeInputReceiver() {
 
 			form, present := receivedRegistrationForms[publicKey]
 
-			// TODO: needed? check
 			if present {
 				shell.Println() // gap from input
 
-				// TODO: nonce
 				// Contains the results of key -> response.
 				results := make(map[string]string)
 				route := esi.DerRoute{
@@ -318,6 +316,7 @@ func coordinationNodeInputReceiver() {
 		Name: "view",
 		Help: "print local characteristics",
 		Func: func(c *ishell.Context) {
+			// TODO: pretty
 			fmt.Println(&resourceCharacteristics)
 		},
 	})
@@ -420,7 +419,7 @@ func coordinationNodeInputReceiver() {
 					boldMsgColorFunc("Public Key:"),
 					noteMsgColorFunc(k),
 					boldMsgColorFunc("Price Map:"),
-					v)
+					proto.MarshalTextString(v))
 			}
 		},
 	})
@@ -433,7 +432,7 @@ func coordinationNodeInputReceiver() {
 					boldMsgColorFunc("Public Key:"),
 					noteMsgColorFunc(k),
 					boldMsgColorFunc("Characteristics:"),
-					v)
+					proto.MarshalTextString(v))
 			}
 		},
 	})
@@ -528,6 +527,38 @@ func coordinationNodeInputReceiver() {
 					infoMsgColorFunc(priceMapOfferStatus[v.OfferId.Uuid].Status))
 			}
 			shell.Println()
+		},
+	})
+	coordinationNodeFacilityShellCmd.AddCmd(&ishell.Cmd{
+		Name: "feedback",
+		Help: "get feedback on an offer",
+		Func: func(c *ishell.Context) {
+			shell.Print("Offer UUID: ")
+			uuid := c.ReadLine()
+			if priceMapOffers[uuid] == nil {
+				shell.Printf("no offer with the uuid '%s'\n", uuid)
+				return
+			}
+
+			// Getting feedback on offers is easy and just requires sending a feedback form, and then getting
+			// a response whether the obligation status is agreed on.
+			//
+			// In this demo, the obligation is always entered to be SATISFIED, and the response is always agreed. But
+			// in a real situation, this would be very useful to keep an automatic record of the relationship between
+			// two nodes.
+			//
+			// It is also assumed that the facility is the one that will be requesting agreement, and the exchange
+			// will then audit the feedback, either by checking manually or automatically. But this could be built in
+			// both directions, as well - the system is agnostic on whom the receiving and sending party is.
+			feedback := esi.PriceMapOfferFeedback{
+				Route: priceMapOffers[uuid].Route,
+				OfferId: priceMapOffers[uuid].OfferId,
+				ObligationStatus: 2,
+			}
+			err := esi.GetPriceMapOfferFeedback(coordinationNodeClient, &feedback)
+			if err != nil {
+				log.Error(err.Error())
+			}
 		},
 	})
 	coordinationNodeOffersShellCmd.AddCmd(&ishell.Cmd{

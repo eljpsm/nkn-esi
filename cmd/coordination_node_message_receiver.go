@@ -299,9 +299,35 @@ func coordinationNodeMessageReceiver() {
 				}
 			}
 
-		case *esi.FacilityMessage_ProvidePriceMapOfferFeedback:
+		case *esi.FacilityMessage_GetPriceMapOfferFeedback:
+			// As mentioned in coordination_node_input_receiver.go, this is merely a stub of what could be implemented.
+			//
+			// In a real situation, getting feedback on a response (either manually or automatically) is very powerful,
+			// this is just to show the capability.
 			if registeredFacilities[msg.Src] == true {
+				log.WithFields(log.Fields{
+					"src":   msg.Src,
+					"claim": x.GetPriceMapOfferFeedback.ObligationStatus,
+				}).Info("Received offer feedback")
+
+				agreement := true
+				response := esi.PriceMapOfferFeedbackResponse{
+					Route:    x.GetPriceMapOfferFeedback.Route,
+					OfferId:  x.GetPriceMapOfferFeedback.OfferId,
+					Accepted: agreement,
+				}
+
+				err := esi.ProvidePriceMapOfferFeedback(coordinationNodeClient, &response)
+				if err != nil {
+					log.Error(err.Error())
+				}
 			}
+
+		case *esi.FacilityMessage_ProvidePriceMapOfferFeedback:
+			log.WithFields(log.Fields{
+				"src":   msg.Src,
+				"claim": x.ProvidePriceMapOfferFeedback.Accepted,
+			}).Info("Offer feedback response")
 		}
 	}
 }

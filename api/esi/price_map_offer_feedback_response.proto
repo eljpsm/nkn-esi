@@ -21,14 +21,17 @@ package api.esi;
 option go_package = "github.com/elijahjpassmore/api/esi";
 
 import "api/esi/uuid.proto";
+import "api/esi/der_route.proto";
 
 // Response to a price map feedback request.
 message PriceMapOfferFeedbackResponse {
 
+  DerRoute route = 1;
+
   // The globally unique ID of the offer this response is for.
-  Uuid offer_id = 1;
+  Uuid offer_id = 2;
   
   // Flag if the feedback has been processed successfully.
-  bool accepted = 2;
+  bool accepted = 3;
 
 }

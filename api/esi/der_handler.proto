@@ -39,6 +39,7 @@ import "api/esi/price_datum.proto";
 import "api/esi/der_route.proto";
 import "api/esi/power_parameters.proto";
 import "api/esi/price_map_offer_response.proto";
+import "api/esi/price_map_offer_feedback_response.proto";
 
 // A message received by a Registry.
 message RegistryMessage {
@@ -79,7 +80,7 @@ message FacilityMessage {
     PriceMapOfferResponse SendPriceMapOfferResponse = 14;
     PriceMapOfferFeedback GetPriceMapOfferFeedback = 15;
     PriceMapOfferStatus ProvidePriceMapOfferStatus = 16;
-    PriceMapOfferFeedback ProvidePriceMapOfferFeedback = 17;
+    PriceMapOfferFeedbackResponse ProvidePriceMapOfferFeedback = 17;
   }
 
 }
