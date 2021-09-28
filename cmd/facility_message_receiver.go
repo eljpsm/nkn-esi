@@ -254,6 +254,7 @@ func facilityMessageReceiver() {
 						Route:   x.SendPriceMapOfferResponse.Route,
 						OfferId: x.SendPriceMapOfferResponse.OfferId,
 						When:    &newTimeStamp,
+						PriceMap: x.SendPriceMapOfferResponse.GetCounterOffer(),
 					}
 					priceMapOffers[x.SendPriceMapOfferResponse.OfferId.Uuid] = &newOffer
 
