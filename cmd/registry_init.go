@@ -55,7 +55,7 @@ func registryInit(cmd *cobra.Command, args []string) error {
 	}
 
 	// Write the new config.
-	jsonBytes, err := json.MarshalIndent(newRegistryInfo, "", "  ")
+	jsonBytes, err := json.MarshalIndent(&newRegistryInfo, "", "  ")
 	if err != nil {
 		return err
 	}

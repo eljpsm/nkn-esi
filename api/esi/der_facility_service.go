@@ -6,8 +6,8 @@ import (
 )
 
 // GetDerFacilityRegistrationForm send a message to get a registration form from request.GetFacilityPublicKey().
-func GetDerFacilityRegistrationForm(client *nkn.MultiClient, request DerFacilityRegistrationFormRequest) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_GetDerFacilityRegistrationForm{GetDerFacilityRegistrationForm: &request}})
+func GetDerFacilityRegistrationForm(client *nkn.MultiClient, request *DerFacilityRegistrationFormRequest) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_GetDerFacilityRegistrationForm{GetDerFacilityRegistrationForm: request}})
 	if err != nil {
 		return err
 	}
@@ -36,8 +36,8 @@ func SendDerFacilityRegistrationForm(client *nkn.MultiClient, registrationForm *
 }
 
 // SubmitDerFacilityRegistrationForm sends a signed DerFacilityRegistrationFormData to formData.Route.GetSellKey().
-func SubmitDerFacilityRegistrationForm(client *nkn.MultiClient, formData DerFacilityRegistrationFormData) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SubmitDerFacilityRegistrationForm{SubmitDerFacilityRegistrationForm: &formData}})
+func SubmitDerFacilityRegistrationForm(client *nkn.MultiClient, formData *DerFacilityRegistrationFormData) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SubmitDerFacilityRegistrationForm{SubmitDerFacilityRegistrationForm: formData}})
 	if err != nil {
 		return err
 	}
@@ -51,8 +51,8 @@ func SubmitDerFacilityRegistrationForm(client *nkn.MultiClient, formData DerFaci
 }
 
 // CompleteDerFacilityRegistration sends a message to registration.Route.GetBuyKey(), informing them of the registration status.
-func CompleteDerFacilityRegistration(client *nkn.MultiClient, registration DerFacilityRegistration) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_CompleteDerFacilityRegistration{CompleteDerFacilityRegistration: &registration}})
+func CompleteDerFacilityRegistration(client *nkn.MultiClient, registration *DerFacilityRegistration) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_CompleteDerFacilityRegistration{CompleteDerFacilityRegistration: registration}})
 	if err != nil {
 		return err
 	}
@@ -65,8 +65,8 @@ func CompleteDerFacilityRegistration(client *nkn.MultiClient, registration DerFa
 	return nil
 }
 
-func GetResourceCharacteristics(client *nkn.MultiClient, request DerResourceCharacteristicsRequest) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_GetResourceCharacteristics{GetResourceCharacteristics: &request}})
+func GetResourceCharacteristics(client *nkn.MultiClient, request *DerResourceCharacteristicsRequest) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_GetResourceCharacteristics{GetResourceCharacteristics: request}})
 	if err != nil {
 		return err
 	}
@@ -79,8 +79,8 @@ func GetResourceCharacteristics(client *nkn.MultiClient, request DerResourceChar
 	return nil
 }
 
-func SendResourceCharacteristics(client *nkn.MultiClient, characteristics DerCharacteristics) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SendResourceCharacteristics{SendResourceCharacteristics: &characteristics}})
+func SendResourceCharacteristics(client *nkn.MultiClient, characteristics *DerCharacteristics) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SendResourceCharacteristics{SendResourceCharacteristics: characteristics}})
 	if err != nil {
 		return err
 	}
@@ -93,8 +93,8 @@ func SendResourceCharacteristics(client *nkn.MultiClient, characteristics DerCha
 	return nil
 }
 
-func GetPriceMap(client *nkn.MultiClient, request DerPriceMapRequest) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_GetPriceMap{GetPriceMap: &request}})
+func GetPriceMap(client *nkn.MultiClient, request *DerPriceMapRequest) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_GetPriceMap{GetPriceMap: request}})
 	if err != nil {
 		return err
 	}
@@ -107,8 +107,8 @@ func GetPriceMap(client *nkn.MultiClient, request DerPriceMapRequest) error {
 	return nil
 }
 
-func SendPriceMap(client *nkn.MultiClient, customerKey string, priceMap PriceMap) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SendPriceMap{SendPriceMap: &priceMap}})
+func SendPriceMap(client *nkn.MultiClient, customerKey string, priceMap *PriceMap) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SendPriceMap{SendPriceMap: priceMap}})
 	if err != nil {
 		return err
 	}
@@ -124,8 +124,8 @@ func SendPriceMap(client *nkn.MultiClient, customerKey string, priceMap PriceMap
 // ProposePriceMapOffer propose a price map offer for the service to accept, reject, or propose a counter offer.
 // The exchange will invoke this method to make a price map offer to the Facility. The Facility must respond with either
 // an acceptance/rejection of the offer or a counter offer in the form of a different price map proposal.
-func ProposePriceMapOffer(client *nkn.MultiClient, offer PriceMapOffer) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProposePriceMapOffer{ProposePriceMapOffer: &offer}})
+func ProposePriceMapOffer(client *nkn.MultiClient, offer *PriceMapOffer) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProposePriceMapOffer{ProposePriceMapOffer: offer}})
 	if err != nil {
 		return err
 	}
@@ -138,8 +138,8 @@ func ProposePriceMapOffer(client *nkn.MultiClient, offer PriceMapOffer) error {
 	return nil
 }
 
-func SendPriceMapOfferResponse(client *nkn.MultiClient, response PriceMapOfferResponse) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SendPriceMapOfferResponse{SendPriceMapOfferResponse: &response}})
+func SendPriceMapOfferResponse(client *nkn.MultiClient, response *PriceMapOfferResponse) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SendPriceMapOfferResponse{SendPriceMapOfferResponse: response}})
 	if err != nil {
 		return err
 	}
@@ -153,8 +153,8 @@ func SendPriceMapOfferResponse(client *nkn.MultiClient, response PriceMapOfferRe
 }
 
 // GetPriceMapOfferFeedback returns the status of a price map offer.
-func GetPriceMapOfferFeedback(client *nkn.MultiClient, feedback PriceMapOfferFeedback) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_GetPriceMapOfferFeedback{GetPriceMapOfferFeedback: &feedback}})
+func GetPriceMapOfferFeedback(client *nkn.MultiClient, feedback *PriceMapOfferFeedback) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_GetPriceMapOfferFeedback{GetPriceMapOfferFeedback: feedback}})
 	if err != nil {
 		return err
 	}
@@ -168,8 +168,8 @@ func GetPriceMapOfferFeedback(client *nkn.MultiClient, feedback PriceMapOfferFee
 }
 
 // ProvidePriceMapOfferFeedback provides feedback on a price map offer, after the offer event is over.
-func ProvidePriceMapOfferFeedback(client *nkn.MultiClient, feedback PriceMapOfferFeedback) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProvidePriceMapOfferFeedback{ProvidePriceMapOfferFeedback: &feedback}})
+func ProvidePriceMapOfferFeedback(client *nkn.MultiClient, feedback *PriceMapOfferFeedback) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProvidePriceMapOfferFeedback{ProvidePriceMapOfferFeedback: feedback}})
 	if err != nil {
 		return err
 	}

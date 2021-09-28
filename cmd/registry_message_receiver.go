@@ -44,7 +44,7 @@ func registryMessageReceiver() {
 				}).Info("Saved facility to known facilities")
 
 				for _, facility := range knownFacilities {
-					err = esi.SendKnownDerFacility(registryClient, msg.Src, *facility)
+					err = esi.SendKnownDerFacility(registryClient, msg.Src, facility)
 					if err != nil {
 						log.Error(err.Error())
 					}
@@ -67,7 +67,7 @@ func registryMessageReceiver() {
 						continue
 					}
 
-					err = esi.SendKnownDerFacility(registryClient, msg.Src, *facility)
+					err = esi.SendKnownDerFacility(registryClient, msg.Src, facility)
 					if err != nil {
 						log.Error(err.Error())
 					}

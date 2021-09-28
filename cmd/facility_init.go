@@ -73,7 +73,7 @@ func facilityInit(cmd *cobra.Command, args []string) error {
 	}
 
 	// Write the new config.
-	jsonBytes, err := json.MarshalIndent(newDerFacilityExchangeInfo, "", "  ")
+	jsonBytes, err := json.MarshalIndent(&newDerFacilityExchangeInfo, "", "  ")
 	if err != nil {
 		return err
 	}

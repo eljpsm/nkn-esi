@@ -111,7 +111,7 @@ func facilityMessageReceiver() {
 				producerFacilities[msg.Src] = true
 			}
 
-			err = esi.CompleteDerFacilityRegistration(facilityClient, registration)
+			err = esi.CompleteDerFacilityRegistration(facilityClient, &registration)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -137,9 +137,10 @@ func facilityMessageReceiver() {
 					CustomerKey: msg.Src,
 					ProducerKey: facilityInfo.GetPublicKey(),
 				}
+				// TODO: fix
 				newCharacteristics := resourceCharacteristics
 				newCharacteristics.Route = &newRoute
-				err := esi.SendResourceCharacteristics(facilityClient, newCharacteristics)
+				err := esi.SendResourceCharacteristics(facilityClient, &newCharacteristics)
 				if err != nil {
 					log.Error(err.Error())
 				}
@@ -162,7 +163,7 @@ func facilityMessageReceiver() {
 		case *esi.FacilityMessage_GetPriceMap:
 			// Check to make sure that the source is a registered customer.
 			if customerFacility == msg.Src {
-				err = esi.SendPriceMap(facilityClient, x.GetPriceMap.Route.GetCustomerKey(), priceMap)
+				err = esi.SendPriceMap(facilityClient, x.GetPriceMap.Route.GetCustomerKey(), &priceMap)
 				if err != nil {
 					log.Error(err.Error())
 				}
@@ -269,7 +270,7 @@ func facilityMessageReceiver() {
 	}
 }
 
-func acceptOffer(route *esi.DerRoute, offerId *esi.Uuid) esi.PriceMapOfferResponse {
+func acceptOffer(route *esi.DerRoute, offerId *esi.Uuid) *esi.PriceMapOfferResponse {
 	accept := esi.PriceMapOfferResponse_Accept{
 		Accept: true,
 	}
@@ -279,5 +280,5 @@ func acceptOffer(route *esi.DerRoute, offerId *esi.Uuid) esi.PriceMapOfferRespon
 		AcceptOneof: &accept,
 	}
 
-	return response
+	return &response
 }

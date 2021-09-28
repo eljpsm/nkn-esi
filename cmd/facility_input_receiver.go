@@ -57,7 +57,7 @@ func facilityInputReceiver() {
 		Func: func(c *ishell.Context) {
 			c.Print("Registry Public Key: ")
 
-			err := esi.SignupRegistry(facilityClient, c.ReadLine(), facilityInfo)
+			err := esi.SignupRegistry(facilityClient, c.ReadLine(), &facilityInfo)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -80,7 +80,7 @@ func facilityInputReceiver() {
 			}
 
 			request := esi.DerFacilityExchangeRequest{Location: &newLocation}
-			err := esi.QueryDerFacilities(facilityClient, registryPublicKey, request)
+			err := esi.QueryDerFacilities(facilityClient, registryPublicKey, &request)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -146,7 +146,7 @@ func facilityInputReceiver() {
 				LanguageCode: languageCode,
 			}
 
-			err := esi.GetDerFacilityRegistrationForm(facilityClient, request)
+			err := esi.GetDerFacilityRegistrationForm(facilityClient, &request)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -219,7 +219,7 @@ func facilityInputReceiver() {
 				}
 
 				// Submit the registration form.
-				err := esi.SubmitDerFacilityRegistrationForm(facilityClient, registrationFormData)
+				err := esi.SubmitDerFacilityRegistrationForm(facilityClient, &registrationFormData)
 				if err != nil {
 					log.Error(err.Error())
 				}
@@ -249,7 +249,7 @@ func facilityInputReceiver() {
 		Name: "peek",
 		Help: "view local price map",
 		Func: func(c *ishell.Context) {
-			fmt.Println(priceMap)
+			fmt.Println(&priceMap)
 		},
 	})
 	facilityPriceMapShellCmd.AddCmd(&ishell.Cmd{
@@ -262,7 +262,8 @@ func facilityInputReceiver() {
 				return
 			}
 
-			priceMap = createdPriceMap
+			// TODO: fix
+			priceMap = *createdPriceMap
 		},
 	})
 
@@ -275,7 +276,7 @@ func facilityInputReceiver() {
 		Name: "peek",
 		Help: "view local characteristics",
 		Func: func(c *ishell.Context) {
-			fmt.Println(resourceCharacteristics)
+			fmt.Println(&resourceCharacteristics)
 		},
 	})
 	facilityCharacteristicsShellCmd.AddCmd(&ishell.Cmd{
@@ -350,11 +351,11 @@ func facilityInputReceiver() {
 				Route: &newRoute,
 			}
 
-			err := esi.GetResourceCharacteristics(facilityClient, newCharacteristicsRequest)
+			err := esi.GetResourceCharacteristics(facilityClient, &newCharacteristicsRequest)
 			if err != nil {
 				log.Error(err.Error())
 			}
-			err = esi.GetPriceMap(facilityClient, newPriceMapRequest)
+			err = esi.GetPriceMap(facilityClient, &newPriceMapRequest)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -402,10 +403,10 @@ func facilityInputReceiver() {
 				Route:    &newRoute,
 				OfferId:  &newUuid,
 				When:     &newTimeStamp,
-				PriceMap: &createdPriceMap,
+				PriceMap: createdPriceMap,
 			}
 
-			err = esi.ProposePriceMapOffer(facilityClient, newPriceMapOffer)
+			err = esi.ProposePriceMapOffer(facilityClient, &newPriceMapOffer)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -469,7 +470,7 @@ func facilityInputReceiver() {
 					OfferId:     priceMapOffers[uuid].OfferId,
 					AcceptOneof: &accept,
 				}
-				err := esi.SendPriceMapOfferResponse(facilityClient, response)
+				err := esi.SendPriceMapOfferResponse(facilityClient, &response)
 				if err != nil {
 					log.Error(err.Error())
 				}
@@ -489,7 +490,7 @@ func facilityInputReceiver() {
 					return
 				}
 				counterOffer := esi.PriceMapOfferResponse_CounterOffer{
-					CounterOffer: &createdPriceMap,
+					CounterOffer: createdPriceMap,
 				}
 				uuid, err := newUuid()
 				if err != nil {
@@ -505,7 +506,7 @@ func facilityInputReceiver() {
 					AcceptOneof: &counterOffer,
 				}
 
-				err = esi.SendPriceMapOfferResponse(facilityClient, offerResponse)
+				err = esi.SendPriceMapOfferResponse(facilityClient, &offerResponse)
 				if err != nil {
 					log.Error(err.Error())
 				}
@@ -521,19 +522,19 @@ func facilityInputReceiver() {
 	shell.Run()
 }
 
-func newPriceMap(shell *ishell.Shell, c *ishell.Context) (esi.PriceMap, error) {
+func newPriceMap(shell *ishell.Shell, c *ishell.Context) (*esi.PriceMap, error) {
 	// Create newPowerComponents.
 	shell.Print("Real Power: ")
 	realPowerString := c.ReadLine()
 	realPower, err := strconv.Atoi(realPowerString)
 	if err != nil {
-		return esi.PriceMap{}, err
+		return &esi.PriceMap{}, err
 	}
 	shell.Print("Reactive Power: ")
 	reactivePowerString := c.ReadLine()
 	reactivePower, err := strconv.Atoi(reactivePowerString)
 	if err != nil {
-		return esi.PriceMap{}, err
+		return &esi.PriceMap{}, err
 	}
 	newPowerComponents := esi.PowerComponents{
 		RealPower:     int64(realPower),
@@ -545,13 +546,13 @@ func newPriceMap(shell *ishell.Shell, c *ishell.Context) (esi.PriceMap, error) {
 	durationSecondsString := c.ReadLine()
 	durationSeconds, err := strconv.Atoi(durationSecondsString)
 	if err != nil {
-		return esi.PriceMap{}, err
+		return &esi.PriceMap{}, err
 	}
 	shell.Print("Expected Duration Nanos: ")
 	durationNanosString := c.ReadLine()
 	durationNanos, err := strconv.Atoi(durationNanosString)
 	if err != nil {
-		return esi.PriceMap{}, err
+		return &esi.PriceMap{}, err
 	}
 	newDuration := duration.Duration{
 		Seconds: int64(durationSeconds),
@@ -563,25 +564,25 @@ func newPriceMap(shell *ishell.Shell, c *ishell.Context) (esi.PriceMap, error) {
 	expectedMinSecondsString := c.ReadLine()
 	expectedMinSeconds, err := strconv.Atoi(expectedMinSecondsString)
 	if err != nil {
-		return esi.PriceMap{}, err
+		return &esi.PriceMap{}, err
 	}
 	shell.Print("Expected Minimum Duration Nanos: ")
 	expectedMinNanosString := c.ReadLine()
 	expectedMinNanos, err := strconv.Atoi(expectedMinNanosString)
 	if err != nil {
-		return esi.PriceMap{}, err
+		return &esi.PriceMap{}, err
 	}
 	shell.Print("Expected Maximum Duration Seconds: ")
 	expectedMaxSecondsString := c.ReadLine()
 	expectedMaxSeconds, err := strconv.Atoi(expectedMaxSecondsString)
 	if err != nil {
-		return esi.PriceMap{}, err
+		return &esi.PriceMap{}, err
 	}
 	shell.Print("Expected Maximum Duration Nanos: ")
 	expectedMaxNanosString := c.ReadLine()
 	expectedMaxNanos, err := strconv.Atoi(expectedMaxNanosString)
 	if err != nil {
-		return esi.PriceMap{}, err
+		return &esi.PriceMap{}, err
 	}
 	newMinDuration := duration.Duration{
 		Seconds: int64(expectedMinSeconds),
@@ -603,13 +604,13 @@ func newPriceMap(shell *ishell.Shell, c *ishell.Context) (esi.PriceMap, error) {
 	unitsString := c.ReadLine()
 	units, err := strconv.Atoi(unitsString)
 	if err != nil {
-		return esi.PriceMap{}, err
+		return &esi.PriceMap{}, err
 	}
 	shell.Print("Nanos: ")
 	nanosString := c.ReadLine()
 	nanos, err := strconv.Atoi(nanosString)
 	if err != nil {
-		return esi.PriceMap{}, err
+		return &esi.PriceMap{}, err
 	}
 
 	// Create a new Price Map.
@@ -630,5 +631,5 @@ func newPriceMap(shell *ishell.Shell, c *ishell.Context) (esi.PriceMap, error) {
 		Price:           &newPriceComponents,
 	}
 
-	return newPriceMap, nil
+	return &newPriceMap, nil
 }
