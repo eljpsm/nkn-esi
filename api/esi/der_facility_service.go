@@ -27,7 +27,7 @@ func SendDerFacilityRegistrationForm(client *nkn.MultiClient, registrationForm *
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(registrationForm.GetCustomerKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(registrationForm.Route.GetFacilityKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func SubmitDerFacilityRegistrationForm(client *nkn.MultiClient, formData *DerFac
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(formData.Route.GetProducerKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(formData.Route.GetExchangeKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func CompleteDerFacilityRegistration(client *nkn.MultiClient, registration *DerF
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(registration.Route.GetCustomerKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(registration.Route.GetFacilityKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func GetResourceCharacteristics(client *nkn.MultiClient, request *DerResourceCha
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(request.Route.GetProducerKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(request.Route.GetFacilityKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func SendResourceCharacteristics(client *nkn.MultiClient, characteristics *DerCh
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(characteristics.Route.GetCustomerKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(characteristics.Route.GetExchangeKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -99,7 +99,7 @@ func GetPriceMap(client *nkn.MultiClient, request *DerPriceMapRequest) error {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(request.Route.GetProducerKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(request.Route.GetFacilityKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -130,7 +130,7 @@ func ProposePriceMapOffer(client *nkn.MultiClient, offer *PriceMapOffer) error {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(offer.Route.GetProducerKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(offer.Route.GetFacilityKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func SendPriceMapOfferResponse(client *nkn.MultiClient, response *PriceMapOfferR
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(response.Route.GetCustomerKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(response.Route.GetExchangeKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -159,7 +159,7 @@ func GetPriceMapOfferFeedback(client *nkn.MultiClient, feedback *PriceMapOfferFe
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(feedback.Route.GetCustomerKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(feedback.Route.GetExchangeKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -174,7 +174,7 @@ func ProvidePriceMapOfferFeedback(client *nkn.MultiClient, feedback *PriceMapOff
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(feedback.Route.GetProducerKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(feedback.Route.GetFacilityKey()), data, nil)
 	if err != nil {
 		return err
 	}

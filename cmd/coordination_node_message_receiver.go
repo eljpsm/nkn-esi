@@ -61,10 +61,13 @@ func coordinationNodeMessageReceiver() {
 				Key:          strconv.Itoa(formKey),
 				Settings:     []*esi.FormSetting{&newFormSetting},
 			}
+			newRoute := esi.DerRoute{
+				FacilityKey: msg.Src,
+				ExchangeKey: coordinationNodeInfo.GetPublicKey(),
+			}
 			newRegistrationForm := esi.DerFacilityRegistrationForm{
-				ProducerKey: coordinationNodeInfo.GetPublicKey(),
-				CustomerKey: msg.Src,
-				Form:        &newForm,
+				Route: &newRoute,
+				Form:  &newForm,
 			}
 
 			// Send the registration form.
@@ -85,9 +88,9 @@ func coordinationNodeMessageReceiver() {
 			}).Info("Received registration form")
 
 			// If the form is not already stored, store it.
-			_, present := receivedRegistrationForms[x.SendDerFacilityRegistrationForm.GetProducerKey()]
+			_, present := receivedRegistrationForms[x.SendDerFacilityRegistrationForm.Route.GetExchangeKey()]
 			if !present {
-				receivedRegistrationForms[x.SendDerFacilityRegistrationForm.GetProducerKey()] = x.SendDerFacilityRegistrationForm
+				receivedRegistrationForms[x.SendDerFacilityRegistrationForm.Route.GetExchangeKey()] = x.SendDerFacilityRegistrationForm
 			}
 
 		case *esi.FacilityMessage_SubmitDerFacilityRegistrationForm:
@@ -106,7 +109,7 @@ func coordinationNodeMessageReceiver() {
 				registration.Success = false
 			}
 
-			// If successful, add it as a consumer facility with an empty price map.
+			// If successful, add it as a facility.
 			if registration.Success {
 				registeredFacilities[msg.Src] = true
 			}
@@ -131,11 +134,11 @@ func coordinationNodeMessageReceiver() {
 			}).Info("Received completed registration form")
 
 		case *esi.FacilityMessage_GetResourceCharacteristics:
-			// Check to make sure that the source is a registered customer.
-			if registeredExchange != "" {
+			// Check to make sure that the source is the registered exchange.
+			if registeredExchange == msg.Src {
 				newRoute := esi.DerRoute{
-					CustomerKey: msg.Src,
-					ProducerKey: coordinationNodeInfo.GetPublicKey(),
+					FacilityKey: coordinationNodeInfo.GetPublicKey(),
+					ExchangeKey: msg.Src,
 				}
 				// TODO: fix
 				newCharacteristics := resourceCharacteristics
@@ -151,7 +154,7 @@ func coordinationNodeMessageReceiver() {
 			}
 
 		case *esi.FacilityMessage_SendResourceCharacteristics:
-			// Check to make sure that the source is a registered producer.
+			// Check to make sure that the source is a registered facility.
 			if registeredFacilities[msg.Src] == true {
 				producerCharacteristics[msg.Src] = x.SendResourceCharacteristics
 
@@ -161,9 +164,9 @@ func coordinationNodeMessageReceiver() {
 			}
 
 		case *esi.FacilityMessage_GetPriceMap:
-			// Check to make sure that the source is a registered customer.
+			// Check to make sure that the source is the registered exchange.
 			if registeredExchange == msg.Src {
-				err = esi.SendPriceMap(coordinationNodeClient, x.GetPriceMap.Route.GetCustomerKey(), &priceMap)
+				err = esi.SendPriceMap(coordinationNodeClient, x.GetPriceMap.Route.GetExchangeKey(), &priceMap)
 				if err != nil {
 					log.Error(err.Error())
 				}
@@ -174,7 +177,7 @@ func coordinationNodeMessageReceiver() {
 			}
 
 		case *esi.FacilityMessage_SendPriceMap:
-			// Check to make sure that the source is a registered producer.
+			// Check to make sure that the source is a registered facility.
 			if registeredFacilities[msg.Src] == true {
 				producerPriceMaps[msg.Src] = x.SendPriceMap
 
@@ -184,7 +187,7 @@ func coordinationNodeMessageReceiver() {
 			}
 
 		case *esi.FacilityMessage_ProposePriceMapOffer:
-			// Check to make sure that the source is a registered customer.
+			// Check to make sure that the source is the registered exchange.
 			if registeredExchange == msg.Src {
 				if x.ProposePriceMapOffer.PriceMap.Price.ApparentEnergyPrice.Units < autoPrice.AlwaysBuyBelowPrice.Units {
 					// If the offer is below our auto accept, just accept the offer.
@@ -251,9 +254,9 @@ func coordinationNodeMessageReceiver() {
 						Seconds: unixSeconds(),
 					}
 					newOffer := esi.PriceMapOffer{
-						Route:   x.SendPriceMapOfferResponse.Route,
-						OfferId: x.SendPriceMapOfferResponse.OfferId,
-						When:    &newTimeStamp,
+						Route:    x.SendPriceMapOfferResponse.Route,
+						OfferId:  x.SendPriceMapOfferResponse.OfferId,
+						When:     &newTimeStamp,
 						PriceMap: x.SendPriceMapOfferResponse.GetCounterOffer(),
 					}
 					priceMapOffers[x.SendPriceMapOfferResponse.OfferId.Uuid] = &newOffer

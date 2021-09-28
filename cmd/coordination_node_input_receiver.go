@@ -100,7 +100,7 @@ func coordinationNodeInputReceiver() {
 			}
 			if len(registeredFacilities) > 0 {
 				// Print the facilities.
-				shell.Printf("\n%s\n", boldMsgColorFunc("PRODUCERS"))
+				shell.Printf("\n%s\n", boldMsgColorFunc("FACILITIES"))
 				for k := range registeredFacilities {
 					shell.Printf("%s %s\n",
 						boldMsgColorFunc("Public Key:"),
@@ -136,7 +136,7 @@ func coordinationNodeInputReceiver() {
 				return
 			}
 			c.Print("Public Key: ")
-			facilityPublicKey := c.ReadLine()
+			exchangePublicKey := c.ReadLine()
 			// TODO: default
 			c.Print("Language Code: ")
 			languageCode := c.ReadLine()
@@ -145,7 +145,7 @@ func coordinationNodeInputReceiver() {
 			//
 			// In this demo, the only language code that is used (and sent) is "en" for English.
 			request := esi.DerFacilityRegistrationFormRequest{
-				PublicKey:    facilityPublicKey,
+				PublicKey:    exchangePublicKey,
 				LanguageCode: languageCode,
 			}
 
@@ -165,8 +165,8 @@ func coordinationNodeInputReceiver() {
 			}
 			for _, v := range receivedRegistrationForms {
 				shell.Printf("\n%s %s\n",
-					boldMsgColorFunc("Public Key:"),
-					noteMsgColorFunc(v.GetProducerKey()))
+					boldMsgColorFunc("Exchange Public Key:"),
+					noteMsgColorFunc(v.Route.GetExchangeKey()))
 			}
 			shell.Println()
 		},
@@ -192,8 +192,8 @@ func coordinationNodeInputReceiver() {
 				// Contains the results of key -> response.
 				results := make(map[string]string)
 				route := esi.DerRoute{
-					CustomerKey: form.GetCustomerKey(),
-					ProducerKey: form.GetProducerKey(),
+					ExchangeKey: form.Route.GetExchangeKey(),
+					FacilityKey: form.Route.GetFacilityKey(),
 				}
 
 				formData := esi.FormData{
@@ -230,13 +230,13 @@ func coordinationNodeInputReceiver() {
 				}
 
 				// Remove form from the map.
-				delete(receivedRegistrationForms, form.GetProducerKey())
+				delete(receivedRegistrationForms, form.Route.GetExchangeKey())
 
 				log.WithFields(log.Fields{
-					"end": form.GetProducerKey(),
+					"end": form.Route.GetExchangeKey(),
 				}).Info("Sent registration form")
 
-				shell.Printf("\nForm has been submitted to %s\n", registrationFormData.Route.GetProducerKey())
+				shell.Printf("\nForm has been submitted to %s\n", registrationFormData.Route.GetExchangeKey())
 
 			} else {
 				shell.Printf("no form found with public key '%s`\n", publicKey)
@@ -346,8 +346,8 @@ func coordinationNodeInputReceiver() {
 			}
 
 			newRoute := esi.DerRoute{
-				CustomerKey: coordinationNodeInfo.GetPublicKey(),
-				ProducerKey: publicKey,
+				ExchangeKey: coordinationNodeInfo.GetPublicKey(),
+				FacilityKey: publicKey,
 			}
 			newCharacteristicsRequest := esi.DerResourceCharacteristicsRequest{
 				Route: &newRoute,
@@ -389,8 +389,8 @@ func coordinationNodeInputReceiver() {
 				return
 			}
 			newRoute := esi.DerRoute{
-				ProducerKey: publicKey,
-				CustomerKey: coordinationNodeInfo.GetPublicKey(),
+				FacilityKey: publicKey,
+				ExchangeKey: coordinationNodeInfo.GetPublicKey(),
 			}
 			uuid, err := newUuid()
 			if err != nil {
@@ -433,9 +433,9 @@ func coordinationNodeInputReceiver() {
 				// In this example, only key information is provided.
 				shell.Printf("\n%s %s\n%s %s\n%s %s\n%s %s\n",
 					boldMsgColorFunc("Exchange Public Key:"),
-					noteMsgColorFunc(v.Route.GetCustomerKey()),
+					noteMsgColorFunc(v.Route.GetExchangeKey()),
 					boldMsgColorFunc("Facility Public Key:"),
-					noteMsgColorFunc(v.Route.GetProducerKey()),
+					noteMsgColorFunc(v.Route.GetFacilityKey()),
 					boldMsgColorFunc("UUID:"),
 					k,
 					boldMsgColorFunc("Price Map:"),
@@ -484,7 +484,7 @@ func coordinationNodeInputReceiver() {
 				}
 
 				log.WithFields(log.Fields{
-					"src": priceMapOffers[currentUuid].Route.GetCustomerKey(),
+					"src": priceMapOffers[currentUuid].Route.GetExchangeKey(),
 				}).Info("Accepted price map")
 
 			} else if choice == 1 {

@@ -21,18 +21,16 @@ package api.esi;
 option go_package = "github.com/elijahjpassmore/api/esi";
 
 import "api/esi/form.proto";
+import "api/esi/der_route.proto";
 
 /**
  * Form definition for a DER facility registration.
  */
 message DerFacilityRegistrationForm {
 
-  // The UID of the DerFacilityExchange to get the registration form for.
-  //string exchange_uid = 1;
-  string producer_key = 1;
-  string customer_key = 2;
+  DerRoute route = 1;
   
   // The registration form.
-  Form form = 3;
+  Form form = 2;
 
 }
