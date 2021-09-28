@@ -24,7 +24,7 @@ import (
 var (
 	// facilityClient is the Multiclient opened representing the Facility.
 	facilityClient *nkn.MultiClient
-	facilityPath string
+	facilityPath   string
 )
 
 // facilityStartCmd represents the start command

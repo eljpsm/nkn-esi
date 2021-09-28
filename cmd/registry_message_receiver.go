@@ -17,7 +17,7 @@ func registryMessageReceiver() {
 	<-registryClient.OnConnect.C
 	log.WithFields(log.Fields{
 		"publicKey": registryInfo.GetPublicKey(),
-		"name": registryInfo.GetName(),
+		"name":      registryInfo.GetName(),
 	}).Info("Connection opened")
 
 	message := &esi.RegistryMessage{}

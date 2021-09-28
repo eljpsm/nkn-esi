@@ -222,12 +222,12 @@ func facilityMessageReceiver() {
 					// If the offer has been accepted, log the acceptance.
 
 					log.WithFields(log.Fields{
-						"src":  msg.Src,
+						"src": msg.Src,
 					}).Info("Price map accepted")
 
 					// Delete the offer from memory.
 					delete(priceMapOffers, x.SendPriceMapOfferResponse.OfferId.Uuid)
-			}
+				}
 			case *esi.PriceMapOfferResponse_CounterOffer:
 				if y.CounterOffer.Price.ApparentEnergyPrice.Units < autoPrice.AlwaysBuyBelowPrice.Units {
 					// If it falls below the auto accept, then accept it.
@@ -247,21 +247,21 @@ func facilityMessageReceiver() {
 				} else {
 					// Create a new offer and store it for evaluation.
 					newTimeStamp := timestamppb.Timestamp{
-						Nanos: 0,
+						Nanos:   0,
 						Seconds: unixSeconds(),
 					}
 					newOffer := esi.PriceMapOffer{
-						Route: x.SendPriceMapOfferResponse.Route,
+						Route:   x.SendPriceMapOfferResponse.Route,
 						OfferId: x.SendPriceMapOfferResponse.OfferId,
-						When: &newTimeStamp,
+						When:    &newTimeStamp,
 					}
 					priceMapOffers[x.SendPriceMapOfferResponse.OfferId.Uuid] = &newOffer
 
 					log.WithFields(log.Fields{
-						"src":  msg.Src,
+						"src": msg.Src,
 					}).Info("Counter offer received")
 				}
-		}
+			}
 
 		case *esi.FacilityMessage_ProvidePriceMapOfferFeedback:
 			if producerFacilities[msg.Src] == true {

@@ -501,8 +501,8 @@ func facilityInputReceiver() {
 					Uuid: uuid,
 				}
 				offerResponse := esi.PriceMapOfferResponse{
-					Route: priceMapOffers[currentUuid].Route,
-					OfferId: &newUuid,
+					Route:       priceMapOffers[currentUuid].Route,
+					OfferId:     &newUuid,
 					AcceptOneof: &counterOffer,
 				}
 

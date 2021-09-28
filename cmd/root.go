@@ -79,7 +79,6 @@ const (
 	secretKeySuffix = ".secret"
 	// logSuffix is the suffix used when storing log files.
 	logSuffix = ".log"
-
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -127,6 +126,6 @@ func initConfig() {
 		}
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
+	viper.AutomaticEnv()     // read in environment variables that match
 	_ = viper.ReadInConfig() // read in config
 }
