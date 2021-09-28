@@ -204,16 +204,16 @@ func facilityMessageReceiver() {
 					}
 
 					log.WithFields(log.Fields{
-						"src": msg.Src,
+						"src":  msg.Src,
 						"auto": autoPrice.AlwaysBuyBelowPrice.Units,
 					}).Info("Accepted price map due to auto buy")
 				} else {
 					priceMapOffers[x.ProposePriceMapOffer.OfferId.Uuid] = x.ProposePriceMapOffer
-				}
 
-				log.WithFields(log.Fields{
-					"src": msg.Src,
-				}).Info("Received price map offer")
+					log.WithFields(log.Fields{
+						"src": msg.Src,
+					}).Info("Received price map offer")
+				}
 			}
 
 		case *esi.FacilityMessage_ProvidePriceMapOfferFeedback:
