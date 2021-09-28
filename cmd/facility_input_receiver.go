@@ -352,11 +352,11 @@ func facilityInputReceiver() {
 
 			err := esi.GetResourceCharacteristics(facilityClient, newCharacteristicsRequest)
 			if err != nil {
-				shell.Println(err.Error())
+				log.Error(err.Error())
 			}
 			err = esi.GetPriceMap(facilityClient, newPriceMapRequest)
 			if err != nil {
-				shell.Println(err.Error())
+				log.Error(err.Error())
 			}
 		},
 	})
@@ -407,7 +407,7 @@ func facilityInputReceiver() {
 
 			err = esi.ProposePriceMapOffer(facilityClient, newPriceMapOffer)
 			if err != nil {
-				shell.Println(err.Error())
+				log.Error(err.Error())
 			}
 		},
 	})
@@ -479,7 +479,41 @@ func facilityInputReceiver() {
 				}).Info("Accepted price map")
 
 			} else if choice == 1 {
-				// TODO: counteroffer
+				// Create a new counter offer.
+				//
+				// In reality, this process may be more sophisticated - but for this demo, you will keep sending
+				// counter offers until one is accepted.
+				createdPriceMap, err := newPriceMap(shell, c)
+				if err != nil {
+					shell.Println(err.Error())
+					return
+				}
+				counterOffer := esi.PriceMapOfferResponse_CounterOffer{
+					CounterOffer: &createdPriceMap,
+				}
+				uuid, err := newUuid()
+				if err != nil {
+					shell.Println(err.Error())
+					return
+				}
+				newUuid := esi.Uuid{
+					Uuid: uuid,
+				}
+				offerResponse := esi.PriceMapOfferResponse{
+					Route: priceMapOffers[uuid].Route,
+					OfferId: &newUuid,
+					AcceptOneof: &counterOffer,
+				}
+
+				err = esi.SendPriceMapOfferResponse(facilityClient, offerResponse)
+				if err != nil {
+					log.Error(err.Error())
+				}
+
+				// Delete the offer from memory.
+				//
+				// In reality, you might want to keep previous offers - but in this demo, there's no reason to.
+				delete(priceMapOffers, uuid)
 			}
 		},
 	})

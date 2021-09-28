@@ -21,8 +21,8 @@ func GetDerFacilityRegistrationForm(client *nkn.MultiClient, request DerFacility
 }
 
 // SendDerFacilityRegistrationForm send a message to DerFacilityRegistrationForm to registrationForm.GetCustomerFacilityPublicKey().
-func SendDerFacilityRegistrationForm(client *nkn.MultiClient, registrationForm DerFacilityRegistrationForm) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SendDerFacilityRegistrationForm{SendDerFacilityRegistrationForm: &registrationForm}})
+func SendDerFacilityRegistrationForm(client *nkn.MultiClient, registrationForm *DerFacilityRegistrationForm) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SendDerFacilityRegistrationForm{SendDerFacilityRegistrationForm: registrationForm}})
 	if err != nil {
 		return err
 	}

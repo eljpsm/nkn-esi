@@ -5,6 +5,7 @@ import (
 	"github.com/elijahjpassmore/nkn-esi/api/esi"
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"strconv"
 	"strings"
 )
@@ -67,7 +68,7 @@ func facilityMessageReceiver() {
 			}
 
 			// Send the registration form.
-			err = esi.SendDerFacilityRegistrationForm(facilityClient, newRegistrationForm)
+			err = esi.SendDerFacilityRegistrationForm(facilityClient, &newRegistrationForm)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -190,14 +191,7 @@ func facilityMessageReceiver() {
 					// There is also a value for "AvoidBuyOverPrice", which could be used in a similar way in other
 					// scenarios. In this demo, if the price is not lower than our auto accept, then it just goes to
 					// evaluation.
-					accept := esi.PriceMapOfferResponse_Accept{
-						Accept: true,
-					}
-					response := esi.PriceMapOfferResponse{
-						Route:       x.ProposePriceMapOffer.Route,
-						OfferId:     x.ProposePriceMapOffer.OfferId,
-						AcceptOneof: &accept,
-					}
+					response := acceptOffer(x.ProposePriceMapOffer.Route, x.ProposePriceMapOffer.OfferId)
 					err = esi.SendPriceMapOfferResponse(facilityClient, response)
 					if err != nil {
 						log.Error(err.Error())
@@ -207,6 +201,9 @@ func facilityMessageReceiver() {
 						"src":  msg.Src,
 						"auto": autoPrice.AlwaysBuyBelowPrice.Units,
 					}).Info("Accepted price map due to auto buy")
+
+					// Delete the offer from memory.
+					delete(priceMapOffers, x.ProposePriceMapOffer.OfferId.Uuid)
 				} else {
 					priceMapOffers[x.ProposePriceMapOffer.OfferId.Uuid] = x.ProposePriceMapOffer
 
@@ -216,9 +213,71 @@ func facilityMessageReceiver() {
 				}
 			}
 
+		case *esi.FacilityMessage_SendPriceMapOfferResponse:
+			switch y := x.SendPriceMapOfferResponse.AcceptOneof.(type) {
+			// Evaluate the contents of the response.
+			case *esi.PriceMapOfferResponse_Accept:
+				if y.Accept {
+					// If the offer has been accepted, log the acceptance.
+
+					log.WithFields(log.Fields{
+						"src":  msg.Src,
+					}).Info("Price map accepted")
+
+					// Delete the offer from memory.
+					delete(priceMapOffers, x.SendPriceMapOfferResponse.OfferId.Uuid)
+			}
+			case *esi.PriceMapOfferResponse_CounterOffer:
+				if y.CounterOffer.Price.ApparentEnergyPrice.Units < autoPrice.AlwaysBuyBelowPrice.Units {
+					// If it falls below the auto accept, then accept it.
+					response := acceptOffer(x.SendPriceMapOfferResponse.Route, x.SendPriceMapOfferResponse.OfferId)
+					err = esi.SendPriceMapOfferResponse(facilityClient, response)
+					if err != nil {
+						log.Error(err.Error())
+					}
+
+					log.WithFields(log.Fields{
+						"src":  msg.Src,
+						"auto": autoPrice.AlwaysBuyBelowPrice.Units,
+					}).Info("Accepted price map due to auto buy")
+
+					// Delete the offer from memory.
+					delete(priceMapOffers, x.SendPriceMapOfferResponse.OfferId.Uuid)
+				} else {
+					// Create a new offer and store it for evaluation.
+					newTimeStamp := timestamppb.Timestamp{
+						Nanos: 0,
+						Seconds: unixSeconds(),
+					}
+					newOffer := esi.PriceMapOffer{
+						Route: x.SendPriceMapOfferResponse.Route,
+						OfferId: x.SendPriceMapOfferResponse.OfferId,
+						When: &newTimeStamp,
+					}
+					priceMapOffers[x.SendPriceMapOfferResponse.OfferId.Uuid] = &newOffer
+
+					log.WithFields(log.Fields{
+						"src":  msg.Src,
+					}).Info("Counter offer received")
+				}
+		}
+
 		case *esi.FacilityMessage_ProvidePriceMapOfferFeedback:
 			if producerFacilities[msg.Src] == true {
 			}
 		}
 	}
+}
+
+func acceptOffer(route *esi.DerRoute, offerId *esi.Uuid) esi.PriceMapOfferResponse {
+	accept := esi.PriceMapOfferResponse_Accept{
+		Accept: true,
+	}
+	response := esi.PriceMapOfferResponse{
+		Route:       route,
+		OfferId:     offerId,
+		AcceptOneof: &accept,
+	}
+
+	return response
 }
