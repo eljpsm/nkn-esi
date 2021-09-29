@@ -384,7 +384,7 @@ func coordinationNodeMessageReceiver() {
 			log.WithFields(log.Fields{
 				"src":   msg.Src,
 				"claim": x.ProvidePriceMapOfferFeedback.Accepted,
-			}).Info("Provide feedback response")
+			}).Info("Received feedback response")
 		}
 	}
 }

@@ -120,7 +120,7 @@ func validateCfgKeyPair(cfgPublic string, client *nkn.MultiClient) error {
 
 // unixSeconds gets the current time in unix seconds.
 func unixSeconds() int64 {
-	return time.Now().UTC().UnixNano()
+	return time.Now().UTC().Unix()
 }
 
 // newUuid returns a new UUID.

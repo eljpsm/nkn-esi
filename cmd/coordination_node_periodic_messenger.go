@@ -84,7 +84,8 @@ func coordinationNodePeriodicMessenger() {
 
 			// If the offer is executing and has passed the time expected to execute, set it to complete.
 			if priceMapOfferStatus[offer.OfferId.Uuid].Status == esi.PriceMapOfferStatus_EXECUTING {
-				if (unixSeconds() - offer.When.Seconds) <= offer.PriceMap.Duration.Seconds {
+				// The time when is in nanoseconds, and duration is in seconds.
+				if (offer.When.Seconds + offer.PriceMap.Duration.Seconds) <= unixSeconds() {
 					priceMapOfferStatus[offer.OfferId.Uuid].Status = esi.PriceMapOfferStatus_COMPLETED
 
 					// Create a new feedback.

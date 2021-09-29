@@ -36,7 +36,7 @@ const (
 	//defaultWhen is the default time in seconds to pass for an offer to be executed.
 	defaultWhen = 7
 	// defaultDuration is the default time it takes for an offer to be completed.
-	defaultDuration = 15
+	defaultDuration = 30
 
 	// defaultRealPower is the default value used for real power when creating a price map.
 	defaultRealPower = "10"
