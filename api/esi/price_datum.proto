@@ -36,16 +36,16 @@ message PriceDatum {
 
   // The start date of this power profile (inclusive).
   google.protobuf.Timestamp ts = 2;
-  
+
   // The length of `time_unit` units of time this datum covers, starting from `ts`.
   uint32 time_length = 3;
 
   // The time unit used by `time_length`.
   TimeUnit time_unit = 4;
-  
+
   // The power components of this datum.
   PriceComponents price_components = 5;
-  
+
   // The location associated with this price.
   Location location = 6;
 

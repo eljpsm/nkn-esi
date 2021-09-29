@@ -1,3 +1,19 @@
+/*
+Copyright © 2021 Ecogy Energy
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package cmd
 
 import (
@@ -5,6 +21,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 	"os"
+	"strings"
 )
 
 // registryMessageReceiver receives and returns any incoming registry messages.
@@ -15,8 +32,8 @@ func registryMessageReceiver() {
 
 	<-registryClient.OnConnect.C
 	log.WithFields(log.Fields{
-		"publicKey": registryInfo.GetRegistryPublicKey(),
-		"name": registryInfo.GetName(),
+		"publicKey": registryInfo.GetPublicKey(),
+		"name":      registryInfo.GetName(),
 	}).Info("Connection opened")
 
 	message := &esi.RegistryMessage{}
@@ -25,7 +42,7 @@ func registryMessageReceiver() {
 		msg := <-registryClient.OnMessage.C
 
 		log.WithFields(log.Fields{
-			"publicKey": msg.Src,
+			"src": msg.Src,
 		}).Info("Message received")
 
 		err := proto.Unmarshal(msg.Data, message)
@@ -35,41 +52,47 @@ func registryMessageReceiver() {
 		}
 
 		// Case documentation located at api/esi/der_facility_registry_service.go.
+		//
+		// Switch based upon the message type.
 		switch x := message.Chunk.(type) {
 		case *esi.RegistryMessage_SignupRegistry:
-			if _, ok := knownFacilities[x.SignupRegistry.FacilityPublicKey]; !ok {
+			if _, ok := knownCoordinationNodes[x.SignupRegistry.PublicKey]; !ok {
 				log.WithFields(log.Fields{
-					"publicKey": msg.Src,
-				}).Info("Saved facility to known facilities")
+					"src": msg.Src,
+				}).Info("Saved coordination node")
 
-				for _, v := range knownFacilities {
-					err = esi.SendKnownDerFacility(registryClient, msg.Src, *v)
+				for _, facility := range knownCoordinationNodes {
+					err = esi.SendKnownDerFacility(registryClient, msg.Src, facility)
 					if err != nil {
 						log.Error(err.Error())
 					}
 				}
 
-				knownFacilities[x.SignupRegistry.FacilityPublicKey] = x.SignupRegistry
+				knownCoordinationNodes[x.SignupRegistry.PublicKey] = x.SignupRegistry
 			}
 
 		case *esi.RegistryMessage_QueryDerFacilities:
-			// TODO: Look at more than just country.
 			log.WithFields(log.Fields{
-				"publicKey": msg.Src,
-			}).Info("Query for facility")
+				"src": msg.Src,
+			}).Info("Query for coordination node")
 
-			for _, v := range knownFacilities {
-				if v.Location.Country == x.QueryDerFacilities.Location.GetCountry() {
+			for _, coordinationNode := range knownCoordinationNodes {
+				// Currently, only considers country, but could include other details.
+				if strings.ToLower(coordinationNode.Location.GetCountry()) == strings.ToLower(x.QueryDerFacilities.Location.GetCountry()) {
 
 					// If the facility querying the registry also fits the criteria, ignore it.
-					if v.FacilityPublicKey == msg.Src {
+					if coordinationNode.PublicKey == msg.Src {
 						continue
 					}
 
-					err = esi.SendKnownDerFacility(registryClient, msg.Src, *v)
+					err = esi.SendKnownDerFacility(registryClient, msg.Src, coordinationNode)
 					if err != nil {
 						log.Error(err.Error())
 					}
+
+					log.WithFields(log.Fields{
+						"end": msg.Src,
+					}).Info("Sent known coordination node")
 				}
 			}
 		}

@@ -24,6 +24,7 @@ import "google/protobuf/timestamp.proto";
 import "api/esi/der_route.proto";
 import "api/esi/price_map.proto";
 import "api/esi/uuid.proto";
+import "api/esi/node_type.proto";
 
 // An offer on a price map.
 message PriceMapOffer {
@@ -45,9 +46,10 @@ message PriceMapOffer {
   Uuid offer_id = 2;
 
   // When the offer should be executed.
-  google.protobuf.Timestamp when = 3;
+  google.protobuf.Timestamp when = 4;
 
   // The price map on offer.
-  PriceMap price_map = 4;
+  PriceMap price_map = 5;
 
+  NodeType node = 6;
 }

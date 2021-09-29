@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"github.com/elijahjpassmore/nkn-esi/api/esi"
 	"io/ioutil"
 	"os"
 
@@ -43,20 +44,25 @@ func registryInit(cmd *cobra.Command, args []string) error {
 	var err error
 	registryPath := args[0]
 
-	publicKey, err := writeSecretKey(registryPath+secretKeySuffix)
+	publicKey, err := writeSecretKey(registryPath + secretKeySuffix)
 	if err != nil {
 		return err
 	}
 
-	newConfig := dummyDerRegistryInfo
-	newConfig.RegistryPublicKey = publicKey
+	newRegistryInfo := esi.DerRegistryInfo{
+		Name:      "Dummy Registry",
+		PublicKey: publicKey,
+	}
 
 	// Write the new config.
-	jsonBytes, err := json.MarshalIndent(newConfig, "", "  ")
+	jsonBytes, err := json.MarshalIndent(&newRegistryInfo, "", "  ")
 	if err != nil {
 		return err
 	}
-	ioutil.WriteFile(registryPath+interfaceCfgSuffix, jsonBytes, os.ModePerm)
+	err = ioutil.WriteFile(registryPath+interfaceCfgSuffix, jsonBytes, os.ModePerm)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

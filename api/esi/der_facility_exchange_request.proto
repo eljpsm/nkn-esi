@@ -28,7 +28,7 @@ message DerFacilityExchangeRequest {
 
   // The location to find DerFacilityExchange services for.
   Location location = 1;
-  
+
   // The type(s) of program types interested in, for example those supported by the requestor.
   repeated DerProgramType program_types = 2;
 

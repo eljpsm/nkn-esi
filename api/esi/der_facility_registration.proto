@@ -29,10 +29,10 @@ message DerFacilityRegistration {
 
   // The routing information.
   DerRoute route = 1;
-  
+
   // Success flag.
   bool success = 2;
-  
+
   // A token formed as SHA256(exchange_nonce + facility_nonce + UTF8(exchange_uid) 
   //                          + UTF8(facility_uid) + UTF8(facility_uri))
   //

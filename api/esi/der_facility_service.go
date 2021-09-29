@@ -1,3 +1,19 @@
+/*
+Copyright © 2021 Ecogy Energy
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package esi
 
 import (
@@ -5,46 +21,26 @@ import (
 	"github.com/nknorg/nkn-sdk-go"
 )
 
-// GetDerFacilityRegistrationForm returns the registration for a Facility to use.
-func GetDerFacilityRegistrationForm(client *nkn.MultiClient, request DerFacilityRegistrationFormRequest) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_GetDerFacilityRegistrationForm{GetDerFacilityRegistrationForm: &request}})
+// der_facility_service.go
+//
+// The functions contained here can be thought of as the calling functions.
+//
+// E.g:
+//		SubmitDerFacilityRegistrationForm(...)
+//
+// should be read as:
+//		Submit my facility registration form to ...
+//
+// For information on returning behaviour, consult der_handler.go.
+
+// GetDerFacilityRegistrationForm sends a message to an exchange to receive a registration form.
+func GetDerFacilityRegistrationForm(client *nkn.MultiClient, request *DerFacilityRegistrationFormRequest) error {
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_GetDerFacilityRegistrationForm{GetDerFacilityRegistrationForm: request}})
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(request.FacilityPublicKey), data, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// SendDerFacilityRegistrationForm sends the registration form to the customer.
-func SendDerFacilityRegistrationForm(client *nkn.MultiClient, registrationForm DerFacilityRegistrationForm) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SendDerFacilityRegistrationForm{SendDerFacilityRegistrationForm: &registrationForm}})
-	if err != nil {
-		return err
-	}
-
-	_, err = client.Send(nkn.NewStringArray(registrationForm.GetCustomerFacilityPublicKey()), data, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// SubmitDerFacilityRegistrationForm submits a registration form for a Facility.
-// When called, the data will be validated, and any problems will be expressed via standard error details.
-// When received, the receiving Facility will return with the function CompleteDerFacilityRegistration.
-func SubmitDerFacilityRegistrationForm(client *nkn.MultiClient, formData DerFacilityRegistrationFormData) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SubmitDerFacilityRegistrationForm{SubmitDerFacilityRegistrationForm: &formData}})
-	if err != nil {
-		return err
-	}
-
-	_, err = client.Send(nkn.NewStringArray(formData.GetCustomerFacilityPublicKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(request.GetPublicKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -52,29 +48,14 @@ func SubmitDerFacilityRegistrationForm(client *nkn.MultiClient, formData DerFaci
 	return nil
 }
 
-// CompleteDerFacilityRegistration completes the Facility registration process.
-func CompleteDerFacilityRegistration(client *nkn.MultiClient, registration DerFacilityRegistration) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_CompleteDerFacilityRegistration{CompleteDerFacilityRegistration: &registration}})
+// SendDerFacilityRegistrationForm sends a facility registration form to a facility.
+func SendDerFacilityRegistrationForm(client *nkn.MultiClient, registrationForm *DerFacilityRegistrationForm) error {
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_SendDerFacilityRegistrationForm{SendDerFacilityRegistrationForm: registrationForm}})
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(registration.Route.GetSellKey()), data, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ProvideDerCharacteristics publishes DER characteristics for Facilities.
-func ProvideDerCharacteristics(client *nkn.MultiClient, characteristics DerCharacteristics) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProvideDerCharacteristics{ProvideDerCharacteristics: &characteristics}})
-	if err != nil {
-		return err
-	}
-
-	_, err = client.Send(nkn.NewStringArray(characteristics.Route.GetBuyKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(registrationForm.Route.GetFacilityKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -82,29 +63,14 @@ func ProvideDerCharacteristics(client *nkn.MultiClient, characteristics DerChara
 	return nil
 }
 
-// ProvidePriceMaps publishes DER price maps for Facilities.
-func ProvidePriceMaps(client *nkn.MultiClient, characteristics PriceMapCharacteristics) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProvidePriceMaps{ProvidePriceMaps: &characteristics}})
+// SubmitDerFacilityRegistrationForm sends a completed facility registration form to an exchange.
+func SubmitDerFacilityRegistrationForm(client *nkn.MultiClient, formData *DerFacilityRegistrationFormData) error {
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_SubmitDerFacilityRegistrationForm{SubmitDerFacilityRegistrationForm: formData}})
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(characteristics.Route.GetBuyKey()), data, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ProvideSupportedDerPrograms publishes the supported program types.
-func ProvideSupportedDerPrograms(client *nkn.MultiClient, set DerProgramSet) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProvideSupportedDerPrograms{ProvideSupportedDerPrograms: &set}})
-	if err != nil {
-		return err
-	}
-
-	_, err = client.Send(nkn.NewStringArray(set.Route.GetBuyKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(formData.Route.GetExchangeKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -112,31 +78,101 @@ func ProvideSupportedDerPrograms(client *nkn.MultiClient, set DerProgramSet) err
 	return nil
 }
 
-// ProposePriceMapOffer propose a price map offer for the service to accept, reject, or propose a counter offer.
-// The exchange will invoke this method to make a price map offer to the Facility. THe Facility must respond with either
+// CompleteDerFacilityRegistration sends a notification to a facility of a successful registration.
+func CompleteDerFacilityRegistration(client *nkn.MultiClient, registration *DerFacilityRegistration) error {
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_CompleteDerFacilityRegistration{CompleteDerFacilityRegistration: registration}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(registration.Route.GetFacilityKey()), data, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetResourceCharacteristics sends a request for facility resource characteristics.
+func GetResourceCharacteristics(client *nkn.MultiClient, request *DerResourceCharacteristicsRequest) error {
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_GetResourceCharacteristics{GetResourceCharacteristics: request}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(request.Route.GetFacilityKey()), data, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// SendResourceCharacteristics sends resource characteristics to the exchange.
+func SendResourceCharacteristics(client *nkn.MultiClient, characteristics *DerCharacteristics) error {
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_SendResourceCharacteristics{SendResourceCharacteristics: characteristics}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(characteristics.Route.GetExchangeKey()), data, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetPriceMap sends a request for the facility price map.
+func GetPriceMap(client *nkn.MultiClient, request *DerPriceMapRequest) error {
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_GetPriceMap{GetPriceMap: request}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(request.Route.GetFacilityKey()), data, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// SendPriceMap sends the price map to the exchange.
+func SendPriceMap(client *nkn.MultiClient, exchangeKey string, priceMap *PriceMap) error {
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_SendPriceMap{SendPriceMap: priceMap}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(exchangeKey), data, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ProposePriceMapOffer proposes a price map offer for the other party to accept, reject, or propose a counter offer.
+// The exchange will invoke this method to make a price map offer to the Facility. The Facility must respond with either
 // an acceptance/rejection of the offer or a counter offer in the form of a different price map proposal.
-func ProposePriceMapOffer(client *nkn.MultiClient, request PriceMapOfferStatusRequest) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProposePriceMapOffer{ProposePriceMapOffer: &request}})
+//
+// This function will optionally switch the node type if provided. This allows systems which combine facility and
+// exchange behaviour into one to more easily manage routing.
+func ProposePriceMapOffer(client *nkn.MultiClient, offer *PriceMapOffer) error {
+	var address string
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_ProposePriceMapOffer{ProposePriceMapOffer: offer}})
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(request.Route.GetBuyKey()), data, nil)
-	if err != nil {
-		return err
+	if offer.Node.Type == NodeType_FACILITY {
+		address = offer.Route.GetFacilityKey()
+	} else {
+		address = offer.Route.GetExchangeKey()
 	}
 
-	return nil
-}
-
-// GetPriceMapOfferFeedback returns the status of a price map offer.
-func GetPriceMapOfferFeedback(client *nkn.MultiClient, feedback PriceMapOfferFeedback) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_GetPriceMapOfferFeedback{GetPriceMapOfferFeedback: &feedback}})
-	if err != nil {
-		return err
-	}
-
-	_, err = client.Send(nkn.NewStringArray(feedback.Route.GetSellKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(address), data, nil)
 	if err != nil {
 		return err
 	}
@@ -144,14 +180,39 @@ func GetPriceMapOfferFeedback(client *nkn.MultiClient, feedback PriceMapOfferFee
 	return nil
 }
 
-// ProvidePriceMapOfferStatus provides the status of a price map offer.
-func ProvidePriceMapOfferStatus(client *nkn.MultiClient, status PriceMapOfferStatus) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProvidePriceMapOfferStatus{ProvidePriceMapOfferStatus: &status}})
+// SendPriceMapOfferResponse sends a response to the other party
+//
+// This function will optionally switch the node type if provided. This allows systems which combine facility and
+// exchange behaviour into one to more easily manage routing.
+func SendPriceMapOfferResponse(client *nkn.MultiClient, response *PriceMapOfferResponse) error {
+	var address string
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_SendPriceMapOfferResponse{SendPriceMapOfferResponse: response}})
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(status.Route.GetBuyKey()), data, nil)
+	if response.Node.Type == NodeType_FACILITY {
+		address = response.Route.GetFacilityKey()
+	} else {
+		address = response.Route.GetExchangeKey()
+	}
+
+	_, err = client.Send(nkn.NewStringArray(address), data, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetPriceMapOfferFeedback sends offer feedback to the exchange to return a feedback response.
+func GetPriceMapOfferFeedback(client *nkn.MultiClient, feedback *PriceMapOfferFeedback) error {
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_GetPriceMapOfferFeedback{GetPriceMapOfferFeedback: feedback}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(feedback.Route.GetExchangeKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -160,28 +221,13 @@ func ProvidePriceMapOfferStatus(client *nkn.MultiClient, status PriceMapOfferSta
 }
 
 // ProvidePriceMapOfferFeedback provides feedback on a price map offer, after the offer event is over.
-func ProvidePriceMapOfferFeedback(client *nkn.MultiClient, feedback PriceMapOfferFeedback) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProvidePriceMapOfferFeedback{ProvidePriceMapOfferFeedback: &feedback}})
+func ProvidePriceMapOfferFeedback(client *nkn.MultiClient, response *PriceMapOfferFeedbackResponse) error {
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_ProvidePriceMapOfferFeedback{ProvidePriceMapOfferFeedback: response}})
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(feedback.Route.GetSellKey()), data, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ListPrices returns the list of price datum over a time range.
-func ListPrices(client *nkn.MultiClient, request DatumRequest) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ListPrices{ListPrices: &request}})
-	if err != nil {
-		return err
-	}
-
-	_, err = client.Send(nkn.NewStringArray(request.Route.GetBuyKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(response.Route.GetFacilityKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -189,14 +235,14 @@ func ListPrices(client *nkn.MultiClient, request DatumRequest) error {
 	return nil
 }
 
-// ProvidePrices provides pricing data to the Facility.
-func ProvidePrices(client *nkn.MultiClient, datum PriceDatum) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProvidePrices{ProvidePrices: &datum}})
+// ProvidePrices sends pricing data to the facility.
+func ProvidePrices(client *nkn.MultiClient, datum *PriceDatum) error {
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_ProvidePrices{ProvidePrices: datum}})
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(datum.Route.GetSellKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(datum.Route.GetFacilityKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -205,13 +251,13 @@ func ProvidePrices(client *nkn.MultiClient, datum PriceDatum) error {
 }
 
 // ListPowerProfile returns a list of power profile datum over a time range.
-func ListPowerProfile(client *nkn.MultiClient, datum DatumRequest) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ListPowerProfile{ListPowerProfile: &datum}})
+func ListPowerProfile(client *nkn.MultiClient, datum *DatumRequest) error {
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_ListPowerProfile{ListPowerProfile: datum}})
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(datum.Route.GetSellKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(datum.Route.GetExchangeKey()), data, nil)
 	if err != nil {
 		return err
 	}
@@ -220,16 +266,46 @@ func ListPowerProfile(client *nkn.MultiClient, datum DatumRequest) error {
 }
 
 // GetPowerParameters gets the power parameters currently used by the services.
-func GetPowerParameters(client *nkn.MultiClient, route DerRoute) error {
+func GetPowerParameters(client *nkn.MultiClient, request *DerPowerParametersRequest) error {
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_GetPowerParameters{GetPowerParameters: request}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(request.Route.GetExchangeKey()), data, nil)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // SetPowerParameters sets the power parameters, and then returns the power parameters active after the request.
-func SetPowerParameters(client *nkn.MultiClient, parameters PowerParameters) error {
+func SetPowerParameters(client *nkn.MultiClient, facilityKey string, parameters *PowerParameters) error {
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_SetPowerParameters{SetPowerParameters: parameters}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(facilityKey), data, nil)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // GetPriceParameters returns the price parameters currently used by the service.
-func GetPriceParameters(client *nkn.MultiClient, route DerRoute) error {
+func GetPriceParameters(client *nkn.MultiClient, request *DerPriceParametersRequest) error {
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_GetPriceParameters{GetPriceParameters: request}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(request.Route.GetFacilityKey()), data, nil)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

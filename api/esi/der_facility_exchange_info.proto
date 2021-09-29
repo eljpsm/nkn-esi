@@ -29,11 +29,11 @@ message DerFacilityExchangeInfo {
 
   // A human-friendly name.
   string name = 1;
-  
+
   // A globally-unique identifier for use by machines.
   //string uid = 2;
-  string facility_public_key = 2;
-  
+  string public_key = 2;
+
   // The gRPC compliant URI to access the exchange service at.
   //string endpoint_uri = 3;
 

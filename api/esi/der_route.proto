@@ -25,18 +25,7 @@ option go_package = "github.com/elijahjpassmore/api/esi";
  */
 message DerRoute {
 
-  // The identifier of the exchange the request is associated with.
-  //string exchange_uid = 1;
-  string sell_key = 1;
+  string facility_key = 1;
+  string exchange_key = 2;
 
-  // The facility identifier the request is associated with.
-  //string facility_uid = 2;
-  string buy_key = 2;
-  
-  // A message signature.
-  //
-  // The message data must include the the concatenation of `exchange_uid` and
-  // `facility_uid`, both as UTF-8 bytes. If this route is embedded in another
-  // message, that message may define additional requirements to include.
-  //MessageSignature signature = 3;
 }

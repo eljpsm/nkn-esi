@@ -51,14 +51,14 @@ message DerFacilityRegistrationFormData {
   // recipient's public key should already have been obtained by the facility,
   // and the facility's public key is included in this message.
   DerRoute route = 1;
-  
+
   // The gRPC compliant URI the exchange can access the facility on.
   // 
   // This endpoint might be a direct connection to the facility submitting the
   // registration form, or it might be a proxy facility that manages the ESI
   // service on behalf of the facility submitting the registration form.
   // string facility_endpoint_uri = 2;
-  
+
   // A cryptographic set of random bytes to use with registration.
   // 
   // This nonce is used to support a facility proxy service, so that when the
@@ -66,11 +66,8 @@ message DerFacilityRegistrationFormData {
   // facility submitting the registration form can verify the exchange is the
   // same during both interactions.
   bytes facility_nonce = 3;
-  
-  // The facility's public key.
-  string customer_facility_public_key = 4;
 
   // The completed registration form.
   FormData data = 5;
-  
+
 }

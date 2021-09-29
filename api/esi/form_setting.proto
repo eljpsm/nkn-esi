@@ -41,8 +41,8 @@ message FormSetting {
 
   // An optional human-friendly caption to show along with the setting field.
   string caption = 4;
-  
+
   // An optional human-friendly placeholder value to show along with the setting field.
   string placeholder = 5;
-  
+
 }

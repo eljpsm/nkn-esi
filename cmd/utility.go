@@ -1,12 +1,30 @@
+/*
+Copyright © 2021 Ecogy Energy
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package cmd
 
 import (
 	"encoding/hex"
 	"errors"
+	"github.com/gofrs/uuid"
 	"github.com/nknorg/nkn-sdk-go"
 	"io/ioutil"
 	"os"
 	"reflect"
+	"time"
 )
 
 // invalidKeyPairErr is raised when a key pair is invalid.
@@ -75,7 +93,10 @@ func writeSecretKey(keyPath string) (string, error) {
 	}
 
 	// Convert the key to a hex and write it to the desired path.
-	ioutil.WriteFile(keyPath, []byte(formatBinary(newKey)), os.ModePerm)
+	err = ioutil.WriteFile(keyPath, []byte(formatBinary(newKey)), os.ModePerm)
+	if err != nil {
+		return "", err
+	}
 
 	// Return the public key.
 	return formatBinary(client.PubKey()), nil
@@ -93,4 +114,19 @@ func validateCfgKeyPair(cfgPublic string, client *nkn.MultiClient) error {
 	}
 
 	return nil
+}
+
+// unixSeconds gets the current time in unix seconds.
+func unixSeconds() int64 {
+	return time.Now().UTC().UnixNano()
+}
+
+// newUuid returns a new UUID.
+func newUuid() (string, error) {
+	newUuid, err := uuid.NewV4()
+	if err != nil {
+		return "", err
+	}
+
+	return newUuid.String(), nil
 }

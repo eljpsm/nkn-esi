@@ -47,7 +47,7 @@ var (
 
 	// successMsgColor is the color associated with successful printing.
 	successMsgColor = color.New(color.FgGreen, color.Bold)
-	// successMsgColorFunc is the collor associated with successful printing in function form.
+	// successMsgColorFunc is the color associated with successful printing in function form.
 	successMsgColorFunc = successMsgColor.SprintFunc()
 
 	// noteMsgColor is the color associated with note printing.
@@ -55,9 +55,14 @@ var (
 	// noteMsgColorFunc is the color associated with note printing in function form.
 	noteMsgColorFunc = noteMsgColor.SprintFunc()
 
-	// knownFacilities are the facilities known to the current registry or facility. In a real situation, this would be
+	// boldMsgColor is the color associated with bold printing.
+	boldMsgColor = color.New(color.Bold)
+	// boldMsgColorFunc is the color associated with bold printing in function form.
+	boldMsgColorFunc = boldMsgColor.SprintFunc()
+
+	// knownCoordinationNodes are the facilities known to the current registry or facility. In a real situation, this would be
 	// stored in a database.
-	knownFacilities = make(map[string]*esi.DerFacilityExchangeInfo)
+	knownCoordinationNodes = make(map[string]*esi.DerFacilityExchangeInfo)
 )
 
 const (
@@ -74,7 +79,6 @@ const (
 	secretKeySuffix = ".secret"
 	// logSuffix is the suffix used when storing log files.
 	logSuffix = ".log"
-
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -122,6 +126,6 @@ func initConfig() {
 		}
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
+	viper.AutomaticEnv()     // read in environment variables that match
 	_ = viper.ReadInConfig() // read in config
 }

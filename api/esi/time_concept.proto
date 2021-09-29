@@ -25,5 +25,5 @@ enum TimeConcept {
 
   // The "most recently available" information.
   MOST_RECENT = 0;
-  
+
 }

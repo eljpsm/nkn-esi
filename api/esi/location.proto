@@ -27,30 +27,30 @@ message Location {
 
   // CLDR region code of the country/region of the location.
   string country = 1;
-  
+
   // A country-specific regional identifier.
   string region = 2;
-  
+
   // A full IANA tz database time zone name. See https://www.iana.org/time-zones or
   // https://en.wikipedia.org/wiki/List_of_tz_database_time_zones.
   string time_zone = 3;
-  
+
   // Get a country-specific high-level administrative area identifier such as state, province, or
   // prefecture.
   string state_province = 4;
-  
+
   // A postal code.
   string postal_code = 5;
-  
+
   // A city or town.
   string locality = 6;
-  
+
   // A portion of a location, such as a neighborhood, borough, or district.
   string sublocality = 7;
-  
+
   // Street level address.
   repeated string street_address = 8;
-  
+
   // A latitude/longitude coordinate.
   LatLng latlng = 9;
 

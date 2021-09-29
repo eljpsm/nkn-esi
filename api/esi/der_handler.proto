@@ -26,30 +26,43 @@ import "api/esi/der_facility_registration_form_request.proto";
 import "api/esi/der_facility_registration_form_data.proto";
 import "api/esi/der_facility_registration.proto";
 import "api/esi/der_characteristics.proto";
+import "api/esi/der_resource_characteristics_request.proto";
+import "api/esi/der_price_map_request.proto";
 import "api/esi/price_map_characteristics.proto";
 import "api/esi/der_program_set.proto";
-import "api/esi/price_map_offer_status_request.proto";
+import "api/esi/price_map.proto";
+import "api/esi/price_map_offer.proto";
 import "api/esi/price_map_offer_feedback.proto";
 import "api/esi/price_map_offer_status.proto";
 import "api/esi/datum_request.proto";
 import "api/esi/price_datum.proto";
-import "api/esi/der_route.proto";
 import "api/esi/power_parameters.proto";
+import "api/esi/price_map_offer_response.proto";
+import "api/esi/price_map_offer_feedback_response.proto";
+import 'api/esi/der_power_parameters_request.proto';
+import "api/esi/der_price_parameters_request.proto";
 
-// Mapping messages from Protocol Buffer structs to a type.
-
-// A special empty message which is to be interpreted as a simple request for facility candidates.
-// TODO: Not used at the moment, perhaps not needed?
-message DerRegistryRequestCandidates {
-
-}
+// der_handler.proto
+//
+// This file is split into two messages:
+//    * RegistryMessage
+//    * CoordinationNodeMessage
+//
+// These messages correspond to the expected messages for either a registry, or a facility.
+//
+// Note that this is not necessarily needed, but it helps explicitly differentiate behaviour, imitating a class like
+// syntax.
+//
+// Each entry can be thought of as a returning behaviour. When each of the corresponding methods are called from within
+// der_facility_service.go, the corresponding "chunk" will be sent and can be received using NKN.
+//
+// For information on calling behaviour, consult der_facility_service.go.
 
 // A message received by a Registry.
 message RegistryMessage {
 
   oneof chunk {
     // DerFacilityExchangeInfo
-    // Should return a list of known facilities.
     DerFacilityExchangeInfo SignupRegistry = 1;
 
     // DerFacilityExchangeRequest
@@ -60,29 +73,62 @@ message RegistryMessage {
 }
 
 // A message received by a Facility.
-message FacilityMessage {
+message CoordinationNodeMessage {
 
   oneof chunk {
-    // DerFacilityExchangeInfo
-    // Should add facilities to storage.
+    // Get a list of known facilities.
     DerFacilityExchangeInfo SendKnownDerFacility = 1;
+
+    // Send the registration form associated with an exchange to a facility.
     DerFacilityRegistrationFormRequest GetDerFacilityRegistrationForm = 2;
+
+    // Receive a registration form from an exchange.
     DerFacilityRegistrationForm SendDerFacilityRegistrationForm = 3;
+
+    // Receive a completed registration form from a facility.
     DerFacilityRegistrationFormData SubmitDerFacilityRegistrationForm = 4;
+
+    // Receive a completion registration message from an exchange.
     DerFacilityRegistration CompleteDerFacilityRegistration = 5;
-    DerCharacteristics ProvideDerCharacteristics = 6;
-    PriceMapCharacteristics ProvidePriceMaps = 7;
-    DerProgramSet ProvideSupportedDerPrograms = 8;
-    PriceMapOfferStatusRequest ProposePriceMapOffer = 9;
-    PriceMapOfferFeedback GetPriceMapOfferFeedback = 10;
-    PriceMapOfferStatus ProvidePriceMapOfferStatus = 11;
-    PriceMapOfferFeedback ProvidePriceMapOfferFeedback = 12;
-    DatumRequest ListPrices = 13;
-    PriceDatum ProvidePrices = 14;
-    DatumRequest ListPowerProfile = 15;
-    DerRoute GetPowerParameters = 16;
-    PowerParameters SetPowerParameters = 17;
-    DerRoute GetPriceParameters = 18;
+
+    // Send resource characteristics to the exchange.
+    DerResourceCharacteristicsRequest GetResourceCharacteristics = 6;
+
+    // Receive resource characteristics from an exchange.
+    DerCharacteristics SendResourceCharacteristics = 7;
+
+    // Send the facility price map to an exchange.
+    DerPriceMapRequest GetPriceMap = 8;
+
+    // Receive the price map from a facility.
+    PriceMap SendPriceMap = 9;
+
+    // Receive a price map offer.
+    PriceMapOffer ProposePriceMapOffer = 13;
+
+    // Receive a price map offer response.
+    PriceMapOfferResponse SendPriceMapOfferResponse = 14;
+
+    // Send price map offer feedback.
+    PriceMapOfferFeedback GetPriceMapOfferFeedback = 15;
+
+    // Get price map offer feedback.
+    PriceMapOfferFeedbackResponse ProvidePriceMapOfferFeedback = 17;
+
+    // Receive prices.
+    PriceDatum ProvidePrices = 18;
+
+    // Send the power profile associated with a facility.
+    DatumRequest ListPowerProfile = 19;
+
+    // Send the power parameters associated with a facility.
+    DerPowerParametersRequest GetPowerParameters = 20;
+
+    // Set the power parameters accordingly.
+    PowerParameters SetPowerParameters = 21;
+
+    // Send price parameters.
+    DerPriceParametersRequest GetPriceParameters = 22;
   }
 
 }

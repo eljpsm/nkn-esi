@@ -19,9 +19,10 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
-// A simple acknowledgement message.
-message Ack {
+import "api/esi/der_route.proto";
 
-  bool acknowledged = 1;
+message DerPriceMapRequest {
+
+  DerRoute route = 1;
 
 }

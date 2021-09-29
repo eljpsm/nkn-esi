@@ -36,5 +36,5 @@ message Form {
 
   // The form settings (fields).
   repeated FormSetting settings = 3;
-  
+
 }
