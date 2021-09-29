@@ -235,36 +235,6 @@ func ProvidePriceMapOfferFeedback(client *nkn.MultiClient, response *PriceMapOff
 	return nil
 }
 
-// ProvidePrices sends pricing data to the facility.
-func ProvidePrices(client *nkn.MultiClient, datum *PriceDatum) error {
-	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_ProvidePrices{ProvidePrices: datum}})
-	if err != nil {
-		return err
-	}
-
-	_, err = client.Send(nkn.NewStringArray(datum.Route.GetFacilityKey()), data, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ListPowerProfile returns a list of power profile datum over a time range.
-func ListPowerProfile(client *nkn.MultiClient, datum *DatumRequest) error {
-	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_ListPowerProfile{ListPowerProfile: datum}})
-	if err != nil {
-		return err
-	}
-
-	_, err = client.Send(nkn.NewStringArray(datum.Route.GetExchangeKey()), data, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // GetPowerParameters gets the power parameters currently used by the services.
 func GetPowerParameters(client *nkn.MultiClient, request *DerPowerParametersRequest) error {
 	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_GetPowerParameters{GetPowerParameters: request}})
@@ -280,7 +250,7 @@ func GetPowerParameters(client *nkn.MultiClient, request *DerPowerParametersRequ
 	return nil
 }
 
-// SetPowerParameters sets the power parameters, and then returns the power parameters active after the request.
+// SetPowerParameters sets the power parameters.
 func SetPowerParameters(client *nkn.MultiClient, facilityKey string, parameters *PowerParameters) error {
 	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_SetPowerParameters{SetPowerParameters: parameters}})
 	if err != nil {

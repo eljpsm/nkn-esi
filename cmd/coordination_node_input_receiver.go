@@ -390,7 +390,7 @@ func coordinationNodeInputReceiver() {
 		Help: "manage coordination node exchange functionality",
 	}
 	coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
-		Name: "get",
+		Name: "get-interactive",
 		Help: "get characteristics and price map of coordination node behaving as a facility",
 		Func: func(c *ishell.Context) {
 			shell.Print("Public Key: ")
@@ -399,9 +399,8 @@ func coordinationNodeInputReceiver() {
 				shell.Println("you cannot get your own details")
 				return
 			}
-
 			if !registeredFacilities[publicKey] {
-				shell.Printf("no facility with public key: '%s\n'", publicKey)
+				shell.Printf("no facility with public key: '%s'\n", publicKey)
 				return
 			}
 
@@ -416,10 +415,12 @@ func coordinationNodeInputReceiver() {
 				Route: &newRoute,
 			}
 
+			// Get the characteristics.
 			err := esi.GetResourceCharacteristics(coordinationNodeClient, &newCharacteristicsRequest)
 			if err != nil {
 				log.Error(err.Error())
 			}
+			// Get the price map.
 			err = esi.GetPriceMap(coordinationNodeClient, &newPriceMapRequest)
 			if err != nil {
 				log.Error(err.Error())
@@ -449,6 +450,34 @@ func coordinationNodeInputReceiver() {
 					noteMsgColorFunc(k),
 					boldMsgColorFunc("Characteristics:"),
 					proto.MarshalTextString(v))
+			}
+		},
+	})
+	coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
+		Name: "get-dynamic",
+		Help: "get the power parameters of a facility",
+		Func: func(c *ishell.Context) {
+			shell.Print("Public Key: ")
+			publicKey := c.ReadLine()
+			if publicKey == coordinationNodeInfo.PublicKey {
+				shell.Println("you cannot get your own details")
+				return
+			}
+			if !registeredFacilities[publicKey] {
+				shell.Printf("no facility with public key: '%s'\n", publicKey)
+				return
+			}
+			newRoute := esi.DerRoute{
+				ExchangeKey: coordinationNodeInfo.GetPublicKey(),
+				FacilityKey: publicKey,
+			}
+			newPowerParametersRequest := esi.DerPowerParametersRequest{
+				Route: &newRoute,
+			}
+			// Get the power parameters.
+			err := esi.GetPowerParameters(coordinationNodeClient, &newPowerParametersRequest)
+			if err != nil {
+				log.Error(err.Error())
 			}
 		},
 	})

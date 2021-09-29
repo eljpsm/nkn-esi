@@ -48,20 +48,42 @@ var (
 	// facilityCharacteristics are the characteristics of the currently stored facilities engaged in a facility role.
 	facilityCharacteristics = make(map[string]*esi.DerCharacteristics)
 
-	// auto accept details
+	// autoMoney is the money interface used for auto purchasing.
 	autoMoney = esi.Money{
-		CurrencyCode: "NZD",
+		CurrencyCode: "USD",
 		Units:        100,
 		Nanos:        0,
 	}
+	// avoidMoney is the money interface used for avoid purchasing. Currently, this is not used.
 	avoidMoney = esi.Money{
-		CurrencyCode: "NZD",
+		CurrencyCode: "USD",
 		Units:        1000,
 		Nanos:        0,
 	}
+	// autoPrice is the price parameters used for auto purchasing.
 	autoPrice = esi.PriceParameters{
 		AlwaysBuyBelowPrice: &autoMoney,
-		AvoidBuyOverPrice:   &avoidMoney,
+		AvoidBuyOverPrice:   &avoidMoney, // unused!
+	}
+
+	// voltageRange is the voltage range in volts.
+	voltageRange = esi.SignedInt32Range{
+		Min: 100,
+		Max: 200,
+	}
+	// powerFactorRange is the power factor rage.
+	powerFactorRange = esi.FloatRange{
+		Min: 2.0,
+		Max: 4.0,
+	}
+	// frequencyRange is the frequency range in hertz.
+	frequencyRange = esi.SignedInt32Range{
+		Min: 60,
+		Max: 120,
+	}
+	powerParameters = esi.PowerParameters{
+		VoltageRange: &voltageRange,
+		FrequencyRange: &frequencyRange,
 	}
 )
 

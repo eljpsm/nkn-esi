@@ -268,16 +268,6 @@ func coordinationNodeMessageReceiver() {
 				// Store the previous offer as REJECTED.
 				priceMapOfferStatus[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].Status = esi.PriceMapOfferStatus_REJECTED
 
-				// Set the responsible party.
-				//
-				// In this case, it's just assumed that the responsible party is the opposite of whoever it was before.
-				// var party = esi.NodeType_NONE
-				// if priceMapOffers[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].Node.Type == esi.NodeType_FACILITY {
-				// 	party = esi.NodeType_EXCHANGE
-				// } else {
-				// 	party = esi.NodeType_FACILITY
-				// }
-
 				// In the new offer, use the time specified by the previous offer.
 				newOffer := esi.PriceMapOffer{
 					Route:    x.SendPriceMapOfferResponse.Route,
