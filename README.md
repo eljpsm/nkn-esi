@@ -11,6 +11,8 @@ By developing NKN-ESI, we hope to show that an ESI which leverages NKN could be 
 mechanism for building, factory, facility, or distributed energy resource operators to offer and provide energy services
 to a range of entities responsible for aspects of grid stability.
 
+[Click here to see a video demonstration](https://drive.google.com/file/d/103IsC3i0tndgEddMbZZzCaem3Lff52ny/view?usp=sharing).
+
 ## Previous Work
 
 A previous application of this ESI which leverages the same protobuf structures can be found at
