@@ -50,7 +50,8 @@ public key, while keeping the secret key private. The same instance (assuming th
 storage) can then run at different locations or machines, while retaining a single identifier which is publicly
 accessible.
 
-NKN is also decentralized, which allows us to not worry about website certification or HTTPS for encrypted transfer.
+NKN is also decentralized, which allows us to not worry about website certification or HTTPS for encrypted transfer, as
+NKN has no centralized server infrastructure. This also means that it is not vulnerable to the same attacks.
 
 If this interests you, you can read more about the solution and benefits on NKN at
 [nkn.org](https://nkn.org/technology/our-solution/).
