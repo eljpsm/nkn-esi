@@ -37,13 +37,33 @@ sudo apt-get install build-essential
 
 ### Conceptual
 
+#### NKN
+
+nkn-esi runs using the nkn.Multiclient, which allows the routing to happen:
+
+* quickly
+* easily
+* without the need to mess around with ports and ip addresses
+
+This is especially useful, given the fact that it allows each coordination node to recognize each other by using only a
+public key, while keeping the secret key private. The same instance (assuming the implementation of persistent data
+storage) can then run at different locations or machines, while retaining a single identifier which is publicly
+accessible.
+
+NKN is also decentralized, which allows us to not worry about website certification or HTTPS for encrypted transfer.
+
+If this interests you, you can read more about the solution and benefits on NKN at
+[nkn.org](https://nkn.org/technology/our-solution/).
+
+#### ESI
+
 This demo utilizes the ESI API to create two primary agents:
 
 * the **coordination node**
 * the **registry**
 
 The coordination node is a functional concatenation of the two ESI concepts of the **facility**
-(the DER Facility, or DERF), and the **exchange** (the Interfacing Party with External Responsibility, or IPER).  This
+(the DER Facility, or DERF), and the **exchange** (the Interfacing Party with External Responsibility, or IPER). This
 coordination node allows you to use a single instance as both a facility to an exchange, and an exchange to facilities.
 
 The registry is a simple server that allows exchanges to "signup" and save their information to. Then, a facility can
@@ -134,3 +154,50 @@ The ESI describes the transaction process between a facility and an exchange.
 3. The exchange proposes an offer to the facility with their own price map.
 4. The facility responds to this offer, either with acceptance or their own counter offer.
 
+To create your facility price map, run `price-map create`. YOu can leave the defaults as they are. Similarly, you can
+create your characteristics with `characteristics create`. Again, the defaults will suffice.
+
+Your exchange can now optionally view the price map and characteristics by using `exchange get-interactive`. This will
+then allow your exchange to view them with `exchange price-maps` and `exchange characteristics` respectively.
+
+This part of the transaction is not necessary, but will allow you to get an idea of what your facility is expecting in
+the negotiation.
+
+### Proposing an Offer
+
+To propose an offer, run `exchange propose` in the exchange shell, followed by the public key of the facility. This will
+allow you to enter a new price map. You can either use the values given by the facility, or use your own.
+
+**ATTENTION**: Each coordination node as an auto accept value. If you enter any price below 100, the other party will
+automatically accept. This shows their ability to automatically manage their own offers, as would probably be the case
+in the real world.
+
+### Viewing Offers
+
+Any coordination node, whether they are operating in the facility or exchange role, can run `offers list` to view the
+currently available offers. This will print out some useful information like the parties involved, the price map, and
+the **UUID**, which is used to evaluate offers.
+
+To evaluate an offer, enter `offers evaluate`, followed by the UUID of the offer. This will print the price map and ask
+you if you're satisfied with it. If so, simply press YES. If not, then pressing NO will allow you to enter your own
+counter offer.
+
+If you do propose your own counter offer, you can view it the same way on the other shell by executing `offers list` and
+`offers evaluate`.
+
+### Offer Status
+
+Each offer has a status - you can view it in `offers list`. Every offer has two basic properties:
+
+* **when** the offer is supposed to start
+* **how long** the offer is supposed to run for
+
+In this demo, default values are already provided.
+
+When an offer is due to start, it will have the *EXECUTING* status. When it has completed, it will have the status
+*COMPLETED*. Once a facility completes the offer, it will send a message to the exchange notifying it, together with the
+outcome - in which case, the exchange has the ability to signal whether it agrees with the facility's assessment.
+
+## Thank you
+
+Thank you for giving your time to read about NKN, ESI, and nkn-esi.

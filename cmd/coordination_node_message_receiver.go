@@ -384,7 +384,7 @@ func coordinationNodeMessageReceiver() {
 				}
 
 				log.WithFields(log.Fields{
-					"src":   msg.Src,
+					"src":  msg.Src,
 					"uuid": x.GetPriceMapOfferFeedback.OfferId.Uuid,
 				}).Info("Offer has completed")
 				priceMapOfferStatus[x.GetPriceMapOfferFeedback.OfferId.Uuid].Status = esi.PriceMapOfferStatus_COMPLETED
