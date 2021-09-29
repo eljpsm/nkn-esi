@@ -78,10 +78,10 @@ If implemented, the ESI results in two distinctly different types of services:
 * real time **interactive** requests
 * **dynamic** responses based on configured parameters and real time, location specific electricity prices
 
-The registry is a simple server intended to make it easy for facilities to find an appropriate exchange to engage with,
-that allows exchanges to "signup" and save their information to. Then, a facility can query the registry looking for
-specific exchange details and easily match. A registry is decentralized, and anyone can create their own registry and
-have exchanges sign up.
+The registry is a simple server intended to make it easy for facilities to find an appropriate exchange to engage with.
+The registry allows exchanges to save their information, hence allowing facilities to find them. Then, a facility can
+query the registry looking for specific exchange details and easily match. A registry is decentralized, and anyone can
+create their own registry and have exchanges sign up.
 
 ### Setup
 
@@ -169,7 +169,7 @@ The ESI describes the transaction process between a facility and an exchange.
 3. The exchange proposes an offer to the facility with their own price map.
 4. The facility responds to this offer, either with acceptance or their own counter offer.
 
-To create your facility price map, run `price-map create`. YOu can leave the defaults as they are. Similarly, you can
+To create your facility price map, run `price-map create`. You can leave the defaults as they are. Similarly, you can
 create your characteristics with `characteristics create`. Again, the defaults will suffice.
 
 Your exchange can now optionally view the price map and characteristics by using `exchange get-interactive`. This will
