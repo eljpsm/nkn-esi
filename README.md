@@ -15,7 +15,7 @@ to a range of entities responsible for aspects of grid stability.
 
 A previous application of this ESI which leverages the same protobuf structures can be found at
 [SolarNetwork](https://github.com/SolarNetwork/der-challenge-prototype), developed for the
-[SEPA DER Challenge](https://sepapower.org/plug-and-play-der-challenge/).
+[SEPA Plug and Play DER Challenge](https://sepapower.org/plug-and-play-der-challenge/).
 
 ## Installation
 
