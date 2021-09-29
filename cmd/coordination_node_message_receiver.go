@@ -256,7 +256,7 @@ func coordinationNodeMessageReceiver() {
 			// Check to make sure that the source is the registered exchange or facility.
 			_, ok := registeredFacilities[msg.Src]
 			if registeredExchange == msg.Src || ok {
-				log.Info("RECEIVED PROPOSE OFFER")
+				log.Info("Received propose offer")
 				if x.ProposePriceMapOffer.PriceMap.Price.ApparentEnergyPrice.Units < autoPrice.AlwaysBuyBelowPrice.Units {
 					// If the offer is below our auto accept, just accept the offer.
 					//
