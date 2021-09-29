@@ -52,6 +52,8 @@ func registryMessageReceiver() {
 		}
 
 		// Case documentation located at api/esi/der_facility_registry_service.go.
+		//
+		// Switch based upon the message type.
 		switch x := message.Chunk.(type) {
 		case *esi.RegistryMessage_SignupRegistry:
 			if _, ok := knownCoordinationNodes[x.SignupRegistry.PublicKey]; !ok {
@@ -75,7 +77,7 @@ func registryMessageReceiver() {
 			}).Info("Query for coordination node")
 
 			for _, coordinationNode := range knownCoordinationNodes {
-				// Currently only considers country, but could include other details.
+				// Currently, only considers country, but could include other details.
 				if strings.ToLower(coordinationNode.Location.GetCountry()) == strings.ToLower(x.QueryDerFacilities.Location.GetCountry()) {
 
 					// If the facility querying the registry also fits the criteria, ignore it.

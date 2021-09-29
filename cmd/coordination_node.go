@@ -43,7 +43,8 @@ func init() {
 	rootCmd.AddCommand(coordinationNodeCmd)
 }
 
-// readCoordinationNodeConfig opens and reads the given coordination-node-config config into a DerFacilityExchangeInfo struct.
+// readCoordinationNodeConfig opens and reads the given coordination-node-config config into a DerFacilityExchangeInfo
+// struct.
 func readCoordinationNodeConfig(coordinationNodePath string) error {
 	coordinationNodeFile, err := os.Open(coordinationNodePath)
 	if err != nil {

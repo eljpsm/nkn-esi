@@ -22,7 +22,7 @@ import (
 )
 
 var (
-	// registryClient is the Multiclient opened representing the Registry.
+	// registryClient is the Multiclient opened representing the registry.
 	registryClient *nkn.MultiClient
 )
 

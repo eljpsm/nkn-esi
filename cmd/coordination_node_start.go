@@ -24,6 +24,7 @@ import (
 var (
 	// coordinationNodeClient is the Multiclient opened representing the Facility.
 	coordinationNodeClient *nkn.MultiClient
+	// coordinationNodePath is the name of what to initialize the new coordination node as.
 	coordinationNodePath   string
 )
 
