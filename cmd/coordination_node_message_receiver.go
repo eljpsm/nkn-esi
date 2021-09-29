@@ -262,7 +262,12 @@ func coordinationNodeMessageReceiver() {
 					// There is also a value for "AvoidBuyOverPrice", which could be used in a similar way in other
 					// scenarios. In this demo, if the price is not lower than our auto accept, then it just goes to
 					// evaluation.
-					response := acceptOffer(x.ProposePriceMapOffer.Route, x.ProposePriceMapOffer.OfferId)
+					var response *esi.PriceMapOfferResponse
+					if x.ProposePriceMapOffer.Route.GetFacilityKey() == coordinationNodeInfo.GetPublicKey() {
+						response = acceptOffer(x.ProposePriceMapOffer.Route, x.ProposePriceMapOffer.OfferId, &esi.NodeType{Type: esi.NodeType_EXCHANGE})
+					} else {
+						response = acceptOffer(x.ProposePriceMapOffer.Route, x.ProposePriceMapOffer.OfferId, &esi.NodeType{Type: esi.NodeType_FACILITY})
+					}
 					err = esi.SendPriceMapOfferResponse(coordinationNodeClient, response)
 					if err != nil {
 						log.Error(err.Error())
@@ -341,7 +346,12 @@ func coordinationNodeMessageReceiver() {
 
 				if y.CounterOffer.Price.ApparentEnergyPrice.Units < autoPrice.AlwaysBuyBelowPrice.Units {
 					// If it falls below the auto accept, then accept it.
-					response := acceptOffer(x.SendPriceMapOfferResponse.Route, x.SendPriceMapOfferResponse.OfferId)
+					var response *esi.PriceMapOfferResponse
+					if x.SendPriceMapOfferResponse.Route.GetFacilityKey() == coordinationNodeInfo.GetPublicKey() {
+						response = acceptOffer(x.SendPriceMapOfferResponse.Route, x.SendPriceMapOfferResponse.OfferId, &esi.NodeType{Type: esi.NodeType_EXCHANGE})
+					} else {
+						response = acceptOffer(x.SendPriceMapOfferResponse.Route, x.SendPriceMapOfferResponse.OfferId, &esi.NodeType{Type: esi.NodeType_FACILITY})
+					}
 					err = esi.SendPriceMapOfferResponse(coordinationNodeClient, response)
 					if err != nil {
 						log.Error(err.Error())
@@ -389,7 +399,7 @@ func coordinationNodeMessageReceiver() {
 }
 
 // acceptOffer accepts a given offer.
-func acceptOffer(route *esi.DerRoute, offerId *esi.Uuid) *esi.PriceMapOfferResponse {
+func acceptOffer(route *esi.DerRoute, offerId *esi.Uuid, nodeType *esi.NodeType) *esi.PriceMapOfferResponse {
 	accept := esi.PriceMapOfferResponse_Accept{
 		Accept: true,
 	}
@@ -397,6 +407,7 @@ func acceptOffer(route *esi.DerRoute, offerId *esi.Uuid) *esi.PriceMapOfferRespo
 		Route:       route,
 		OfferId:     offerId,
 		AcceptOneof: &accept,
+		Node:        nodeType,
 	}
 
 	return &response
