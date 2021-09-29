@@ -32,21 +32,21 @@ message DatumRequest {
   DerRoute route = 1;
 
   oneof time_style_oneof {
-    
+
     // A date range.
     TimestampRange time_range = 2;
-    
+
     // A conceptual time.
     TimeConcept time_concept = 3;
-  
+
   }
 
   // The requested time unit of the resulting datum.
   TimeUnit time_unit = 4;
-  
+
   // The requested coalescence of time units, for example for 5-minute time spans then
   // time_unit_coalescence = 5 and time_unit = MINUTE. A value of 0 or 1 mean no coalescing is
   // requested.
   uint32 time_unit_coalescence = 5;
-  
+
 }

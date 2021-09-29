@@ -30,12 +30,12 @@ var coordinationNodeInfo esi.DerFacilityExchangeInfo
 var coordinationNodeCmd = &cobra.Command{
 	Use:   "coordination-node",
 	Short: "Manage coordination node instances",
-	Long:  `Manage coordination node instances.
+	Long: `Manage coordination node instances.
 
 A coordination node combines the capabilities of the DER Facility (DERF) and
 Interfacing Party with External Responsibility (IPER) defined in the ESI
 server.`,
-	Args:  cobra.ExactArgs(1),
+	Args: cobra.ExactArgs(1),
 }
 
 // init initializes coordination_node.go.

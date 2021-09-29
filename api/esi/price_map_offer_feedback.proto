@@ -31,14 +31,14 @@ message PriceMapOfferFeedback {
 
   // The globally unique ID of the offer this status is for.
   Uuid offer_id = 2;
-  
+
   // Enumeration of possible obligation status values.
   // None is empty because protocol buffer transit reads 0 as nil.
   enum ObligationStatus {
     NONE = 0;
     UNKNOWN = 1;
-  	SATISFIED = 2;
-  	DISPUTED = 3;
+    SATISFIED = 2;
+    DISPUTED = 3;
   }
 
   // The offer status.

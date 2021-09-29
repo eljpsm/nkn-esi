@@ -25,7 +25,7 @@ option go_package = "github.com/elijahjpassmore/api/esi";
  */
 message DerRoute {
 
-  string facility_key= 1;
+  string facility_key = 1;
   string exchange_key = 2;
 
 }

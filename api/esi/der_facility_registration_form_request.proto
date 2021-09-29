@@ -28,11 +28,11 @@ message DerFacilityRegistrationFormRequest {
   // The UID of the DerFacilityExchage to get the registration form for.
   //string exchange_uid = 1;
   string public_key = 1;
-  
+
   // The desired language of the registration form.
   //
   // The BCP-47 language code for the desired registration form. Examples: "en",
   // "ja", "zh-Hant".
   string language_code = 2;
-  
+
 }

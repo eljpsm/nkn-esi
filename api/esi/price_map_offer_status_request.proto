@@ -28,8 +28,8 @@ message PriceMapOfferStatusRequest {
 
   // The routing info.
   DerRoute route = 1;
-  
+
   // The globally unique ID of the offer this response is for.
   Uuid offer_id = 2;
-  
+
 }

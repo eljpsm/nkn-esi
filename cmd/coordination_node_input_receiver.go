@@ -567,8 +567,8 @@ func coordinationNodeInputReceiver() {
 			// will then audit the feedback, either by checking manually or automatically. But this could be built in
 			// both directions, as well - the system is agnostic on whom the receiving and sending party is.
 			feedback := esi.PriceMapOfferFeedback{
-				Route: priceMapOffers[uuid].Route,
-				OfferId: priceMapOffers[uuid].OfferId,
+				Route:            priceMapOffers[uuid].Route,
+				OfferId:          priceMapOffers[uuid].OfferId,
 				ObligationStatus: 2,
 			}
 			err := esi.GetPriceMapOfferFeedback(coordinationNodeClient, &feedback)

@@ -25,10 +25,10 @@ enum TimeUnit {
 
   // An instant that represents a specific point in time.
   INSTANT = 0;
-  
+
   // A second.
   SECOND = 1;
-  
+
   // A minute.
   MINUTE = 2;
 
@@ -37,13 +37,13 @@ enum TimeUnit {
 
   // A day.
   DAY = 4;
-  
+
   // A week (7 days).
   WEEK = 5;
-  
+
   // A month.
   MONTH = 6;
-  
+
   // A year.
   YEAR = 7;
 

@@ -36,18 +36,18 @@ message PriceMapOfferStatus {
   // * `offer_id.lo` big-endian encoded bytes
   // * `status` ordinal value as big-endian encoded bytes
   DerRoute route = 1;
-  
+
   // The globally unique ID of the offer this status is for.
   Uuid offer_id = 2;
 
   // None is empty because protocol buffer transit reads 0 as nil.
   enum Status {
     NONE = 0;
-  	UNKNOWN = 1;
-  	ACCEPTED = 2;
-  	REJECTED = 3;
-  	EXECUTING = 4;
-  	COMPLETED = 5;
+    UNKNOWN = 1;
+    ACCEPTED = 2;
+    REJECTED = 3;
+    EXECUTING = 4;
+    COMPLETED = 5;
   }
 
   // The offer status.

@@ -25,7 +25,7 @@ message PowerComponents {
 
   // The real power component to add, if positive, or reduce, if negative, in watts (W).
   sint64 real_power = 1;
-  
+
   // The reactive power component to add, if positive, or reduce, if negative, in Volt-Amps-Reactive (VAR).
   sint64 reactive_power = 2;
 

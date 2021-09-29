@@ -30,7 +30,7 @@ message PriceMapOfferFeedbackResponse {
 
   // The globally unique ID of the offer this response is for.
   Uuid offer_id = 2;
-  
+
   // Flag if the feedback has been processed successfully.
   bool accepted = 3;
 

@@ -27,5 +27,5 @@ message DerFacilityRegistrationFormDataReceipt {
 
   // A cryptographic set of random bytes to use with registration confirmation.
   bytes exchange_nonce = 1;
-  
+
 }

@@ -29,7 +29,7 @@ import "api/esi/der_route.proto";
 message DerFacilityRegistrationForm {
 
   DerRoute route = 1;
-  
+
   // The registration form.
   Form form = 2;
 
