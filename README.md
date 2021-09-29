@@ -13,7 +13,7 @@ to a range of entities responsible for aspects of grid stability.
 
 ## Previous Work
 
-A previous application of this ESI can be found at
+A previous application of this ESI which leverages the same protobuf structures can be found at
 [SolarNetwork](https://github.com/SolarNetwork/der-challenge-prototype), developed for the
 [SEPA DER Challenge](https://sepapower.org/plug-and-play-der-challenge/).
 
@@ -73,11 +73,12 @@ predictions.
 If implemented, the ESI results in two distinctly different types of services:
 
 * real time **interactive** requests
-* **dynamic** responses based on configured parameters
+* **dynamic** responses based on configured parameters and real time, location specific electricity prices
 
-The registry is a simple server that allows exchanges to "signup" and save their information to. Then, a facility can
-query the registry looking for specific exchange details and easily match. A registry is decentralized, and anyone can
-create their own registry and have exchanges sign up.
+The registry is a simple server intended to make it easy for facilities to find an appropriate exchange to engage with,
+that allows exchanges to "signup" and save their information to. Then, a facility can query the registry looking for
+specific exchange details and easily match. A registry is decentralized, and anyone can create their own registry and
+have exchanges sign up.
 
 ### Setup
 
@@ -135,12 +136,14 @@ By signing up to a registry, you can now quickly and easily receive potential fa
 ### Querying
 
 Your facility now needs to find the exchange. To do this, you can run `registry query` on the facility shell. It will
-then prompt you for the registry public key and a country. This corresponds to the country listed in your exchange
-config file. For now, just leave the default, either by pressing ENTER or typing in 'DC'.
+then prompt you for the registry public key that you wish to use and a country. This corresponds to the country listed
+in your exchange config file. For now, just leave the default, either by pressing ENTER or typing in 'DC'.
 
 You will then receive a new exchange. To see the list of exchanges you have found, type in `registry list`.
 
-In the ESI, querying allows you to find exchanges based on shared or relevant details that may be important to you.
+In the ESI, querying allows you to find exchanges based on shared or relevant details that may be important to you. In
+the real world, it would be likely that public keys for well known registries would be advertised by electricity
+utilities or other entities responsible for grid stability.
 
 ### Registering
 

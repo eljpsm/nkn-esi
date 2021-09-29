@@ -45,7 +45,7 @@ func coordinationNodeMessageReceiver() {
 			log.Error(err.Error())
 		}
 
-		// Case documentation located at api/esi/der_facility_service.go.
+		// Case documentation located at api/esi/coordination_node_service.go.
 		//
 		// Switch based upon the message type.
 		switch x := message.Chunk.(type) {

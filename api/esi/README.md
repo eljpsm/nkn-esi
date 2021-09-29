@@ -7,6 +7,6 @@ There you can find details on sending data. You can then find information on the
 
 ## Previous Work
 
-A previous application of this ESI can be found at
+A previous application of this ESI which leverages the same protobuf structures can be found at
 [SolarNetwork](https://github.com/SolarNetwork/der-challenge-prototype), developed for the
 [SEPA DER Challenge](https://sepapower.org/plug-and-play-der-challenge/).
