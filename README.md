@@ -66,6 +66,14 @@ The coordination node is a functional concatenation of the two ESI concepts of t
 (the DER Facility, or DERF), and the **exchange** (the Interfacing Party with External Responsibility, or IPER). This
 coordination node allows you to use a single instance as both a facility to an exchange, and an exchange to facilities.
 
+The ESI is an interface between these two components, where it would ideally store historical data and future
+predictions.
+
+If implemented, the ESI results in two distinctly different types of services:
+
+* real time **interactive** requests
+* **dynamic** responses based on configured parameters
+
 The registry is a simple server that allows exchanges to "signup" and save their information to. Then, a facility can
 query the registry looking for specific exchange details and easily match. A registry is decentralized, and anyone can
 create their own registry and have exchanges sign up.
