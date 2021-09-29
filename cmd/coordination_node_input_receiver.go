@@ -38,6 +38,17 @@ const (
 	// defaultDuration is the default time it takes for an offer to be completed.
 	defaultDuration = 30
 
+	// defaultLoadMaxPower is the default load max power.
+	defaultLoadMaxPower = "100"
+	// defaultLoadPowerFactor is the default load power factor.
+	defaultLoadPowerFactor = "1"
+	// defaultSupplyPowerMax is the default max power supply.
+	defaultSupplyPowerMax = "100"
+	// defaultSupplyPowerFactor is the default supply power factor.
+	defaultSupplyPowerFactor = "1"
+	// defaultStorageEnergyCapacity is the default storage energy capacity.
+	defaultStorageEnergyCapacity = "100"
+
 	// defaultRealPower is the default value used for real power when creating a price map.
 	defaultRealPower = "10"
 	// defaultReactivePower is the default value used for reactive power when creating a price map.
@@ -351,36 +362,51 @@ func coordinationNodeInputReceiver() {
 		Name: "create",
 		Help: "create coordination node facility characteristics",
 		Func: func(c *ishell.Context) {
-			shell.Print("Max Load Power: ")
+			shell.Printf("Max Load Power [%s]: ", defaultLoadMaxPower)
 			loadPowerMaxString := c.ReadLine()
+			if loadPowerMaxString == "" {
+				loadPowerMaxString = defaultLoadMaxPower
+			}
 			loadPowerMax, err := strconv.Atoi(loadPowerMaxString)
 			if err != nil {
 				shell.Println(err.Error())
 				return
 			}
-			shell.Print("Load Power Factor: ")
+			shell.Printf("Load Power Factor [%s]: ", defaultLoadPowerFactor)
 			loadPowerFactorString := c.ReadLine()
+			if loadPowerFactorString == "" {
+				loadPowerFactorString = defaultLoadPowerFactor
+			}
 			loadPowerFactor, err := strconv.Atoi(loadPowerFactorString)
 			if err != nil {
 				shell.Println(err.Error())
 				return
 			}
-			shell.Print("Max Supply Power: ")
+			shell.Printf("Max Supply Power [%s]: ", defaultSupplyPowerMax)
 			supplyPowerMaxString := c.ReadLine()
+			if supplyPowerMaxString == "" {
+				supplyPowerMaxString = defaultSupplyPowerMax
+			}
 			supplyPowerMax, err := strconv.Atoi(supplyPowerMaxString)
 			if err != nil {
 				shell.Println(err.Error())
 				return
 			}
-			shell.Print("Supply Power Factor: ")
+			shell.Printf("Supply Power Factor [%s]: ", defaultSupplyPowerFactor)
 			supplyPowerFactorString := c.ReadLine()
+			if supplyPowerFactorString == "" {
+				supplyPowerFactorString = defaultSupplyPowerFactor
+			}
 			supplyPowerFactor, err := strconv.Atoi(supplyPowerFactorString)
 			if err != nil {
 				shell.Println(err.Error())
 				return
 			}
-			shell.Print("Storage Energy Capacity: ")
+			shell.Printf("Storage Energy Capacity [%s]: ", defaultStorageEnergyCapacity)
 			storageEnergyCapacityString := c.ReadLine()
+			if storageEnergyCapacityString == "" {
+				storageEnergyCapacityString = defaultStorageEnergyCapacity
+			}
 			storageEnergyCapacity, err := strconv.Atoi(storageEnergyCapacityString)
 			if err != nil {
 				shell.Println(err.Error())
