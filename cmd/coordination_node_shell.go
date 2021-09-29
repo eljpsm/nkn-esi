@@ -68,21 +68,23 @@ var (
 
 	// voltageRange is the voltage range in volts.
 	voltageRange = esi.SignedInt32Range{
-		Min: 100,
-		Max: 200,
+		Min: 117,
+		Max: 123,
 	}
 	// powerFactorRange is the power factor rage.
 	powerFactorRange = esi.FloatRange{
-		Min: 2.0,
-		Max: 4.0,
+		Min: 0.9,
+		Max: 1.02,
 	}
 	// frequencyRange is the frequency range in hertz.
 	frequencyRange = esi.SignedInt32Range{
-		Min: 60,
-		Max: 120,
+		Min: 59,
+		Max: 61,
 	}
+	//powerParameters is the expected power parameters.
 	powerParameters = esi.PowerParameters{
 		VoltageRange: &voltageRange,
+		PowerFactorRange: &powerFactorRange,
 		FrequencyRange: &frequencyRange,
 	}
 )

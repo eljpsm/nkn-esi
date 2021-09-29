@@ -457,34 +457,14 @@ func coordinationNodeInputReceiver() {
 		Name: "get-dynamic",
 		Help: "get the power parameters of a facility",
 		Func: func(c *ishell.Context) {
-			shell.Print("Public Key: ")
-			publicKey := c.ReadLine()
-			if publicKey == coordinationNodeInfo.PublicKey {
-				shell.Println("you cannot get your own details")
-				return
-			}
-			if !registeredFacilities[publicKey] {
-				shell.Printf("no facility with public key: '%s'\n", publicKey)
-				return
-			}
-			newRoute := esi.DerRoute{
-				ExchangeKey: coordinationNodeInfo.GetPublicKey(),
-				FacilityKey: publicKey,
-			}
-			newPowerParametersRequest := esi.DerPowerParametersRequest{
-				Route: &newRoute,
-			}
-			// Get the power parameters.
-			err := esi.GetPowerParameters(coordinationNodeClient, &newPowerParametersRequest)
-			if err != nil {
-				log.Error(err.Error())
-			}
+			// TODO
 		},
 	})
 	coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
 		Name: "set-dynamic",
 		Help: "set the power parameters of a facility",
 		Func: func(c *ishell.Context) {
+			// TODO
 		},
 	})
 	shell.AddCmd(coordinationNodeExchangeShellCmd)
@@ -643,10 +623,19 @@ func coordinationNodeInputReceiver() {
 				accept := esi.PriceMapOfferResponse_Accept{
 					Accept: true,
 				}
+
+				var party = esi.NodeType_NONE
+				if priceMapOffers[currentUuid].Node.Type == esi.NodeType_FACILITY {
+					party = esi.NodeType_EXCHANGE
+				} else {
+					party = esi.NodeType_FACILITY
+				}
+
 				response := esi.PriceMapOfferResponse{
 					Route:       priceMapOffers[currentUuid].Route,
 					OfferId:     priceMapOffers[currentUuid].OfferId,
 					AcceptOneof: &accept,
+					Node:        &esi.NodeType{Type: party},
 				}
 				err := esi.SendPriceMapOfferResponse(coordinationNodeClient, &response)
 				if err != nil {

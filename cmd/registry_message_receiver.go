@@ -91,7 +91,7 @@ func registryMessageReceiver() {
 					}
 
 					log.WithFields(log.Fields{
-						"end": msg.Src,
+						"dest": msg.Src,
 					}).Info("Sent known coordination node")
 				}
 			}

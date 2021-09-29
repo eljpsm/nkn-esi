@@ -94,7 +94,7 @@ func coordinationNodeMessageReceiver() {
 			formKey += 1 // increment form key
 
 			log.WithFields(log.Fields{
-				"end": msg.Src,
+				"dest": msg.Src,
 			}).Info("Sent registration form")
 
 		case *esi.CoordinationNodeMessage_SendDerFacilityRegistrationForm:
@@ -135,7 +135,7 @@ func coordinationNodeMessageReceiver() {
 			}
 
 			log.WithFields(log.Fields{
-				"end":     msg.Src,
+				"dest":    msg.Src,
 				"success": registration.GetSuccess(),
 			}).Info("Sent completed registration form")
 
@@ -147,6 +147,51 @@ func coordinationNodeMessageReceiver() {
 				"src":     msg.Src,
 				"success": x.CompleteDerFacilityRegistration.GetSuccess(),
 			}).Info("Received completed registration form")
+
+			newRequest := esi.DerPowerParametersRequest{
+				Route: x.CompleteDerFacilityRegistration.Route,
+			}
+
+			err = esi.GetPowerParameters(coordinationNodeClient, &newRequest)
+			if err != nil {
+				log.Error(err.Error())
+			}
+
+			log.WithFields(log.Fields{
+				"dest": msg.Src,
+			}).Info("Getting power parameters")
+
+		case *esi.CoordinationNodeMessage_GetPowerParameters:
+			log.WithFields(log.Fields{
+				"src": msg.Src,
+			}).Info("Requested power parameters")
+
+			// Send the power parameters associated with the service.
+			//
+			// At the moment, both nodes have the same power parameters set, so this doesn't really do anything. But
+			// this shows that you can get the power parameters from another service, and having to set your own is
+			// tedious for a demo.
+			err = esi.SetPowerParameters(coordinationNodeClient, x.GetPowerParameters.Route.GetFacilityKey(), &powerParameters)
+			if err != nil {
+				log.Error(err.Error())
+			}
+
+			log.WithFields(log.Fields{
+				"dest": msg.Src,
+			}).Info("Sent power parameters")
+
+		case *esi.CoordinationNodeMessage_SetPowerParameters:
+			log.WithFields(log.Fields{
+				"src": msg.Src,
+			}).Info("Received power parameters")
+
+			// Set your power parameters to the ones provided by the service.
+			powerParameters = *x.SetPowerParameters
+
+			log.WithFields(log.Fields{
+				"src":   msg.Src,
+				"param": x.SetPowerParameters,
+			}).Info("Set power parameters")
 
 		case *esi.CoordinationNodeMessage_GetResourceCharacteristics:
 			// Check to make sure that the source is the registered exchange.
@@ -164,7 +209,7 @@ func coordinationNodeMessageReceiver() {
 				}
 
 				log.WithFields(log.Fields{
-					"end": msg.Src,
+					"dest": msg.Src,
 				}).Info("Sent resource characteristics")
 			}
 
@@ -187,7 +232,7 @@ func coordinationNodeMessageReceiver() {
 				}
 
 				log.WithFields(log.Fields{
-					"end": msg.Src,
+					"dest": msg.Src,
 				}).Info("Sent price map")
 			}
 
@@ -333,7 +378,7 @@ func coordinationNodeMessageReceiver() {
 			log.WithFields(log.Fields{
 				"src":   msg.Src,
 				"claim": x.ProvidePriceMapOfferFeedback.Accepted,
-			}).Info("Offer feedback response")
+			}).Info("Provide feedback response")
 		}
 	}
 }
