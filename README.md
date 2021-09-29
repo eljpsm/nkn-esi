@@ -45,6 +45,7 @@ nkn-esi runs using the nkn.Multiclient, which allows the routing to happen:
 
 * quickly
 * easily
+* securely
 * without the need to mess around with ports and ip addresses
 
 This is especially useful, given the fact that it allows each coordination node to recognize each other by using only a
