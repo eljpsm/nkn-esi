@@ -46,7 +46,7 @@ import "api/esi/der_price_parameters_request.proto";
 //
 // This file is split into two messages:
 //    * RegistryMessage
-//    * FacilityMessage
+//    * CoordinationNodeMessage
 //
 // These messages correspond to the expected messages for either a registry, or a facility.
 //
@@ -73,7 +73,7 @@ message RegistryMessage {
 }
 
 // A message received by a Facility.
-message FacilityMessage {
+message CoordinationNodeMessage {
 
   oneof chunk {
     // Get a list of known facilities.

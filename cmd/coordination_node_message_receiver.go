@@ -35,7 +35,7 @@ func coordinationNodeMessageReceiver() {
 		"name":      coordinationNodeInfo.GetName(),
 	}).Info("Connection opened")
 
-	message := &esi.FacilityMessage{}
+	message := &esi.CoordinationNodeMessage{}
 
 	for {
 		// Unmarshal the protocol buffer.
@@ -49,7 +49,7 @@ func coordinationNodeMessageReceiver() {
 		//
 		// Switch based upon the message type.
 		switch x := message.Chunk.(type) {
-		case *esi.FacilityMessage_SendKnownDerFacility:
+		case *esi.CoordinationNodeMessage_SendKnownDerFacility:
 			// If the node is not already stored, store it.
 			_, present := knownCoordinationNodes[x.SendKnownDerFacility.GetPublicKey()]
 			if !present {
@@ -60,7 +60,7 @@ func coordinationNodeMessageReceiver() {
 				"src": msg.Src,
 			}).Info(fmt.Sprintf("Saved coordination node %s", x.SendKnownDerFacility.GetPublicKey()))
 
-		case *esi.FacilityMessage_GetDerFacilityRegistrationForm:
+		case *esi.CoordinationNodeMessage_GetDerFacilityRegistrationForm:
 			// Set the basic info.
 			//
 			// An example FormSetting - you can set whatever you want, and the facility will get a copy for you to then
@@ -97,7 +97,7 @@ func coordinationNodeMessageReceiver() {
 				"end": msg.Src,
 			}).Info("Sent registration form")
 
-		case *esi.FacilityMessage_SendDerFacilityRegistrationForm:
+		case *esi.CoordinationNodeMessage_SendDerFacilityRegistrationForm:
 			log.WithFields(log.Fields{
 				"src": msg.Src,
 			}).Info("Received registration form")
@@ -108,7 +108,7 @@ func coordinationNodeMessageReceiver() {
 				receivedRegistrationForms[x.SendDerFacilityRegistrationForm.Route.GetExchangeKey()] = x.SendDerFacilityRegistrationForm
 			}
 
-		case *esi.FacilityMessage_SubmitDerFacilityRegistrationForm:
+		case *esi.CoordinationNodeMessage_SubmitDerFacilityRegistrationForm:
 			log.WithFields(log.Fields{
 				"src": msg.Src,
 			}).Info("Received registration form data")
@@ -139,7 +139,7 @@ func coordinationNodeMessageReceiver() {
 				"success": registration.GetSuccess(),
 			}).Info("Sent completed registration form")
 
-		case *esi.FacilityMessage_CompleteDerFacilityRegistration:
+		case *esi.CoordinationNodeMessage_CompleteDerFacilityRegistration:
 			if x.CompleteDerFacilityRegistration.GetSuccess() == true {
 				registeredExchange = msg.Src
 			}
@@ -148,7 +148,7 @@ func coordinationNodeMessageReceiver() {
 				"success": x.CompleteDerFacilityRegistration.GetSuccess(),
 			}).Info("Received completed registration form")
 
-		case *esi.FacilityMessage_GetResourceCharacteristics:
+		case *esi.CoordinationNodeMessage_GetResourceCharacteristics:
 			// Check to make sure that the source is the registered exchange.
 			if registeredExchange == msg.Src {
 				newRoute := esi.DerRoute{
@@ -168,7 +168,7 @@ func coordinationNodeMessageReceiver() {
 				}).Info("Sent resource characteristics")
 			}
 
-		case *esi.FacilityMessage_SendResourceCharacteristics:
+		case *esi.CoordinationNodeMessage_SendResourceCharacteristics:
 			// Check to make sure that the source is a registered facility.
 			if registeredFacilities[msg.Src] == true {
 				facilityCharacteristics[msg.Src] = x.SendResourceCharacteristics
@@ -178,7 +178,7 @@ func coordinationNodeMessageReceiver() {
 				}).Info("Received resource characteristics")
 			}
 
-		case *esi.FacilityMessage_GetPriceMap:
+		case *esi.CoordinationNodeMessage_GetPriceMap:
 			// Check to make sure that the source is the registered exchange.
 			if registeredExchange == msg.Src {
 				err = esi.SendPriceMap(coordinationNodeClient, x.GetPriceMap.Route.GetExchangeKey(), &priceMap)
@@ -191,7 +191,7 @@ func coordinationNodeMessageReceiver() {
 				}).Info("Sent price map")
 			}
 
-		case *esi.FacilityMessage_SendPriceMap:
+		case *esi.CoordinationNodeMessage_SendPriceMap:
 			// Check to make sure that the source is a registered facility.
 			if registeredFacilities[msg.Src] == true {
 				facilityPriceMaps[msg.Src] = x.SendPriceMap
@@ -201,7 +201,7 @@ func coordinationNodeMessageReceiver() {
 				}).Info("Received price map")
 			}
 
-		case *esi.FacilityMessage_ProposePriceMapOffer:
+		case *esi.CoordinationNodeMessage_ProposePriceMapOffer:
 			// Check to make sure that the source is the registered exchange.
 			if registeredExchange == msg.Src || registeredFacilities[msg.Src] == true {
 				log.Info("RECEIVED PROPOSE OFFER")
@@ -247,7 +247,7 @@ func coordinationNodeMessageReceiver() {
 				}
 			}
 
-		case *esi.FacilityMessage_SendPriceMapOfferResponse:
+		case *esi.CoordinationNodeMessage_SendPriceMapOfferResponse:
 			switch y := x.SendPriceMapOfferResponse.AcceptOneof.(type) {
 			// Evaluate the contents of the response.
 			case *esi.PriceMapOfferResponse_Accept:
@@ -315,7 +315,7 @@ func coordinationNodeMessageReceiver() {
 				}
 			}
 
-		case *esi.FacilityMessage_GetPriceMapOfferFeedback:
+		case *esi.CoordinationNodeMessage_GetPriceMapOfferFeedback:
 			// As mentioned in coordination_node_input_receiver.go, this is merely a stub of what could be implemented.
 			//
 			// In a real situation, getting feedback on a response (either manually or automatically) is very powerful,
@@ -339,7 +339,7 @@ func coordinationNodeMessageReceiver() {
 				}
 			}
 
-		case *esi.FacilityMessage_ProvidePriceMapOfferFeedback:
+		case *esi.CoordinationNodeMessage_ProvidePriceMapOfferFeedback:
 			log.WithFields(log.Fields{
 				"src":   msg.Src,
 				"claim": x.ProvidePriceMapOfferFeedback.Accepted,

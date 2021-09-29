@@ -50,7 +50,7 @@ func SignupRegistry(client *nkn.MultiClient, registryPublicKey string, info *Der
 
 // SendKnownDerFacility sends facility info.
 func SendKnownDerFacility(client *nkn.MultiClient, facilityPublicKey string, info *DerFacilityExchangeInfo) error {
-	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SendKnownDerFacility{SendKnownDerFacility: info}})
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_SendKnownDerFacility{SendKnownDerFacility: info}})
 	if err != nil {
 		return err
 	}
