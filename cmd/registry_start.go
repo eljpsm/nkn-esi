@@ -26,7 +26,7 @@ var (
 	registryClient *nkn.MultiClient
 )
 
-// registryStartCmd represents the start command
+// registryStartCmd represents the start command.
 var registryStartCmd = &cobra.Command{
 	Use:   "start <registry-config.json> <registry-key.secret>",
 	Short: "Start a Registry instance",

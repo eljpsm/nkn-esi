@@ -45,11 +45,6 @@ var (
 	// infoMsgColorFunc is the color associated with information printing in function form.
 	infoMsgColorFunc = infoMsgColor.SprintFunc()
 
-	// successMsgColor is the color associated with successful printing.
-	successMsgColor = color.New(color.FgGreen, color.Bold)
-	// successMsgColorFunc is the color associated with successful printing in function form.
-	successMsgColorFunc = successMsgColor.SprintFunc()
-
 	// noteMsgColor is the color associated with note printing.
 	noteMsgColor = color.New(color.FgYellow)
 	// noteMsgColorFunc is the color associated with note printing in function form.
@@ -81,7 +76,7 @@ const (
 	logSuffix = ".log"
 )
 
-// rootCmd represents the base command when called without any subcommands
+// rootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
 	Use:   "nkn-esi",
 	Short: "NKN-ESI (or nESI) is an NKN based Energy Services Interface (ESI)",

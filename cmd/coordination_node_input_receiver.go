@@ -456,20 +456,19 @@ func coordinationNodeInputReceiver() {
 			}
 		},
 	})
-	coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
-		Name: "get-dynamic",
-		Help: "get the power parameters of a facility",
-		Func: func(c *ishell.Context) {
-			// TODO
-		},
-	})
-	coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
-		Name: "set-dynamic",
-		Help: "set the power parameters of a facility",
-		Func: func(c *ishell.Context) {
-			// TODO
-		},
-	})
+	// TODO
+	// coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
+	// 	Name: "get-dynamic",
+	// 	Help: "get the power parameters of a facility",
+	// 	Func: func(c *ishell.Context) {
+	// 	},
+	// })
+	// coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
+	// 	Name: "set-dynamic",
+	// 	Help: "set the power parameters of a facility",
+	// 	Func: func(c *ishell.Context) {
+	// 	},
+	// })
 	shell.AddCmd(coordinationNodeExchangeShellCmd)
 	coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
 		Name: "propose",

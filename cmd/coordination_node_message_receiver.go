@@ -195,7 +195,7 @@ func coordinationNodeMessageReceiver() {
 
 		case *esi.CoordinationNodeMessage_ListPrices:
 			log.WithFields(log.Fields{
-				"src": msg.Src,
+				"src":   msg.Src,
 				"price": x.ListPrices.PriceComponents.ApparentEnergyPrice.Units,
 			}).Info("Received price datum")
 
@@ -388,6 +388,7 @@ func coordinationNodeMessageReceiver() {
 	}
 }
 
+// acceptOffer accepts a given offer.
 func acceptOffer(route *esi.DerRoute, offerId *esi.Uuid) *esi.PriceMapOfferResponse {
 	accept := esi.PriceMapOfferResponse_Accept{
 		Accept: true,

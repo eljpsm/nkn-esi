@@ -136,5 +136,5 @@ func newUuid() (string, error) {
 func randomPrice(low int, high int) (int64, error) {
 	rand.Seed(unixSeconds())
 
-	return int64(rand.Intn(high - low + 1) + low), nil
+	return int64(rand.Intn(high-low+1) + low), nil
 }

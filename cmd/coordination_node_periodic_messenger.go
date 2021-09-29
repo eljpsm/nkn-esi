@@ -78,7 +78,6 @@ func coordinationNodePeriodicMessenger() {
 			// Actions specifically relating to the facility.
 			if offer.Route.GetFacilityKey() == coordinationNodeInfo.GetPublicKey() {
 
-
 				// If the offer has been accepted, then check to see if the time expected has passed.
 				if priceMapOfferStatus[offer.OfferId.Uuid].Status == esi.PriceMapOfferStatus_ACCEPTED && offer.When.Seconds <= unixSeconds() {
 					priceMapOfferStatus[offer.OfferId.Uuid].Status = esi.PriceMapOfferStatus_EXECUTING

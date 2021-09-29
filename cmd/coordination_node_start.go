@@ -25,10 +25,10 @@ var (
 	// coordinationNodeClient is the Multiclient opened representing the Facility.
 	coordinationNodeClient *nkn.MultiClient
 	// coordinationNodePath is the name of what to initialize the new coordination node as.
-	coordinationNodePath   string
+	coordinationNodePath string
 )
 
-// coordinationNodeStartCmd represents the start command
+// coordinationNodeStartCmd represents the start command.
 var coordinationNodeStartCmd = &cobra.Command{
 	Use:   "start <coordination-node-config.json> <coordination-node-key.secret>",
 	Short: "Start a coordination node instance",

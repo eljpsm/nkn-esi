@@ -180,7 +180,7 @@ func ProposePriceMapOffer(client *nkn.MultiClient, offer *PriceMapOffer) error {
 	return nil
 }
 
-// SendPriceMapOfferResponse sends a response to the other party
+// SendPriceMapOfferResponse sends an offer response to the other party
 //
 // This function will optionally switch the node type if provided. This allows systems which combine facility and
 // exchange behaviour into one to more easily manage routing.
