@@ -206,7 +206,6 @@ func coordinationNodeMessageReceiver() {
 					FacilityKey: coordinationNodeInfo.GetPublicKey(),
 					ExchangeKey: msg.Src,
 				}
-				// TODO: fix
 				newCharacteristics := resourceCharacteristics
 				newCharacteristics.Route = &newRoute
 				err := esi.SendResourceCharacteristics(coordinationNodeClient, &newCharacteristics)

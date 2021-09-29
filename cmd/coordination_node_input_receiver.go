@@ -323,7 +323,6 @@ func coordinationNodeInputReceiver() {
 				return
 			}
 
-			// TODO: fix
 			priceMap = *createdPriceMap
 		},
 	})
@@ -337,8 +336,7 @@ func coordinationNodeInputReceiver() {
 		Name: "view",
 		Help: "print local characteristics",
 		Func: func(c *ishell.Context) {
-			// TODO: pretty
-			fmt.Println(&resourceCharacteristics)
+			fmt.Println(proto.MarshalTextString(&resourceCharacteristics))
 		},
 	})
 	coordinationNodeCharacteristicsShellCmd.AddCmd(&ishell.Cmd{

@@ -35,9 +35,12 @@ func coordinationNodePeriodicMessenger() {
 
 			// Explicit look at just facilities.
 			for publicKey := range registeredFacilities {
-				// TODO: fix, price always returns 0
 				// Send price datum.
-				randomUnits, _ := randomPriceLocation(priceLow, priceHigh, "DC")
+				//
+				// At the moment, all prices are random within some range. However, in practice, this would probably
+				// take some locational data to pull from. For example, all locations in the region of X may have price
+				// Y.
+				randomUnits, _ := randomPrice(priceLow, priceHigh)
 				newRoute := esi.DerRoute{
 					ExchangeKey: coordinationNodeInfo.PublicKey,
 					FacilityKey: publicKey,

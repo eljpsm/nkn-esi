@@ -25,7 +25,6 @@ import (
 	"math/rand"
 	"os"
 	"reflect"
-	"strconv"
 	"time"
 )
 
@@ -133,13 +132,9 @@ func newUuid() (string, error) {
 	return newUuid.String(), nil
 }
 
-// randomPrintLocation returns a random price based on a location seed.
-func randomPriceLocation(low int, high int, location string) (int64, error) {
-	locationSeed, err := strconv.ParseInt(location, 10, 64)
-	if err != nil {
-		return 0, err
-	}
-	rand.Seed(locationSeed)
+// randomPrice returns a random price value.
+func randomPrice(low int, high int) (int64, error) {
+	rand.Seed(unixSeconds())
 
 	return int64(rand.Intn(high - low + 1) + low), nil
 }
