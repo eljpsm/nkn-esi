@@ -20,7 +20,9 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
-// A signed 32-bit integer range.
+/**
+ * A signed 32-bit integer range.
+ */
 message SignedInt32Range {
 
   // The minimum value.

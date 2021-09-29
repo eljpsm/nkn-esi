@@ -94,7 +94,7 @@ func coordinationNodeMessageReceiver() {
 			formKey += 1 // increment form key
 
 			log.WithFields(log.Fields{
-				"end": msg.Src,
+				"dest": msg.Src,
 			}).Info("Sent registration form")
 
 		case *esi.CoordinationNodeMessage_SendDerFacilityRegistrationForm:
@@ -135,7 +135,7 @@ func coordinationNodeMessageReceiver() {
 			}
 
 			log.WithFields(log.Fields{
-				"end":     msg.Src,
+				"dest":    msg.Src,
 				"success": registration.GetSuccess(),
 			}).Info("Sent completed registration form")
 
@@ -148,6 +148,57 @@ func coordinationNodeMessageReceiver() {
 				"success": x.CompleteDerFacilityRegistration.GetSuccess(),
 			}).Info("Received completed registration form")
 
+			newRequest := esi.DerPowerParametersRequest{
+				Route: x.CompleteDerFacilityRegistration.Route,
+			}
+
+			err = esi.GetPowerParameters(coordinationNodeClient, &newRequest)
+			if err != nil {
+				log.Error(err.Error())
+			}
+
+			log.WithFields(log.Fields{
+				"dest": msg.Src,
+			}).Info("Getting power parameters")
+
+		case *esi.CoordinationNodeMessage_GetPowerParameters:
+			log.WithFields(log.Fields{
+				"src": msg.Src,
+			}).Info("Requested power parameters")
+
+			// Send the power parameters associated with the service.
+			//
+			// At the moment, both nodes have the same power parameters set, so this doesn't really do anything. But
+			// this shows that you can get the power parameters from another service, and having to set your own is
+			// tedious for a demo.
+			err = esi.SetPowerParameters(coordinationNodeClient, x.GetPowerParameters.Route.GetFacilityKey(), &powerParameters)
+			if err != nil {
+				log.Error(err.Error())
+			}
+
+			log.WithFields(log.Fields{
+				"dest": msg.Src,
+			}).Info("Sent power parameters")
+
+		case *esi.CoordinationNodeMessage_SetPowerParameters:
+			log.WithFields(log.Fields{
+				"src": msg.Src,
+			}).Info("Received power parameters")
+
+			// Set your power parameters to the ones provided by the service.
+			powerParameters = *x.SetPowerParameters
+
+			log.WithFields(log.Fields{
+				"src":   msg.Src,
+				"param": x.SetPowerParameters,
+			}).Info("Set power parameters")
+
+		case *esi.CoordinationNodeMessage_ListPrices:
+			log.WithFields(log.Fields{
+				"src":   msg.Src,
+				"price": x.ListPrices.PriceComponents.ApparentEnergyPrice.Units,
+			}).Info("Received price datum")
+
 		case *esi.CoordinationNodeMessage_GetResourceCharacteristics:
 			// Check to make sure that the source is the registered exchange.
 			if registeredExchange == msg.Src {
@@ -155,7 +206,6 @@ func coordinationNodeMessageReceiver() {
 					FacilityKey: coordinationNodeInfo.GetPublicKey(),
 					ExchangeKey: msg.Src,
 				}
-				// TODO: fix
 				newCharacteristics := resourceCharacteristics
 				newCharacteristics.Route = &newRoute
 				err := esi.SendResourceCharacteristics(coordinationNodeClient, &newCharacteristics)
@@ -164,13 +214,13 @@ func coordinationNodeMessageReceiver() {
 				}
 
 				log.WithFields(log.Fields{
-					"end": msg.Src,
+					"dest": msg.Src,
 				}).Info("Sent resource characteristics")
 			}
 
 		case *esi.CoordinationNodeMessage_SendResourceCharacteristics:
 			// Check to make sure that the source is a registered facility.
-			if registeredFacilities[msg.Src] == true {
+			if _, ok := registeredFacilities[msg.Src]; ok {
 				facilityCharacteristics[msg.Src] = x.SendResourceCharacteristics
 
 				log.WithFields(log.Fields{
@@ -187,13 +237,13 @@ func coordinationNodeMessageReceiver() {
 				}
 
 				log.WithFields(log.Fields{
-					"end": msg.Src,
+					"dest": msg.Src,
 				}).Info("Sent price map")
 			}
 
 		case *esi.CoordinationNodeMessage_SendPriceMap:
 			// Check to make sure that the source is a registered facility.
-			if registeredFacilities[msg.Src] == true {
+			if _, ok := registeredFacilities[msg.Src]; ok {
 				facilityPriceMaps[msg.Src] = x.SendPriceMap
 
 				log.WithFields(log.Fields{
@@ -202,16 +252,22 @@ func coordinationNodeMessageReceiver() {
 			}
 
 		case *esi.CoordinationNodeMessage_ProposePriceMapOffer:
-			// Check to make sure that the source is the registered exchange.
-			if registeredExchange == msg.Src || registeredFacilities[msg.Src] == true {
-				log.Info("RECEIVED PROPOSE OFFER")
+			// Check to make sure that the source is the registered exchange or facility.
+			_, ok := registeredFacilities[msg.Src]
+			if registeredExchange == msg.Src || ok {
+				log.Info("Received propose offer")
 				if x.ProposePriceMapOffer.PriceMap.Price.ApparentEnergyPrice.Units < autoPrice.AlwaysBuyBelowPrice.Units {
 					// If the offer is below our auto accept, just accept the offer.
 					//
 					// There is also a value for "AvoidBuyOverPrice", which could be used in a similar way in other
 					// scenarios. In this demo, if the price is not lower than our auto accept, then it just goes to
 					// evaluation.
-					response := acceptOffer(x.ProposePriceMapOffer.Route, x.ProposePriceMapOffer.OfferId)
+					var response *esi.PriceMapOfferResponse
+					if x.ProposePriceMapOffer.Route.GetFacilityKey() == coordinationNodeInfo.GetPublicKey() {
+						response = acceptOffer(x.ProposePriceMapOffer.Route, x.ProposePriceMapOffer.OfferId, &esi.NodeType{Type: esi.NodeType_EXCHANGE})
+					} else {
+						response = acceptOffer(x.ProposePriceMapOffer.Route, x.ProposePriceMapOffer.OfferId, &esi.NodeType{Type: esi.NodeType_FACILITY})
+					}
 					err = esi.SendPriceMapOfferResponse(coordinationNodeClient, response)
 					if err != nil {
 						log.Error(err.Error())
@@ -268,16 +324,6 @@ func coordinationNodeMessageReceiver() {
 				// Store the previous offer as REJECTED.
 				priceMapOfferStatus[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].Status = esi.PriceMapOfferStatus_REJECTED
 
-				// Set the responsible party.
-				//
-				// In this case, it's just assumed that the responsible party is the opposite of whoever it was before.
-				// var party = esi.NodeType_NONE
-				// if priceMapOffers[x.SendPriceMapOfferResponse.PreviousOffer.Uuid].Node.Type == esi.NodeType_FACILITY {
-				// 	party = esi.NodeType_EXCHANGE
-				// } else {
-				// 	party = esi.NodeType_FACILITY
-				// }
-
 				// In the new offer, use the time specified by the previous offer.
 				newOffer := esi.PriceMapOffer{
 					Route:    x.SendPriceMapOfferResponse.Route,
@@ -300,7 +346,12 @@ func coordinationNodeMessageReceiver() {
 
 				if y.CounterOffer.Price.ApparentEnergyPrice.Units < autoPrice.AlwaysBuyBelowPrice.Units {
 					// If it falls below the auto accept, then accept it.
-					response := acceptOffer(x.SendPriceMapOfferResponse.Route, x.SendPriceMapOfferResponse.OfferId)
+					var response *esi.PriceMapOfferResponse
+					if x.SendPriceMapOfferResponse.Route.GetFacilityKey() == coordinationNodeInfo.GetPublicKey() {
+						response = acceptOffer(x.SendPriceMapOfferResponse.Route, x.SendPriceMapOfferResponse.OfferId, &esi.NodeType{Type: esi.NodeType_EXCHANGE})
+					} else {
+						response = acceptOffer(x.SendPriceMapOfferResponse.Route, x.SendPriceMapOfferResponse.OfferId, &esi.NodeType{Type: esi.NodeType_FACILITY})
+					}
 					err = esi.SendPriceMapOfferResponse(coordinationNodeClient, response)
 					if err != nil {
 						log.Error(err.Error())
@@ -320,18 +371,23 @@ func coordinationNodeMessageReceiver() {
 			//
 			// In a real situation, getting feedback on a response (either manually or automatically) is very powerful,
 			// this is just to show the capability.
-			if registeredFacilities[msg.Src] == true {
+			if _, ok := registeredFacilities[msg.Src]; ok {
 				log.WithFields(log.Fields{
 					"src":   msg.Src,
 					"claim": x.GetPriceMapOfferFeedback.ObligationStatus,
 				}).Info("Received offer feedback")
 
-				agreement := true
 				response := esi.PriceMapOfferFeedbackResponse{
 					Route:    x.GetPriceMapOfferFeedback.Route,
 					OfferId:  x.GetPriceMapOfferFeedback.OfferId,
-					Accepted: agreement,
+					Accepted: true,
 				}
+
+				log.WithFields(log.Fields{
+					"src":  msg.Src,
+					"uuid": x.GetPriceMapOfferFeedback.OfferId.Uuid,
+				}).Info("Offer has completed")
+				priceMapOfferStatus[x.GetPriceMapOfferFeedback.OfferId.Uuid].Status = esi.PriceMapOfferStatus_COMPLETED
 
 				err := esi.ProvidePriceMapOfferFeedback(coordinationNodeClient, &response)
 				if err != nil {
@@ -343,12 +399,13 @@ func coordinationNodeMessageReceiver() {
 			log.WithFields(log.Fields{
 				"src":   msg.Src,
 				"claim": x.ProvidePriceMapOfferFeedback.Accepted,
-			}).Info("Offer feedback response")
+			}).Info("Received feedback response")
 		}
 	}
 }
 
-func acceptOffer(route *esi.DerRoute, offerId *esi.Uuid) *esi.PriceMapOfferResponse {
+// acceptOffer accepts a given offer.
+func acceptOffer(route *esi.DerRoute, offerId *esi.Uuid, nodeType *esi.NodeType) *esi.PriceMapOfferResponse {
 	accept := esi.PriceMapOfferResponse_Accept{
 		Accept: true,
 	}
@@ -356,6 +413,7 @@ func acceptOffer(route *esi.DerRoute, offerId *esi.Uuid) *esi.PriceMapOfferRespo
 		Route:       route,
 		OfferId:     offerId,
 		AcceptOneof: &accept,
+		Node:        nodeType,
 	}
 
 	return &response

@@ -23,18 +23,12 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 import "api/esi/der_route.proto";
 import "api/esi/uuid.proto";
 
-// Response to a price map status request.
+/**
+ * Response to a price map status request.
+ */
 message PriceMapOfferStatusResponse {
 
   // The routing info.
-  //
-  // The MessageSignature of the route must include the following:
-  //
-  // * `exchange_uid` UTF-8 bytes
-  // * `facility_uid` UTF-8 bytes
-  // * `offer_id.hi` big-endian encoded bytes
-  // * `offer_id.lo` big-endian encoded bytes
-  // * `accepted` 0x01 for true, 0x00 for false
   DerRoute route = 1;
 
   // The globally unique ID of the offer this response is for.

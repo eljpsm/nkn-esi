@@ -22,7 +22,9 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 
 import "google/protobuf/duration.proto";
 
-// A duration range.
+/**
+ * A duration range.
+ */
 message DurationRange {
 
   // The expected minimum duration.

@@ -24,7 +24,9 @@ import "google/protobuf/timestamp.proto";
 import "api/esi/power_components.proto";
 import "api/esi/time_unit.proto";
 
-// Power components associated with a date or time span.
+/**
+ * Power components associated with a date or time span.
+ */
 message PowerProfileDatum {
 
   // The start date of this power profile (inclusive).

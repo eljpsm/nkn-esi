@@ -24,9 +24,10 @@ import (
 	"os"
 )
 
+// coordinationNodeInfo is the coordination node config details.
 var coordinationNodeInfo esi.DerFacilityExchangeInfo
 
-// coordinationNodeCmd represents the facility command
+// coordinationNodeCmd represents the facility command.
 var coordinationNodeCmd = &cobra.Command{
 	Use:   "coordination-node",
 	Short: "Manage coordination node instances",

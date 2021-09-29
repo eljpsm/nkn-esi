@@ -22,7 +22,9 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 
 import "api/esi/latlng.proto";
 
-// A discreet unit of time, using Gregorian calendar units where appropriate.
+/**
+ * A discreet unit of time, using Gregorian calendar units where appropriate.
+ */
 message Location {
 
   // CLDR region code of the country/region of the location.

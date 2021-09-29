@@ -20,7 +20,9 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
-// A discreet unit of time, using Gregorian calendar units where appropriate.
+/**
+ * A discreet unit of time, using Gregorian calendar units where appropriate.
+ */
 enum TimeUnit {
 
   // An instant that represents a specific point in time.

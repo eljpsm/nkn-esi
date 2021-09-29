@@ -25,7 +25,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// registryInitCmd represents the registryInit command
+// registryInitCmd represents the registryInit command.
 var registryInitCmd = &cobra.Command{
 	Use:   "init <name>",
 	Short: "Quickly create a new registry configuration and key pair",

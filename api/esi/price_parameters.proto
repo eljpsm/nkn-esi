@@ -27,7 +27,9 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 
 import "api/esi/money.proto";
 
-// Parameters relating to price characteristics.
+/**
+ * Parameters relating to price characteristics.
+ */
 message PriceParameters {
 
   // Price below which a customer will always consume if possible.

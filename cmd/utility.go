@@ -22,6 +22,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/nknorg/nkn-sdk-go"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"reflect"
 	"time"
@@ -118,7 +119,7 @@ func validateCfgKeyPair(cfgPublic string, client *nkn.MultiClient) error {
 
 // unixSeconds gets the current time in unix seconds.
 func unixSeconds() int64 {
-	return time.Now().UTC().UnixNano()
+	return time.Now().UTC().Unix()
 }
 
 // newUuid returns a new UUID.
@@ -129,4 +130,11 @@ func newUuid() (string, error) {
 	}
 
 	return newUuid.String(), nil
+}
+
+// randomPrice returns a random price value.
+func randomPrice(low int, high int) (int64, error) {
+	rand.Seed(unixSeconds())
+
+	return int64(rand.Intn(high-low+1) + low), nil
 }

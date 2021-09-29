@@ -20,23 +20,27 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
-// A DER program type.
+/**
+ * A DER program type.
+ */
 enum DerProgramType {
 
-  SPINNING_RESERVE = 0;
+  NONE = 0;
 
-  FREQUENCY_REGULATION = 1;
+  SPINNING_RESERVE = 1;
 
-  RAMPING = 2;
+  FREQUENCY_REGULATION = 2;
 
-  ARTIFICIAL_INERTIA = 3;
+  RAMPING = 3;
 
-  VOLTAGE_MANAGEMENT = 4;
+  ARTIFICIAL_INERTIA = 4;
 
-  PEAK_CAPACITY_MANAGEMENT = 5;
+  VOLTAGE_MANAGEMENT = 5;
 
-  CONTRACTUAL_OBLIGATIONS = 6;
+  PEAK_CAPACITY_MANAGEMENT = 6;
 
-  MARKET_PRICE_RESPONSE = 7;
+  CONTRACTUAL_OBLIGATIONS = 7;
+
+  MARKET_PRICE_RESPONSE = 8;
 
 }

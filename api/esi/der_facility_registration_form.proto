@@ -28,6 +28,7 @@ import "api/esi/der_route.proto";
  */
 message DerFacilityRegistrationForm {
 
+  // The routing info.
   DerRoute route = 1;
 
   // The registration form.

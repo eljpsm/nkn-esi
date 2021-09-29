@@ -28,19 +28,15 @@ import "api/esi/der_facility_registration.proto";
 import "api/esi/der_characteristics.proto";
 import "api/esi/der_resource_characteristics_request.proto";
 import "api/esi/der_price_map_request.proto";
-import "api/esi/price_map_characteristics.proto";
-import "api/esi/der_program_set.proto";
 import "api/esi/price_map.proto";
 import "api/esi/price_map_offer.proto";
 import "api/esi/price_map_offer_feedback.proto";
-import "api/esi/price_map_offer_status.proto";
 import "api/esi/datum_request.proto";
 import "api/esi/price_datum.proto";
 import "api/esi/power_parameters.proto";
 import "api/esi/price_map_offer_response.proto";
 import "api/esi/price_map_offer_feedback_response.proto";
 import 'api/esi/der_power_parameters_request.proto';
-import "api/esi/der_price_parameters_request.proto";
 
 // der_handler.proto
 //
@@ -58,7 +54,9 @@ import "api/esi/der_price_parameters_request.proto";
 //
 // For information on calling behaviour, consult der_facility_service.go.
 
-// A message received by a Registry.
+/**
+ * A message received by a registry.
+ */
 message RegistryMessage {
 
   oneof chunk {
@@ -72,7 +70,9 @@ message RegistryMessage {
 
 }
 
-// A message received by a Facility.
+/**
+ * A message received by a facility.
+ */
 message CoordinationNodeMessage {
 
   oneof chunk {
@@ -128,7 +128,7 @@ message CoordinationNodeMessage {
     PowerParameters SetPowerParameters = 21;
 
     // Send price parameters.
-    DerPriceParametersRequest GetPriceParameters = 22;
+    PriceDatum ListPrices = 22;
   }
 
 }

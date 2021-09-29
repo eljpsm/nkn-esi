@@ -33,14 +33,30 @@ const (
 	// defaultCountry is the default country to look for in a query.
 	defaultCountry = "DC"
 
+	//defaultWhen is the default time in seconds to pass for an offer to be executed.
+	defaultWhen = 7
+	// defaultDuration is the default time it takes for an offer to be completed.
+	defaultDuration = 30
+
+	// defaultLoadMaxPower is the default load max power.
+	defaultLoadMaxPower = "100"
+	// defaultLoadPowerFactor is the default load power factor.
+	defaultLoadPowerFactor = "1"
+	// defaultSupplyPowerMax is the default max power supply.
+	defaultSupplyPowerMax = "100"
+	// defaultSupplyPowerFactor is the default supply power factor.
+	defaultSupplyPowerFactor = "1"
+	// defaultStorageEnergyCapacity is the default storage energy capacity.
+	defaultStorageEnergyCapacity = "100"
+
 	// defaultRealPower is the default value used for real power when creating a price map.
 	defaultRealPower = "10"
 	// defaultReactivePower is the default value used for reactive power when creating a price map.
 	defaultReactivePower = "10"
 	// defaultUnits  is the default value used for units when creating a price map.
 	defaultUnits = "100"
-	// defaultSeconds is the default value used for time measurement when creating a price map.
-	defaultSeconds = 1
+	// defaultSeconds is the default response value used for time measurement when creating a price map.
+	defaultResponseSeconds = 1
 )
 
 // coordinationNodeInputReceiver receives and returns any facility inputs.
@@ -99,6 +115,10 @@ func coordinationNodeInputReceiver() {
 			if err != nil {
 				log.Error(err.Error())
 			}
+
+			log.WithFields(log.Fields{
+				"dest": publicKey,
+			}).Info("Signed up to registry")
 		},
 	})
 	coordinationNodeRegistryShellCmd.AddCmd(&ishell.Cmd{
@@ -129,6 +149,10 @@ func coordinationNodeInputReceiver() {
 			if err != nil {
 				log.Error(err.Error())
 			}
+
+			log.WithFields(log.Fields{
+				"dest": registryPublicKey,
+			}).Info("Query registry")
 		},
 	})
 
@@ -318,7 +342,6 @@ func coordinationNodeInputReceiver() {
 				return
 			}
 
-			// TODO: fix
 			priceMap = *createdPriceMap
 		},
 	})
@@ -332,44 +355,58 @@ func coordinationNodeInputReceiver() {
 		Name: "view",
 		Help: "print local characteristics",
 		Func: func(c *ishell.Context) {
-			// TODO: pretty
-			fmt.Println(&resourceCharacteristics)
+			fmt.Println(proto.MarshalTextString(&resourceCharacteristics))
 		},
 	})
 	coordinationNodeCharacteristicsShellCmd.AddCmd(&ishell.Cmd{
 		Name: "create",
 		Help: "create coordination node facility characteristics",
 		Func: func(c *ishell.Context) {
-			shell.Print("Max Load Power: ")
+			shell.Printf("Max Load Power [%s]: ", defaultLoadMaxPower)
 			loadPowerMaxString := c.ReadLine()
+			if loadPowerMaxString == "" {
+				loadPowerMaxString = defaultLoadMaxPower
+			}
 			loadPowerMax, err := strconv.Atoi(loadPowerMaxString)
 			if err != nil {
 				shell.Println(err.Error())
 				return
 			}
-			shell.Print("Load Power Factor: ")
+			shell.Printf("Load Power Factor [%s]: ", defaultLoadPowerFactor)
 			loadPowerFactorString := c.ReadLine()
+			if loadPowerFactorString == "" {
+				loadPowerFactorString = defaultLoadPowerFactor
+			}
 			loadPowerFactor, err := strconv.Atoi(loadPowerFactorString)
 			if err != nil {
 				shell.Println(err.Error())
 				return
 			}
-			shell.Print("Max Supply Power: ")
+			shell.Printf("Max Supply Power [%s]: ", defaultSupplyPowerMax)
 			supplyPowerMaxString := c.ReadLine()
+			if supplyPowerMaxString == "" {
+				supplyPowerMaxString = defaultSupplyPowerMax
+			}
 			supplyPowerMax, err := strconv.Atoi(supplyPowerMaxString)
 			if err != nil {
 				shell.Println(err.Error())
 				return
 			}
-			shell.Print("Supply Power Factor: ")
+			shell.Printf("Supply Power Factor [%s]: ", defaultSupplyPowerFactor)
 			supplyPowerFactorString := c.ReadLine()
+			if supplyPowerFactorString == "" {
+				supplyPowerFactorString = defaultSupplyPowerFactor
+			}
 			supplyPowerFactor, err := strconv.Atoi(supplyPowerFactorString)
 			if err != nil {
 				shell.Println(err.Error())
 				return
 			}
-			shell.Print("Storage Energy Capacity: ")
+			shell.Printf("Storage Energy Capacity [%s]: ", defaultStorageEnergyCapacity)
 			storageEnergyCapacityString := c.ReadLine()
+			if storageEnergyCapacityString == "" {
+				storageEnergyCapacityString = defaultStorageEnergyCapacity
+			}
 			storageEnergyCapacity, err := strconv.Atoi(storageEnergyCapacityString)
 			if err != nil {
 				shell.Println(err.Error())
@@ -390,7 +427,7 @@ func coordinationNodeInputReceiver() {
 		Help: "manage coordination node exchange functionality",
 	}
 	coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
-		Name: "get",
+		Name: "get-interactive",
 		Help: "get characteristics and price map of coordination node behaving as a facility",
 		Func: func(c *ishell.Context) {
 			shell.Print("Public Key: ")
@@ -399,9 +436,8 @@ func coordinationNodeInputReceiver() {
 				shell.Println("you cannot get your own details")
 				return
 			}
-
-			if !registeredFacilities[publicKey] {
-				shell.Printf("no facility with public key: '%s\n'", publicKey)
+			if _, ok := registeredFacilities[publicKey]; !ok {
+				shell.Printf("no facility with public key: '%s'\n", publicKey)
 				return
 			}
 
@@ -416,10 +452,12 @@ func coordinationNodeInputReceiver() {
 				Route: &newRoute,
 			}
 
+			// Get the characteristics.
 			err := esi.GetResourceCharacteristics(coordinationNodeClient, &newCharacteristicsRequest)
 			if err != nil {
 				log.Error(err.Error())
 			}
+			// Get the price map.
 			err = esi.GetPriceMap(coordinationNodeClient, &newPriceMapRequest)
 			if err != nil {
 				log.Error(err.Error())
@@ -452,6 +490,19 @@ func coordinationNodeInputReceiver() {
 			}
 		},
 	})
+	// TODO
+	// coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
+	// 	Name: "get-dynamic",
+	// 	Help: "get the power parameters of a facility",
+	// 	Func: func(c *ishell.Context) {
+	// 	},
+	// })
+	// coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
+	// 	Name: "set-dynamic",
+	// 	Help: "set the power parameters of a facility",
+	// 	Func: func(c *ishell.Context) {
+	// 	},
+	// })
 	shell.AddCmd(coordinationNodeExchangeShellCmd)
 	coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
 		Name: "propose",
@@ -463,7 +514,7 @@ func coordinationNodeInputReceiver() {
 				shell.Println("you cannot propose yourself an offer")
 				return
 			}
-			if !registeredFacilities[publicKey] {
+			if _, ok := registeredFacilities[publicKey]; !ok {
 				shell.Printf("no facility with public key: '%s'\n", publicKey)
 				return
 			}
@@ -490,7 +541,7 @@ func coordinationNodeInputReceiver() {
 			// There could be scenarios in which you need to send offers at some other interval, in which case you
 			// could use this field.
 			newTimeStamp := timestamppb.Timestamp{
-				Seconds: unixSeconds(),
+				Seconds: unixSeconds() + defaultWhen,
 				Nanos:   0,
 			}
 			newPriceMapOffer := esi.PriceMapOffer{
@@ -514,6 +565,10 @@ func coordinationNodeInputReceiver() {
 			if err != nil {
 				log.Error(err.Error())
 			}
+
+			log.WithFields(log.Fields{
+				"dest": publicKey,
+			}).Info("Sent proposal")
 		},
 	})
 
@@ -543,38 +598,6 @@ func coordinationNodeInputReceiver() {
 					infoMsgColorFunc(priceMapOfferStatus[v.OfferId.Uuid].Status))
 			}
 			shell.Println()
-		},
-	})
-	coordinationNodeFacilityShellCmd.AddCmd(&ishell.Cmd{
-		Name: "feedback",
-		Help: "get feedback on an offer",
-		Func: func(c *ishell.Context) {
-			shell.Print("Offer UUID: ")
-			uuid := c.ReadLine()
-			if priceMapOffers[uuid] == nil {
-				shell.Printf("no offer with the uuid '%s'\n", uuid)
-				return
-			}
-
-			// Getting feedback on offers is easy and just requires sending a feedback form, and then getting
-			// a response whether the obligation status is agreed on.
-			//
-			// In this demo, the obligation is always entered to be SATISFIED, and the response is always agreed. But
-			// in a real situation, this would be very useful to keep an automatic record of the relationship between
-			// two nodes.
-			//
-			// It is also assumed that the facility is the one that will be requesting agreement, and the exchange
-			// will then audit the feedback, either by checking manually or automatically. But this could be built in
-			// both directions, as well - the system is agnostic on whom the receiving and sending party is.
-			feedback := esi.PriceMapOfferFeedback{
-				Route:            priceMapOffers[uuid].Route,
-				OfferId:          priceMapOffers[uuid].OfferId,
-				ObligationStatus: 2,
-			}
-			err := esi.GetPriceMapOfferFeedback(coordinationNodeClient, &feedback)
-			if err != nil {
-				log.Error(err.Error())
-			}
 		},
 	})
 	coordinationNodeOffersShellCmd.AddCmd(&ishell.Cmd{
@@ -608,10 +631,19 @@ func coordinationNodeInputReceiver() {
 				accept := esi.PriceMapOfferResponse_Accept{
 					Accept: true,
 				}
+
+				var party = esi.NodeType_NONE
+				if priceMapOffers[currentUuid].Node.Type == esi.NodeType_FACILITY {
+					party = esi.NodeType_EXCHANGE
+				} else {
+					party = esi.NodeType_FACILITY
+				}
+
 				response := esi.PriceMapOfferResponse{
 					Route:       priceMapOffers[currentUuid].Route,
 					OfferId:     priceMapOffers[currentUuid].OfferId,
 					AcceptOneof: &accept,
+					Node:        &esi.NodeType{Type: party},
 				}
 				err := esi.SendPriceMapOfferResponse(coordinationNodeClient, &response)
 				if err != nil {
@@ -734,21 +766,19 @@ func newPriceMap(shell *ishell.Shell, c *ishell.Context, optRealPower string, op
 
 	// Create newDuration.
 	//
-	// In this demo, all price maps are immediately completed for simplicity.
-	durationSeconds := 0
-	durationNanos := 0
+	// In this demo, all price maps are completed in 15 seconds.
 	newDuration := duration.Duration{
-		Seconds: int64(durationSeconds),
-		Nanos:   int32(durationNanos),
+		Seconds: defaultDuration,
+		Nanos:   0,
 	}
 
 	// Create newDurationRange.
 	//
 	// In this demo, the response time is assumed to be immediate.
-	expectedMinSeconds := defaultSeconds
-	expectedMinNanos := defaultSeconds
-	expectedMaxSeconds := defaultSeconds
-	expectedMaxNanos := defaultSeconds
+	expectedMinSeconds := defaultResponseSeconds
+	expectedMinNanos := defaultResponseSeconds
+	expectedMaxSeconds := defaultResponseSeconds
+	expectedMaxNanos := defaultResponseSeconds
 	if err != nil {
 		return &esi.PriceMap{}, err
 	}

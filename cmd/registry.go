@@ -24,9 +24,10 @@ import (
 	"os"
 )
 
+// registryInfo is the registry config details.
 var registryInfo esi.DerRegistryInfo
 
-// registryCmd represents the registry command
+// registryCmd represents the registry command.
 var registryCmd = &cobra.Command{
 	Use:   "registry",
 	Short: "Manage Registry instances.",

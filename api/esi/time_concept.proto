@@ -20,7 +20,9 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
-// A conceptual time.
+/**
+ * A conceptual time.
+ */
 enum TimeConcept {
 
   // The "most recently available" information.

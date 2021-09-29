@@ -25,7 +25,7 @@ option go_package = "github.com/elijahjpassmore/api/esi";
  */
 message DerFacilityRegistrationFormRequest {
 
-  // The UID of the DerFacilityExchage to get the registration form for.
+  // The UID of the DerFacilityExchange to get the registration form for.
   //string exchange_uid = 1;
   string public_key = 1;
 

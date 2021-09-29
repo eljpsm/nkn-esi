@@ -48,20 +48,44 @@ var (
 	// facilityCharacteristics are the characteristics of the currently stored facilities engaged in a facility role.
 	facilityCharacteristics = make(map[string]*esi.DerCharacteristics)
 
-	// auto accept details
+	// autoMoney is the money interface used for auto purchasing.
 	autoMoney = esi.Money{
-		CurrencyCode: "NZD",
+		CurrencyCode: "USD",
 		Units:        100,
 		Nanos:        0,
 	}
+	// avoidMoney is the money interface used for avoid purchasing. Currently, this is not used.
 	avoidMoney = esi.Money{
-		CurrencyCode: "NZD",
+		CurrencyCode: "USD",
 		Units:        1000,
 		Nanos:        0,
 	}
+	// autoPrice is the price parameters used for auto purchasing.
 	autoPrice = esi.PriceParameters{
 		AlwaysBuyBelowPrice: &autoMoney,
-		AvoidBuyOverPrice:   &avoidMoney,
+		AvoidBuyOverPrice:   &avoidMoney, // unused!
+	}
+
+	// voltageRange is the voltage range in volts.
+	voltageRange = esi.SignedInt32Range{
+		Min: 117,
+		Max: 123,
+	}
+	// powerFactorRange is the power factor rage.
+	powerFactorRange = esi.FloatRange{
+		Min: 0.9,
+		Max: 1.02,
+	}
+	// frequencyRange is the frequency range in hertz.
+	frequencyRange = esi.SignedInt32Range{
+		Min: 59,
+		Max: 61,
+	}
+	//powerParameters is the expected power parameters.
+	powerParameters = esi.PowerParameters{
+		VoltageRange:     &voltageRange,
+		PowerFactorRange: &powerFactorRange,
+		FrequencyRange:   &frequencyRange,
 	}
 )
 
@@ -75,9 +99,11 @@ func coordinationNodeShell() {
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
-	go coordinationNodeMessageReceiver()
+	go coordinationNodeMessageReceiver() // receive incoming messages
 	wg.Add(2)
-	go coordinationNodeInputReceiver()
+	go coordinationNodeInputReceiver() // receive user input
+	wg.Add(3)
+	go coordinationNodePeriodicMessenger() // send regular information to any facilities
 
 	wg.Wait()
 }

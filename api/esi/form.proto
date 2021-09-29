@@ -22,7 +22,9 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 
 import "api/esi/form_setting.proto";
 
-// A dynamic data-entry form.
+/**
+ * A dynamic data-entry form.
+ */
 message Form {
 
   // A unique identifier for this form.

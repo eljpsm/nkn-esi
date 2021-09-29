@@ -25,7 +25,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// coordinationNodeInitCmd represents the coordinationNodeInitCmd command
+// coordinationNodeInitCmd represents the coordinationNodeInitCmd command.
 var coordinationNodeInitCmd = &cobra.Command{
 	Use:   "init <name>",
 	Short: "Quickly create a new coordination node configuration and key pair",

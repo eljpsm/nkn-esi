@@ -22,7 +22,9 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 
 import "google/protobuf/timestamp.proto";
 
-// A timestamp range.
+/**
+ * A timestamp range.
+ */
 message TimestampRange {
 
   // The minimum date (inclusive).

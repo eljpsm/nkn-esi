@@ -25,28 +25,12 @@ import "api/esi/price_map.proto";
 import "api/esi/uuid.proto";
 import "api/esi/node_type.proto";
 
-// A response to an offer on a price map.
-//
-// An offer response is considered "final" if the `accept` field is set to
-// true or false. Otherwise, the `counter_offer` must be populated with a 
-// proposed counter offer and the offer is considered "pending" still.
+/**
+ * A response to an offer on a price map.
+ */
 message PriceMapOfferResponse {
 
   // The routing info.
-  //
-  // The MessageSignature of the route must include the following:
-  //
-  // * `exchange_uid` UTF-8 bytes
-  // * `facility_uid` UTF-8 bytes
-  // * `offer_id.hi` big-endian encoded bytes
-  // * `offer_id.lo` big-endian encoded bytes
-  //
-  // Then, if the response is "final":
-  //  
-  // * `accepted` 0x01 for true, 0x00 for false
-  // 
-  // Otherwise, when the response has a counter offer, then all the 
-  // `price_map` properties defined in price_map.proto must be included.
   DerRoute route = 1;
 
   // The previous offer ID. If there is none, then this is nil.

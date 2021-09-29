@@ -23,7 +23,9 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 import "api/esi/float_range.proto";
 import "api/esi/signed_int32_range.proto";
 
-// Parameters relating to power characteristics.
+/**
+ * Parameters relating to power characteristics.
+ */
 message PowerParameters {
 
   // The voltage range, in volts (V).
