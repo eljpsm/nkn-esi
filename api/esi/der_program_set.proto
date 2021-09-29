@@ -28,11 +28,7 @@ import "api/esi/der_route.proto";
  */
 message DerProgramSet {
 
-  // The route info.
-  //
-  // The MessageSignature of the route must include the following:
-  // `exchange_uid` UTF-8 bytes, `facility_uid` UTF-8 bytes, all `type.number`
-  // values in message order as big-endian encoded bytes.
+  // The route information.
   DerRoute route = 1;
 
   // The DER program types.

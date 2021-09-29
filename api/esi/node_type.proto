@@ -19,8 +19,13 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
+/**
+ * A node type descriptor.
+ */
 message NodeType {
 
+  // The role of the node expected, either facility or exchange.
+  // None is 0 to keep data through transit.
   enum NodeType {
     NONE = 0;
     FACILITY = 1;

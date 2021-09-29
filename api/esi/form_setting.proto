@@ -20,14 +20,18 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
-// Request criteria for datum.
+/**
+ * Request criteria for datum.
+ */
 message FormSetting {
 
   // Enumeration of possible form setting types.
+  // None is 0 to keep data through transit.
   enum FormSettingType {
-    INFO = 0;
-    TEXT = 1;
-    SECURE_TEXT = 2;
+    NONE = 0;
+    INFO = 1;
+    TEXT = 2;
+    SECURE_TEXT = 3;
   }
 
   // The type of setting.

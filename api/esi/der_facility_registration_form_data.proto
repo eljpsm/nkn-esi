@@ -28,36 +28,8 @@ import "api/esi/der_route.proto";
  */
 message DerFacilityRegistrationFormData {
 
-  // The UID of the DerFacilityExchange to register with and a facility-
-  // provided unique ID that the exchange can refer to the facility by.
-  // 
-  // The exchange ID value will have been previously provided via a
-  // `DerFacilityRegistrationForm` message.
-  // 
-  // The facility ID must be unique at least within the domain represented by
-  // `facility_endpoint_uri`. That is, the ID must be unique within the facility.
-  // This ID is defined externally to this API. If a facility is directly
-  // connected to an exchange, the facility might generate its own unique ID,
-  // for example as a UUID. If a facility sits behind a proxy or aggregator
-  // service, then the proxy or aggregator service might be responsible for
-  // generating unique IDs. In that case, this facility must provide some
-  // external method of obtaining its ID from that service. For example, when an
-  // EV charger first boots it might come pre-configured to register itself with
-  // a proxy service, or prompt for registration with a proxy service; either
-  // way it obtains its facility ID which is then passed to the exchange here.
-  //
-  // Note that the MessageSignature of the route must include the 
-  // `facility_endpoint_uri` UTF-8 bytes and `facility_nonce` values. The 
-  // recipient's public key should already have been obtained by the facility,
-  // and the facility's public key is included in this message.
+  // The routing information.
   DerRoute route = 1;
-
-  // The gRPC compliant URI the exchange can access the facility on.
-  // 
-  // This endpoint might be a direct connection to the facility submitting the
-  // registration form, or it might be a proxy facility that manages the ESI
-  // service on behalf of the facility submitting the registration form.
-  // string facility_endpoint_uri = 2;
 
   // A cryptographic set of random bytes to use with registration.
   // 

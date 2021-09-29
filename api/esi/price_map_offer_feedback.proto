@@ -23,7 +23,9 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 import "api/esi/der_route.proto";
 import "api/esi/uuid.proto";
 
-// Status information for a price map offer.
+/**
+ * Status information for a price map offer.
+ */
 message PriceMapOfferFeedback {
 
   // The routing info.
@@ -33,7 +35,7 @@ message PriceMapOfferFeedback {
   Uuid offer_id = 2;
 
   // Enumeration of possible obligation status values.
-  // None is empty because protocol buffer transit reads 0 as nil.
+  // None is 0 to keep data through transit.
   enum ObligationStatus {
     NONE = 0;
     UNKNOWN = 1;

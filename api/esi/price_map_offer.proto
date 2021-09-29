@@ -26,20 +26,12 @@ import "api/esi/price_map.proto";
 import "api/esi/uuid.proto";
 import "api/esi/node_type.proto";
 
-// An offer on a price map.
+/**
+ * An offer on a price map.
+ */
 message PriceMapOffer {
 
   // The routing info.
-  //
-  // The MessageSignature of the route must include the following:
-  //
-  // * `exchange_uid` UTF-8 bytes
-  // * `facility_uid` UTF-8 bytes
-  // * `offer_id.hi` big-endian encoded bytes
-  // * `offer_id.lo` big-endian encoded bytes
-  // * `when.seconds` big-endian encoded bytes
-  // * `when.nanos` big-endian encoded bytes
-  // * all `price_map` properties defined in price_map.proto
   DerRoute route = 1;
 
   // The globally unique ID of this offer.

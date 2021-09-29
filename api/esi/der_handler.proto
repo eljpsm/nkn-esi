@@ -54,7 +54,9 @@ import 'api/esi/der_power_parameters_request.proto';
 //
 // For information on calling behaviour, consult der_facility_service.go.
 
-// A message received by a Registry.
+/**
+ * A message received by a registry.
+ */
 message RegistryMessage {
 
   oneof chunk {
@@ -68,7 +70,9 @@ message RegistryMessage {
 
 }
 
-// A message received by a Facility.
+/**
+ * A message received by a facility.
+ */
 message CoordinationNodeMessage {
 
   oneof chunk {

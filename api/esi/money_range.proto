@@ -22,7 +22,9 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 
 import "api/esi/money.proto";
 
-// A money range.
+/**
+ * A money range.
+ */
 message MoneyRange {
 
   // The minimum value.

@@ -23,7 +23,9 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 import "api/esi/uuid.proto";
 import "api/esi/der_route.proto";
 
-// Response to a price map feedback request.
+/**
+ * Response to a price map feedback request.
+ */
 message PriceMapOfferFeedbackResponse {
 
   DerRoute route = 1;

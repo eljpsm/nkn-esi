@@ -19,7 +19,14 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
+/**
+ * Information associated with a registry.
+ */
 message DerRegistryInfo {
+
+  // A human-friendly name.
   string name = 1;
+
+  // The public key.
   string public_key = 2;
 }

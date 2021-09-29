@@ -20,7 +20,9 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
-// A UUID.
+/**
+ * A UUID.
+ */
 message Uuid {
 
   // A canonical RFC-4122 string representation.

@@ -23,18 +23,12 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 import "api/esi/der_route.proto";
 import "api/esi/price_map.proto";
 
-// Characteristics of a price map.
+/**
+ * Characteristics of a price map.
+ */
 message PriceMapCharacteristics {
 
   // The routing info.
-  //
-  // The MessageSignature of the route must include the following:
-  //
-  // * `exchange_uid` UTF-8 bytes
-  // * `facility_uid` UTF-8 bytes
-  // 
-  // Then for each `price_map` the properties defined in price_map.proto
-  // must be included.
   DerRoute route = 1;
 
   // The price maps on offer.

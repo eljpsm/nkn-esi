@@ -29,12 +29,6 @@ import "api/esi/duration_range.proto";
 message DerCharacteristics {
 
   // The routing info.
-  //
-  // The MessageSignature of the route must include the following:
-  // `exchange_uid` UTF-8 bytes, `facility_uid` UTF-8 bytes, all scalar value
-  // of this message in message order as big-endian encoded bytes. The scalar 
-  // values of the embedded messages types in `response_time` must be included
-  // following these same rules.
   DerRoute route = 1;
 
   // The maximum load this resource can demand, in W.

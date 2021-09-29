@@ -20,7 +20,9 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
-// Data associated with a dynamic data-entry form.
+/**
+ * Data associated with a dynamic data-entry form.
+ */
 message FormData {
 
   // The unique identifier of the Form this data is associated with.

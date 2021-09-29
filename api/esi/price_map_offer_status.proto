@@ -23,24 +23,19 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 import "api/esi/der_route.proto";
 import "api/esi/uuid.proto";
 
-// Status information for a price map offer.
+/**
+ * Status information for a price map offer.
+ */
 message PriceMapOfferStatus {
 
   // The routing info.
-  //
-  // The MessageSignature of the route must include the following:
-  //
-  // * `exchange_uid` UTF-8 bytes
-  // * `facility_uid` UTF-8 bytes
-  // * `offer_id.hi` big-endian encoded bytes
-  // * `offer_id.lo` big-endian encoded bytes
-  // * `status` ordinal value as big-endian encoded bytes
   DerRoute route = 1;
 
   // The globally unique ID of the offer this status is for.
   Uuid offer_id = 2;
 
-  // None is empty because protocol buffer transit reads 0 as nil.
+  // The status of an offer.
+  // None is 0 to keep data through transit.
   enum Status {
     NONE = 0;
     UNKNOWN = 1;

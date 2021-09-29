@@ -22,7 +22,9 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 
 import "api/esi/money.proto";
 
-// Defines a price in terms of power characteristics.
+/**
+ * Defines a price in terms of power characteristics.
+ */
 message PriceComponents {
 
   // The price per volt-amp hours (VAh).

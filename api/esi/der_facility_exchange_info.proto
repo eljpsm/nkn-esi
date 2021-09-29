@@ -30,17 +30,10 @@ message DerFacilityExchangeInfo {
   // A human-friendly name.
   string name = 1;
 
-  // A globally-unique identifier for use by machines.
-  //string uid = 2;
+  // The associated public key.
   string public_key = 2;
 
-  // The gRPC compliant URI to access the exchange service at.
-  //string endpoint_uri = 3;
-
-  // A primary location related to this exchange.
-  //Location location = 4;
+  // The location of the facility.
   Location location = 3;
-
-  //repeated string known_facilities = 4;
 
 }

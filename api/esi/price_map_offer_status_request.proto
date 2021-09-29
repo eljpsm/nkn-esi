@@ -23,7 +23,9 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 import "api/esi/der_route.proto";
 import "api/esi/uuid.proto";
 
-// A price map status request.
+/**
+ * A price map status request.
+ */
 message PriceMapOfferStatusRequest {
 
   // The routing info.

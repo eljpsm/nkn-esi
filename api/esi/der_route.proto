@@ -25,7 +25,10 @@ option go_package = "github.com/elijahjpassmore/api/esi";
  */
 message DerRoute {
 
+  // The key associated with the facility role.
   string facility_key = 1;
+
+  // The key associated with the exchange role.
   string exchange_key = 2;
 
 }

@@ -21,8 +21,12 @@ option go_package = "github.com/elijahjpassmore/api/esi";
 
 import "api/esi/der_route.proto";
 
+/**
+ * A request for price parameters.
+ */
 message DerPriceParametersRequest {
 
+  // The routing information.
   DerRoute route = 1;
 
 }

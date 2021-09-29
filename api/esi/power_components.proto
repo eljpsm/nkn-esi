@@ -20,7 +20,9 @@ package api.esi;
 
 option go_package = "github.com/elijahjpassmore/api/esi";
 
-// Components of power.
+/**
+ * Components of power.
+ */
 message PowerComponents {
 
   // The real power component to add, if positive, or reduce, if negative, in watts (W).
