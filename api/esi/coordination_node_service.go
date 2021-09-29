@@ -21,7 +21,9 @@ import (
 	"github.com/nknorg/nkn-sdk-go"
 )
 
-// der_facility_service.go
+// coordination_node_service.go
+//
+// This implements the functionality defined by the facility and exchange ESI API.
 //
 // The functions contained here can be thought of as the calling functions.
 //
