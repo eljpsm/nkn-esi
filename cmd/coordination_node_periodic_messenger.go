@@ -73,14 +73,17 @@ func coordinationNodePeriodicMessenger() {
 		}
 
 		// Look at current offers.
-		for _, offer := range priceMapOffers {
+		for uuid, offer := range priceMapOffers {
 			// Actions specifically relating to the facility.
-			log.Info(offer)
 			if offer.Route.GetFacilityKey() == coordinationNodeInfo.GetPublicKey() {
 
 				// If the offer has been accepted, then check to see if the time expected has passed.
 				if priceMapOfferStatus[offer.OfferId.Uuid].Status == esi.PriceMapOfferStatus_ACCEPTED && offer.When.Seconds <= unixSeconds() {
 					priceMapOfferStatus[offer.OfferId.Uuid].Status = esi.PriceMapOfferStatus_EXECUTING
+
+					log.WithFields(log.Fields{
+						"uuid": uuid,
+					}).Info("Offer is executing")
 				}
 			}
 
@@ -89,6 +92,10 @@ func coordinationNodePeriodicMessenger() {
 				// The time when is in nanoseconds, and duration is in seconds.
 				if (offer.When.Seconds + offer.PriceMap.Duration.Seconds) <= unixSeconds() {
 					priceMapOfferStatus[offer.OfferId.Uuid].Status = esi.PriceMapOfferStatus_COMPLETED
+
+					log.WithFields(log.Fields{
+						"uuid": uuid,
+					}).Info("Offer has completed")
 
 					// Create a new feedback.
 					newFeedback := esi.PriceMapOfferFeedback{

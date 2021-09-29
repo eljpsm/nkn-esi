@@ -383,6 +383,12 @@ func coordinationNodeMessageReceiver() {
 					Accepted: true,
 				}
 
+				log.WithFields(log.Fields{
+					"src":   msg.Src,
+					"uuid": x.GetPriceMapOfferFeedback.OfferId.Uuid,
+				}).Info("Offer has completed")
+				priceMapOfferStatus[x.GetPriceMapOfferFeedback.OfferId.Uuid].Status = esi.PriceMapOfferStatus_COMPLETED
+
 				err := esi.ProvidePriceMapOfferFeedback(coordinationNodeClient, &response)
 				if err != nil {
 					log.Error(err.Error())
