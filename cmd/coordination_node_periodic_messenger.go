@@ -74,7 +74,6 @@ func coordinationNodePeriodicMessenger() {
 
 		// Look at current offers.
 		for _, offer := range priceMapOffers {
-			log.Info("FOUND")
 			// Actions specifically relating to the facility.
 			if offer.Route.GetFacilityKey() == coordinationNodeInfo.GetPublicKey() {
 

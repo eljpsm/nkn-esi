@@ -104,6 +104,10 @@ func coordinationNodeInputReceiver() {
 			if err != nil {
 				log.Error(err.Error())
 			}
+
+			log.WithFields(log.Fields{
+				"dest": publicKey,
+			}).Info("Signed up to registry")
 		},
 	})
 	coordinationNodeRegistryShellCmd.AddCmd(&ishell.Cmd{
@@ -134,6 +138,10 @@ func coordinationNodeInputReceiver() {
 			if err != nil {
 				log.Error(err.Error())
 			}
+
+			log.WithFields(log.Fields{
+				"dest": registryPublicKey,
+			}).Info("Query registry")
 		},
 	})
 
@@ -531,6 +539,10 @@ func coordinationNodeInputReceiver() {
 			if err != nil {
 				log.Error(err.Error())
 			}
+
+			log.WithFields(log.Fields{
+				"dest": publicKey,
+			}).Info("Sent proposal")
 		},
 	})
 
