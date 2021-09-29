@@ -33,14 +33,19 @@ const (
 	// defaultCountry is the default country to look for in a query.
 	defaultCountry = "DC"
 
+	//defaultWhen is the default time in seconds to pass for an offer to be executed.
+	defaultWhen = 7
+	// defaultDuration is the default time it takes for an offer to be completed.
+	defaultDuration = 15
+
 	// defaultRealPower is the default value used for real power when creating a price map.
 	defaultRealPower = "10"
 	// defaultReactivePower is the default value used for reactive power when creating a price map.
 	defaultReactivePower = "10"
 	// defaultUnits  is the default value used for units when creating a price map.
 	defaultUnits = "100"
-	// defaultSeconds is the default value used for time measurement when creating a price map.
-	defaultSeconds = 1
+	// defaultSeconds is the default response value used for time measurement when creating a price map.
+	defaultResponseSeconds = 1
 )
 
 // coordinationNodeInputReceiver receives and returns any facility inputs.
@@ -399,7 +404,7 @@ func coordinationNodeInputReceiver() {
 				shell.Println("you cannot get your own details")
 				return
 			}
-			if !registeredFacilities[publicKey] {
+			if _, ok := registeredFacilities[publicKey]; !ok {
 				shell.Printf("no facility with public key: '%s'\n", publicKey)
 				return
 			}
@@ -478,7 +483,7 @@ func coordinationNodeInputReceiver() {
 				shell.Println("you cannot propose yourself an offer")
 				return
 			}
-			if !registeredFacilities[publicKey] {
+			if _, ok := registeredFacilities[publicKey]; !ok {
 				shell.Printf("no facility with public key: '%s'\n", publicKey)
 				return
 			}
@@ -505,7 +510,7 @@ func coordinationNodeInputReceiver() {
 			// There could be scenarios in which you need to send offers at some other interval, in which case you
 			// could use this field.
 			newTimeStamp := timestamppb.Timestamp{
-				Seconds: unixSeconds(),
+				Seconds: unixSeconds() + defaultWhen,
 				Nanos:   0,
 			}
 			newPriceMapOffer := esi.PriceMapOffer{
@@ -558,38 +563,6 @@ func coordinationNodeInputReceiver() {
 					infoMsgColorFunc(priceMapOfferStatus[v.OfferId.Uuid].Status))
 			}
 			shell.Println()
-		},
-	})
-	coordinationNodeFacilityShellCmd.AddCmd(&ishell.Cmd{
-		Name: "feedback",
-		Help: "get feedback on an offer",
-		Func: func(c *ishell.Context) {
-			shell.Print("Offer UUID: ")
-			uuid := c.ReadLine()
-			if priceMapOffers[uuid] == nil {
-				shell.Printf("no offer with the uuid '%s'\n", uuid)
-				return
-			}
-
-			// Getting feedback on offers is easy and just requires sending a feedback form, and then getting
-			// a response whether the obligation status is agreed on.
-			//
-			// In this demo, the obligation is always entered to be SATISFIED, and the response is always agreed. But
-			// in a real situation, this would be very useful to keep an automatic record of the relationship between
-			// two nodes.
-			//
-			// It is also assumed that the facility is the one that will be requesting agreement, and the exchange
-			// will then audit the feedback, either by checking manually or automatically. But this could be built in
-			// both directions, as well - the system is agnostic on whom the receiving and sending party is.
-			feedback := esi.PriceMapOfferFeedback{
-				Route:            priceMapOffers[uuid].Route,
-				OfferId:          priceMapOffers[uuid].OfferId,
-				ObligationStatus: 2,
-			}
-			err := esi.GetPriceMapOfferFeedback(coordinationNodeClient, &feedback)
-			if err != nil {
-				log.Error(err.Error())
-			}
 		},
 	})
 	coordinationNodeOffersShellCmd.AddCmd(&ishell.Cmd{
@@ -758,21 +731,19 @@ func newPriceMap(shell *ishell.Shell, c *ishell.Context, optRealPower string, op
 
 	// Create newDuration.
 	//
-	// In this demo, all price maps are immediately completed for simplicity.
-	durationSeconds := 0
-	durationNanos := 0
+	// In this demo, all price maps are completed in 15 seconds.
 	newDuration := duration.Duration{
-		Seconds: int64(durationSeconds),
-		Nanos:   int32(durationNanos),
+		Seconds: defaultDuration,
+		Nanos:   0,
 	}
 
 	// Create newDurationRange.
 	//
 	// In this demo, the response time is assumed to be immediate.
-	expectedMinSeconds := defaultSeconds
-	expectedMinNanos := defaultSeconds
-	expectedMaxSeconds := defaultSeconds
-	expectedMaxNanos := defaultSeconds
+	expectedMinSeconds := defaultResponseSeconds
+	expectedMinNanos := defaultResponseSeconds
+	expectedMaxSeconds := defaultResponseSeconds
+	expectedMaxNanos := defaultResponseSeconds
 	if err != nil {
 		return &esi.PriceMap{}, err
 	}

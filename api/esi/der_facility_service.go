@@ -265,14 +265,14 @@ func SetPowerParameters(client *nkn.MultiClient, facilityKey string, parameters 
 	return nil
 }
 
-// GetPriceParameters returns the price parameters currently used by the service.
-func GetPriceParameters(client *nkn.MultiClient, request *DerPriceParametersRequest) error {
-	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_GetPriceParameters{GetPriceParameters: request}})
+// ListPrices sends regular location based price datum to a facility.
+func ListPrices(client *nkn.MultiClient, datum *PriceDatum) error {
+	data, err := proto.Marshal(&CoordinationNodeMessage{Chunk: &CoordinationNodeMessage_ListPrices{ListPrices: datum}})
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(request.Route.GetFacilityKey()), data, nil)
+	_, err = client.Send(nkn.NewStringArray(datum.Route.GetFacilityKey()), data, nil)
 	if err != nil {
 		return err
 	}

@@ -128,7 +128,7 @@ message CoordinationNodeMessage {
     PowerParameters SetPowerParameters = 21;
 
     // Send price parameters.
-    DerPriceParametersRequest GetPriceParameters = 22;
+    PriceDatum ListPrices = 22;
   }
 
 }

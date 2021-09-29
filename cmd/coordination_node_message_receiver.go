@@ -193,6 +193,12 @@ func coordinationNodeMessageReceiver() {
 				"param": x.SetPowerParameters,
 			}).Info("Set power parameters")
 
+		case *esi.CoordinationNodeMessage_ListPrices:
+			log.WithFields(log.Fields{
+				"src": msg.Src,
+				"price": x.ListPrices.PriceComponents.ApparentEnergyPrice.Units,
+			}).Info("Received price datum")
+
 		case *esi.CoordinationNodeMessage_GetResourceCharacteristics:
 			// Check to make sure that the source is the registered exchange.
 			if registeredExchange == msg.Src {
@@ -215,7 +221,7 @@ func coordinationNodeMessageReceiver() {
 
 		case *esi.CoordinationNodeMessage_SendResourceCharacteristics:
 			// Check to make sure that the source is a registered facility.
-			if registeredFacilities[msg.Src] == true {
+			if _, ok := registeredFacilities[msg.Src]; ok {
 				facilityCharacteristics[msg.Src] = x.SendResourceCharacteristics
 
 				log.WithFields(log.Fields{
@@ -238,7 +244,7 @@ func coordinationNodeMessageReceiver() {
 
 		case *esi.CoordinationNodeMessage_SendPriceMap:
 			// Check to make sure that the source is a registered facility.
-			if registeredFacilities[msg.Src] == true {
+			if _, ok := registeredFacilities[msg.Src]; ok {
 				facilityPriceMaps[msg.Src] = x.SendPriceMap
 
 				log.WithFields(log.Fields{
@@ -247,8 +253,9 @@ func coordinationNodeMessageReceiver() {
 			}
 
 		case *esi.CoordinationNodeMessage_ProposePriceMapOffer:
-			// Check to make sure that the source is the registered exchange.
-			if registeredExchange == msg.Src || registeredFacilities[msg.Src] == true {
+			// Check to make sure that the source is the registered exchange or facility.
+			_, ok := registeredFacilities[msg.Src]
+			if registeredExchange == msg.Src || ok {
 				log.Info("RECEIVED PROPOSE OFFER")
 				if x.ProposePriceMapOffer.PriceMap.Price.ApparentEnergyPrice.Units < autoPrice.AlwaysBuyBelowPrice.Units {
 					// If the offer is below our auto accept, just accept the offer.
@@ -355,17 +362,16 @@ func coordinationNodeMessageReceiver() {
 			//
 			// In a real situation, getting feedback on a response (either manually or automatically) is very powerful,
 			// this is just to show the capability.
-			if registeredFacilities[msg.Src] == true {
+			if _, ok := registeredFacilities[msg.Src]; ok {
 				log.WithFields(log.Fields{
 					"src":   msg.Src,
 					"claim": x.GetPriceMapOfferFeedback.ObligationStatus,
 				}).Info("Received offer feedback")
 
-				agreement := true
 				response := esi.PriceMapOfferFeedbackResponse{
 					Route:    x.GetPriceMapOfferFeedback.Route,
 					OfferId:  x.GetPriceMapOfferFeedback.OfferId,
-					Accepted: agreement,
+					Accepted: true,
 				}
 
 				err := esi.ProvidePriceMapOfferFeedback(coordinationNodeClient, &response)
