@@ -481,6 +481,12 @@ func coordinationNodeInputReceiver() {
 			}
 		},
 	})
+	coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
+		Name: "set-dynamic",
+		Help: "set the power parameters of a facility",
+		Func: func(c *ishell.Context) {
+		},
+	})
 	shell.AddCmd(coordinationNodeExchangeShellCmd)
 	coordinationNodeExchangeShellCmd.AddCmd(&ishell.Cmd{
 		Name: "propose",
