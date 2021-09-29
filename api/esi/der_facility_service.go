@@ -107,13 +107,13 @@ func GetPriceMap(client *nkn.MultiClient, request *DerPriceMapRequest) error {
 	return nil
 }
 
-func SendPriceMap(client *nkn.MultiClient, customerKey string, priceMap *PriceMap) error {
+func SendPriceMap(client *nkn.MultiClient, exchangeKey string, priceMap *PriceMap) error {
 	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SendPriceMap{SendPriceMap: priceMap}})
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Send(nkn.NewStringArray(customerKey), data, nil)
+	_, err = client.Send(nkn.NewStringArray(exchangeKey), data, nil)
 	if err != nil {
 		return err
 	}
@@ -197,46 +197,76 @@ func ProvidePriceMapOfferFeedback(client *nkn.MultiClient, response *PriceMapOff
 }
 
 // ProvidePrices provides pricing data to the Facility.
-func ProvidePrices(client *nkn.MultiClient, datum PriceDatum) error {
-	// data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProvidePrices{ProvidePrices: &datum}})
-	// if err != nil {
-	// 	return err
-	// }
+func ProvidePrices(client *nkn.MultiClient, datum *PriceDatum) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ProvidePrices{ProvidePrices: datum}})
+	if err != nil {
+		return err
+	}
 
-	// _, err = client.Send(nkn.NewStringArray(datum.Route.GetProducerKey()), data, nil)
-	// if err != nil {
-	// 	return err
-	// }
+	_, err = client.Send(nkn.NewStringArray(datum.Route.GetFacilityKey()), data, nil)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
 // ListPowerProfile returns a list of power profile datum over a time range.
-func ListPowerProfile(client *nkn.MultiClient, datum DatumRequest) error {
-	// data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ListPowerProfile{ListPowerProfile: &datum}})
-	// if err != nil {
-	// 	return err
-	// }
+func ListPowerProfile(client *nkn.MultiClient, datum *DatumRequest) error {
+	 data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_ListPowerProfile{ListPowerProfile: datum}})
+	 if err != nil {
+	 	return err
+	 }
 
-	// _, err = client.Send(nkn.NewStringArray(datum.Route.GetProducerKey()), data, nil)
-	// if err != nil {
-	// 	return err
-	// }
+	 _, err = client.Send(nkn.NewStringArray(datum.Route.GetExchangeKey()), data, nil)
+	 if err != nil {
+	 	return err
+	 }
 
 	return nil
 }
 
 // GetPowerParameters gets the power parameters currently used by the services.
-func GetPowerParameters(client *nkn.MultiClient, route DerRoute) error {
+func GetPowerParameters(client *nkn.MultiClient, request *DerPowerParametersRequest) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_GetPowerParameters{GetPowerParameters: request}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(request.Route.GetExchangeKey()), data, nil)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // SetPowerParameters sets the power parameters, and then returns the power parameters active after the request.
-func SetPowerParameters(client *nkn.MultiClient, parameters PowerParameters) error {
+func SetPowerParameters(client *nkn.MultiClient, facilityKey string, parameters *PowerParameters) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_SetPowerParameters{SetPowerParameters: parameters}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(facilityKey), data, nil)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // GetPriceParameters returns the price parameters currently used by the service.
-func GetPriceParameters(client *nkn.MultiClient, route DerRoute) error {
+func GetPriceParameters(client *nkn.MultiClient, request *DerPriceParametersRequest) error {
+	data, err := proto.Marshal(&FacilityMessage{Chunk: &FacilityMessage_GetPriceParameters{GetPriceParameters: request}})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Send(nkn.NewStringArray(request.Route.GetFacilityKey()), data, nil)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

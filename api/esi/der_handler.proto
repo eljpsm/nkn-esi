@@ -36,10 +36,11 @@ import "api/esi/price_map_offer_feedback.proto";
 import "api/esi/price_map_offer_status.proto";
 import "api/esi/datum_request.proto";
 import "api/esi/price_datum.proto";
-import "api/esi/der_route.proto";
 import "api/esi/power_parameters.proto";
 import "api/esi/price_map_offer_response.proto";
 import "api/esi/price_map_offer_feedback_response.proto";
+import 'api/esi/der_power_parameters_request.proto';
+import "api/esi/der_price_parameters_request.proto";
 
 // A message received by a Registry.
 message RegistryMessage {
@@ -81,6 +82,11 @@ message FacilityMessage {
     PriceMapOfferFeedback GetPriceMapOfferFeedback = 15;
     PriceMapOfferStatus ProvidePriceMapOfferStatus = 16;
     PriceMapOfferFeedbackResponse ProvidePriceMapOfferFeedback = 17;
+    PriceDatum ProvidePrices = 18;
+    DatumRequest ListPowerProfile = 19;
+    DerPowerParametersRequest GetPowerParameters = 20;
+    PowerParameters SetPowerParameters = 21;
+    DerPriceParametersRequest GetPriceParameters = 22;
   }
 
 }
