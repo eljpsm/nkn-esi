@@ -13,6 +13,8 @@ to a range of entities responsible for aspects of grid stability.
 
 [Click here to see a video demonstration](https://drive.google.com/file/d/103IsC3i0tndgEddMbZZzCaem3Lff52ny/view?usp=sharing).
 
+Winner of [Open innovative app on NKN (3rd prize)](https://nkn.org/community/blog/nkn-gitcoin-gr-11-hackathon-winners-announced/).
+
 ## Previous Work
 
 A previous application of this ESI which leverages the same protobuf structures can be found at
